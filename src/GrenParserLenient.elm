@@ -1763,44 +1763,45 @@ choiceTypeDefinitionWithoutDocumentationAfterTypePrefix =
 variantDeclarationFollowedByWhitespaceAndComments : Parser (WithComments (GrenSyntax.Node GrenSyntax.ValueConstructor))
 variantDeclarationFollowedByWhitespaceAndComments =
     ParserFast.map3
-        (\nameNode commentsAfterName argumentsReverse ->
+        (\nameNode commentsAfterName maybeValue ->
             let
                 (GrenSyntax.Node nameRange _) =
                     nameNode
 
                 fullRange : GrenSyntax.Range
                 fullRange =
-                    case argumentsReverse.syntax of
-                        (GrenSyntax.Node lastArgRange _) :: _ ->
+                    case maybeValue.syntax of
+                        Just (GrenSyntax.Node lastArgRange _) ->
                             { start = nameRange.start, end = lastArgRange.end }
 
-                        [] ->
+                        Nothing ->
                             nameRange
             in
             { comments =
                 commentsAfterName
-                    |> ropePrependTo argumentsReverse.comments
+                    |> ropePrependTo maybeValue.comments
             , syntax =
                 GrenSyntax.Node fullRange
                     { name = nameNode
-                    , arguments = List.reverse argumentsReverse.syntax
+                    , arguments = maybeValue.syntax
                     }
             }
         )
         nameUppercaseNode
         whitespaceAndComments
-        (manyWithCommentsReverse
+        (ParserFast.orSucceed
             (positivelyIndentedFollowedBy
                 (ParserFast.map2
                     (\typeAnnotationResult commentsAfter ->
                         { comments = typeAnnotationResult.comments |> ropePrependTo commentsAfter
-                        , syntax = typeAnnotationResult.syntax
+                        , syntax = Just typeAnnotationResult.syntax
                         }
                     )
                     typeNotSpaceSeparated
                     whitespaceAndComments
                 )
             )
+            { comments = ropeEmpty, syntax = Nothing }
         )
 
 
@@ -4134,7 +4135,7 @@ patternParenthesizedOrOldUnit =
                 }
             )
             whitespaceAndComments
-            -- yes, (  ) is a valid pattern in the old elm syntax but not a valid type or expression
+            -- yes, (  ) was a valid pattern in the old elm syntax but not a valid type or expression
             (ParserFast.oneOf2
                 (ParserFast.symbol ")" { comments = ropeEmpty, syntax = GrenSyntax.PatternUnit })
                 (ParserFast.map2
@@ -4303,10 +4304,10 @@ qualifiedPatternWithConsumeArgs =
                 range : GrenSyntax.Range
                 range =
                     case argsReverse.syntax of
-                        [] ->
+                        Nothing ->
                             nameRange
 
-                        (GrenSyntax.Node lastArgRange _) :: _ ->
+                        Just (GrenSyntax.Node lastArgRange _) ->
                             { start = nameRange.start, end = lastArgRange.end }
             in
             { comments = afterStartName |> ropePrependTo argsReverse.comments
@@ -4314,22 +4315,21 @@ qualifiedPatternWithConsumeArgs =
                 GrenSyntax.Node range
                     (GrenSyntax.PatternVariant
                         name
-                        (List.reverse argsReverse.syntax)
+                        argsReverse.syntax
                     )
             }
         )
         qualifiedNameRefNode
         whitespaceAndComments
-        (manyWithCommentsReverse
-            (ParserFast.map2
-                (\arg commentsAfterArg ->
-                    { comments = arg.comments |> ropePrependTo commentsAfterArg
-                    , syntax = arg.syntax
-                    }
-                )
-                patternNotSpaceSeparated
-                whitespaceAndComments
+        (ParserFast.map2OrSucceed
+            (\arg commentsAfterArg ->
+                { comments = arg.comments |> ropePrependTo commentsAfterArg
+                , syntax = Just arg.syntax
+                }
             )
+            patternNotSpaceSeparated
+            whitespaceAndComments
+            { comments = ropeEmpty, syntax = Nothing }
         )
 
 
@@ -4365,7 +4365,7 @@ qualifiedPatternWithoutConsumeArgs =
                             Just ( qualificationAfter, unqualified ) ->
                                 { moduleName = firstName :: qualificationAfter, name = unqualified }
                         )
-                        []
+                        Nothing
                     )
             }
         )

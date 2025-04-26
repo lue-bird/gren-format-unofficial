@@ -161,7 +161,7 @@ type alias Type =
 -}
 type alias ValueConstructor =
     { name : Node String
-    , arguments : List (Node TypeAnnotation)
+    , arguments : Maybe (Node TypeAnnotation)
     }
 
 
@@ -371,7 +371,7 @@ type Pattern
     | PatternListCons (Node Pattern) (Node Pattern)
     | PatternListExact (List (Node Pattern))
     | PatternVariable String
-    | PatternVariant QualifiedNameRef (List (Node Pattern))
+    | PatternVariant QualifiedNameRef (Maybe (Node Pattern))
     | PatternAs (Node Pattern) (Node String)
     | PatternParenthesized (Node Pattern)
 

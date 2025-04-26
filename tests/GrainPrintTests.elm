@@ -831,19 +831,6 @@ type T a b
     = T a
 """
                 )
-            , Test.test "one parameter, one variant with multiple parameters"
-                (\() ->
-                    """module A exposing (..)
-type T a
-    = T a a"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-type T a
-    = T a a
-"""
-                )
             , Test.test "no parameter, one variant without parameters"
                 (\() ->
                     """module A exposing (..)
@@ -855,24 +842,6 @@ type T
 
 type T
     = T
-"""
-                )
-            , Test.test "no parameter, one variant with multiple multiline parameters"
-                (\() ->
-                    """module A exposing (..)
-type T a
-    = T a (a
-    -> a)"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-type T a
-    = T
-        a
-        (a
-         -> a
-        )
 """
                 )
             , Test.test "no parameter, multiple variants without parameters"
@@ -1056,35 +1025,6 @@ type A
 
 type A
     = A {- 0 -} {- 1 -} Int
-"""
-                )
-            , Test.test "comments between variant parameters"
-                (\() ->
-                    """module A exposing (..)
-type A
-    = A Int {--} Int"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-type A
-    = A
-        Int
-        {--}
-        Int
-"""
-                )
-            , Test.test "consecutive collapsible comments between variant parameters"
-                (\() ->
-                    """module A exposing (..)
-type A
-    = A Int {- 0 -} {- 1 -} Int"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-type A
-    = A Int {- 0 -} {- 1 -} Int
 """
                 )
             ]

@@ -1658,10 +1658,10 @@ patternIsSpaceSeparated syntaxPattern =
 
         GrenSyntax.PatternVariant _ argumentPatterns ->
             case argumentPatterns of
-                [] ->
+                Nothing ->
                     False
 
-                _ :: _ ->
+                Just _ ->
                     True
 
         GrenSyntax.PatternAs _ _ ->
@@ -2190,7 +2190,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
             patternList syntaxComments
                 { fullRange = fullRange, elements = elementPatterns }
 
-        GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns ->
+        GrenSyntax.PatternVariant syntaxQualifiedNameRef maybeValue ->
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     patternParenthesizedIfSpaceSeparated
@@ -2203,7 +2203,13 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                         { qualification = syntaxQualifiedNameRef.moduleName
                         , unqualified = syntaxQualifiedNameRef.name
                         }
-                , arguments = argumentPatterns
+                , arguments =
+                    case maybeValue of
+                        Nothing ->
+                            []
+
+                        Just value ->
+                            [ value ]
                 }
 
         GrenSyntax.PatternAs aliasedPattern aliasNameNode ->
@@ -4582,7 +4588,13 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                     syntaxComments
                                     { start = variant.name |> GrenSyntax.nodeValue
                                     , fullRange = variantRange
-                                    , arguments = variant.arguments
+                                    , arguments =
+                                        case variant.arguments of
+                                            Nothing ->
+                                                []
+
+                                            Just value ->
+                                                [ value ]
                                     }
 
                             commentsVariantPrint : Print

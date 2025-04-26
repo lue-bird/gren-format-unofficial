@@ -277,7 +277,7 @@ sample33 =
     """
 module Lazy.List  exposing (..)
 
-type D = C a B
+type D = C B
 """
 
 
