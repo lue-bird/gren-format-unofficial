@@ -2244,7 +2244,7 @@ subExpression =
                     expressionStartingWithParensOpeningIfNecessaryFollowedByRecordAccess
 
                 "[" ->
-                    expressionListOrGlsl
+                    expressionArray
 
                 "{" ->
                     expressionRecordFollowedByRecordAccess
@@ -2490,54 +2490,9 @@ expressionFollowedByWhitespaceAndComments =
         )
 
 
-glslExpressionAfterOpeningSquareBracket : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-glslExpressionAfterOpeningSquareBracket =
-    ParserFast.symbolFollowedBy "glsl|"
-        (ParserFast.mapWithRange
-            (\range s ->
-                { comments = ropeEmpty
-                , syntax =
-                    GrenSyntax.Node
-                        -- TODO for v8: don't include extra end width (from bug in gren/parser) in range
-                        { start = { row = range.start.row, column = range.start.column - 6 }
-                        , end = { row = range.end.row, column = range.end.column + 2 }
-                        }
-                        (GrenSyntax.ExpressionGlsl s)
-                }
-            )
-            (ParserFast.loopUntil
-                (ParserFast.symbol "|]" ())
-                (ParserFast.oneOf2
-                    (ParserFast.symbol "|" "|")
-                    (ParserFast.while
-                        (\c ->
-                            case c of
-                                '|' ->
-                                    False
-
-                                _ ->
-                                    True
-                        )
-                    )
-                )
-                ""
-                (\extension soFar ->
-                    soFar ++ extension ++ ""
-                )
-                identity
-            )
-        )
-
-
-expressionListOrGlsl : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-expressionListOrGlsl =
-    ParserFast.symbolFollowedBy "[" expressionAfterOpeningSquareBracket
-
-
-expressionAfterOpeningSquareBracket : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-expressionAfterOpeningSquareBracket =
-    ParserFast.oneOf2
-        glslExpressionAfterOpeningSquareBracket
+expressionArray : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+expressionArray =
+    ParserFast.symbolFollowedBy "["
         (ParserFast.map2WithRange
             (\range commentsBefore elements ->
                 { comments = commentsBefore |> ropePrependTo elements.comments
@@ -3878,7 +3833,7 @@ literalExpressionOptimisticLayout =
 
 listOrGlslExpressionOptimisticLayout : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
 listOrGlslExpressionOptimisticLayout =
-    expressionListOrGlsl |> followedByOptimisticLayout
+    expressionArray |> followedByOptimisticLayout
 
 
 followedByOptimisticLayout : Parser (WithComments a) -> Parser (WithComments a)

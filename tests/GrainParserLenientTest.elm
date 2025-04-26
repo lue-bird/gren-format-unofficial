@@ -5878,14 +5878,6 @@ True -> 1"""
                         |> Maybe.map (\_ -> ())
                         |> Expect.equal (Just ())
                 )
-            , Test.test "glsl block"
-                (\() ->
-                    "[glsl| precision mediump float; |]"
-                        |> expectSyntaxWithoutComments GrenParserLenient.expression
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 37 } }
-                                (GrenSyntax.ExpressionGlsl " precision mediump float; ")
-                            )
-                )
             ]
         , Test.describe "pattern"
             [ Test.test "Unit"

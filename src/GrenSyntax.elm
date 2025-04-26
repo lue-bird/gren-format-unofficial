@@ -277,7 +277,6 @@ type Expression
     | ExpressionRecordAccess (Node Expression) (Node String)
     | ExpressionRecordAccessFunction String
     | ExpressionRecordUpdate (Node String) (List (Node RecordSetter))
-    | ExpressionGlsl String
 
 
 {-| Expression for setting a record field

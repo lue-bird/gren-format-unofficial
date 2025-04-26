@@ -5002,9 +5002,6 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionRecordUpdate _ _ ->
             False
 
-        GrenSyntax.ExpressionGlsl _ ->
-            False
-
 
 expressionParenthesizedIfSpaceSeparated :
     List (GrenSyntax.Node String)
@@ -5218,9 +5215,6 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 , fields = fields
                 }
 
-        GrenSyntax.ExpressionGlsl glsl ->
-            expressionGlsl glsl
-
 
 printExpressionNegation :
     List (GrenSyntax.Node String)
@@ -5274,19 +5268,6 @@ expressionIsBase16Zero expression =
 
         _ ->
             False
-
-
-expressionGlsl : String -> Print
-expressionGlsl glslContent =
-    Print.exactly "[glsl|"
-        |> Print.followedBy
-            (glslContent
-                |> String.lines
-                |> Print.listMapAndIntersperseAndFlatten
-                    Print.exactly
-                    Print.linebreak
-            )
-        |> Print.followedBy (Print.exactly "|]")
 
 
 floatLiteral : Float -> String

@@ -801,32 +801,7 @@ Used for rendering backgrounds (and maps?)
 import Math.Vector2 exposing (Vec2, vec2, fromTuple)
 import WebGL
 
-
--- From http://blog.tojicode.com/2012/07/sprite-tile-maps-on-gpu.html
-
-
-
-tileMapVertextShader : WebGL.Shader { attr | position : Vec2, texture : Vec2 } { uniform | viewOffset : Vec2, viewportSize : Vec2, inverseTileTextureSize : Vec2, inverseTileSize : Float } { pixelCoord : Vec2, texCoord : Vec2 }
-tileMapVertextShader =
-    [glsl|
-    precision mediump float;
-    attribute vec2 position;
-    attribute vec2 texture;
-
-    varying vec2 pixelCoord;
-    varying vec2 texCoord;
-
-    uniform vec2 viewOffset;
-    uniform vec2 viewportSize;
-    uniform vec2 inverseTileTextureSize;
-    uniform float inverseTileSize;
-
-    void main(void) {
-        pixelCoord = (texture * viewportSize) + viewOffset;
-        texCoord = pixelCoord * inverseTileTextureSize * inverseTileSize;
-        gl_Position = vec4(position, 0.0, 1.0);
-    }
-|]
+shader = "not supported by gren"
 
 """
 
@@ -1026,7 +1001,7 @@ rule (Configuration config) =
 
 sample54 : String
 sample54 =
-    -- copied from https://github.com/pdamoc/gren-syntax-sscce
+    -- copied and edited from https://github.com/pdamoc/elm-syntax-sscce
     -- big thanks!
     """port module Main exposing (Msg(..), Natural, main)
 
@@ -1345,23 +1320,5 @@ The first parameter is a function that takes the data received from JS and produ
 port fromJS : (List String -> msg) -> Sub msg
 
 
-
--- ADVANCED SYNTAX
-
-
-{-| Gren also has special syntax for declaring WebGL shaders. See more about this at: <https://github.com/gren-explorations/webgl/>
--}
-vertexShader : WebGL.Shader { a | coord : Math.Vec3, position : Math.Vec3 } { b | view : Math.Mat4 } { vcoord : Math.Vec2 }
-vertexShader =
-    [glsl|
-
-attribute vec3 position;
-attribute vec3 coord;
-uniform   mat4 view;
-varying   vec2 vcoord;
-
-void main () {
-  gl_Position = view * vec4(position, 1.0);
-  vcoord = coord.xy;
-}
-|]"""
+vertexShader = "not supported by gren"
+"""
