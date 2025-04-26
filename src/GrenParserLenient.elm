@@ -2289,7 +2289,7 @@ followedByMultiRecordAccess beforeRecordAccesses =
             { comments = leftResult.comments
             , syntax =
                 GrenSyntax.Node { start = leftRange.start, end = fieldRange.end }
-                    (GrenSyntax.RecordAccess leftResult.syntax fieldNode)
+                    (GrenSyntax.ExpressionRecordAccess leftResult.syntax fieldNode)
             }
         )
         Basics.identity
@@ -2442,7 +2442,7 @@ expressionFollowedByWhitespaceAndComments =
                                     |> .start
                             , end = cases.end
                             }
-                            (GrenSyntax.CaseExpression
+                            (GrenSyntax.ExpressionCaseOf
                                 { expression = expressionResult.syntax
                                 , cases = cases.cases
                                 }
@@ -2502,7 +2502,7 @@ glslExpressionAfterOpeningSquareBracket =
                         { start = { row = range.start.row, column = range.start.column - 6 }
                         , end = { row = range.end.row, column = range.end.column + 2 }
                         }
-                        (GrenSyntax.GLSLExpression s)
+                        (GrenSyntax.ExpressionGlsl s)
                 }
             )
             (ParserFast.loopUntil
@@ -2551,14 +2551,14 @@ expressionAfterOpeningSquareBracket =
             )
             whitespaceAndComments
             (ParserFast.oneOf2
-                (ParserFast.symbol "]" { comments = ropeEmpty, syntax = GrenSyntax.ListExpr [] })
+                (ParserFast.symbol "]" { comments = ropeEmpty, syntax = GrenSyntax.ExpressionArray [] })
                 (ParserFast.map3
                     (\commentsBeforeHead head tail ->
                         { comments =
                             commentsBeforeHead
                                 |> ropePrependTo head.comments
                                 |> ropePrependTo tail.comments
-                        , syntax = GrenSyntax.ListExpr (head.syntax :: tail.syntax)
+                        , syntax = GrenSyntax.ExpressionArray (head.syntax :: tail.syntax)
                         }
                     )
                     (ParserFast.orSucceed
@@ -2622,10 +2622,10 @@ recordContentsFollowedByCurlyEnd =
                 , syntax =
                     case afterNameBeforeFields.syntax of
                         RecordUpdateFirstSetter firstField ->
-                            GrenSyntax.RecordUpdateExpression nameNode (firstField :: tailFields.syntax)
+                            GrenSyntax.ExpressionRecordUpdate nameNode (firstField :: tailFields.syntax)
 
                         FieldsFirstValue firstFieldValue ->
-                            GrenSyntax.RecordExpr
+                            GrenSyntax.ExpressionRecord
                                 (GrenSyntax.nodeCombine Tuple.pair
                                     nameNode
                                     firstFieldValue
@@ -2633,7 +2633,7 @@ recordContentsFollowedByCurlyEnd =
                                 )
 
                         FieldsFirstValuePunned () ->
-                            GrenSyntax.RecordExpr
+                            GrenSyntax.ExpressionRecord
                                 (GrenSyntax.Node (nameNode |> GrenSyntax.nodeRange)
                                     ( nameNode
                                     , -- dummy
@@ -2641,7 +2641,7 @@ recordContentsFollowedByCurlyEnd =
                                         { start = nameNode |> GrenSyntax.nodeRange |> .end
                                         , end = nameNode |> GrenSyntax.nodeRange |> .end
                                         }
-                                        (GrenSyntax.FunctionOrValue []
+                                        (GrenSyntax.ExpressionReference []
                                             (nameNode |> GrenSyntax.nodeValue)
                                         )
                                     )
@@ -2693,7 +2693,7 @@ recordContentsFollowedByCurlyEnd =
             recordFields
             (whitespaceAndComments |> ParserFast.followedBySymbol "}")
         )
-        (ParserFast.symbol "}" { comments = ropeEmpty, syntax = GrenSyntax.RecordExpr [] })
+        (ParserFast.symbol "}" { comments = ropeEmpty, syntax = GrenSyntax.ExpressionRecord [] })
         -- prefixed comma
         (ParserFast.map2
             (\recordFieldsResult commentsAfterFields ->
@@ -2701,7 +2701,7 @@ recordContentsFollowedByCurlyEnd =
                     recordFieldsResult.comments
                         |> ropePrependTo commentsAfterFields
                 , syntax =
-                    GrenSyntax.RecordExpr recordFieldsResult.syntax
+                    GrenSyntax.ExpressionRecord recordFieldsResult.syntax
                 }
             )
             recordFields
@@ -2756,7 +2756,7 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                                 { start = nameNode |> GrenSyntax.nodeRange |> .end
                                 , end = nameNode |> GrenSyntax.nodeRange |> .end
                                 }
-                                (GrenSyntax.FunctionOrValue []
+                                (GrenSyntax.ExpressionReference []
                                     (nameNode |> GrenSyntax.nodeValue)
                                 )
                             )
@@ -2795,7 +2795,7 @@ expressionString =
             { comments = ropeEmpty
             , syntax =
                 GrenSyntax.Node range
-                    (GrenSyntax.Literal string)
+                    (GrenSyntax.ExpressionString string)
             }
         )
 
@@ -2807,7 +2807,7 @@ expressionChar =
             { comments = ropeEmpty
             , syntax =
                 GrenSyntax.Node range
-                    (GrenSyntax.CharLiteral char)
+                    (GrenSyntax.ExpressionChar char)
             }
         )
 
@@ -2832,7 +2832,7 @@ expressionLambdaFollowedByWhitespaceAndComments =
                     { start = start
                     , end = expressionRange.end
                     }
-                    (GrenSyntax.LambdaExpression
+                    (GrenSyntax.ExpressionLambda
                         { args = parameter0.syntax :: parameter1Up.syntax
                         , expression = expressionResult.syntax
                         }
@@ -2892,7 +2892,7 @@ expressionCaseOfFollowedByOptimisticLayout =
                                 in
                                 firstCaseExpressionRange.end
                     }
-                    (GrenSyntax.CaseExpression
+                    (GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
                         , cases = firstCase :: List.reverse lastToSecondCase
                         }
@@ -2971,7 +2971,7 @@ letExpressionFollowedByOptimisticLayout =
                     { start = start
                     , end = expressionRange.end
                     }
-                    (GrenSyntax.LetExpression
+                    (GrenSyntax.ExpressionLetIn
                         { declarations = letDeclarationsResult.declarations
                         , expression = expressionResult.syntax
                         }
@@ -3236,17 +3236,17 @@ expressionNumber =
     ParserFast.floatOrIntegerDecimalOrHexadecimalMapWithRange
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.Floatable n)
+            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionFloat n)
             }
         )
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.Integer n)
+            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionInteger n)
             }
         )
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.Hex n)
+            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionHex n)
             }
         )
 
@@ -3271,7 +3271,7 @@ expressionIfThenElseFollowedByOptimisticLayout =
                     { start = start
                     , end = ifFalseRange.end
                     }
-                    (GrenSyntax.IfBlock
+                    (GrenSyntax.ExpressionIfThenElse
                         condition.syntax
                         ifTrue.syntax
                         ifFalse.syntax
@@ -3358,7 +3358,7 @@ negationAfterMinus =
                         }
                     , end = subExpressionRange.end
                     }
-                    (GrenSyntax.Negation subExpressionResult.syntax)
+                    (GrenSyntax.ExpressionNegation subExpressionResult.syntax)
             }
         )
         subExpression
@@ -3373,10 +3373,10 @@ expressionQualifiedOrVariantOrRecordConstructorReferenceFollowedByRecordAccess =
                 GrenSyntax.Node range
                     (case after of
                         Nothing ->
-                            GrenSyntax.FunctionOrValue [] firstName
+                            GrenSyntax.ExpressionReference [] firstName
 
                         Just ( qualificationAfter, unqualified ) ->
-                            GrenSyntax.FunctionOrValue (firstName :: qualificationAfter) unqualified
+                            GrenSyntax.ExpressionReference (firstName :: qualificationAfter) unqualified
                     )
             }
         )
@@ -3416,7 +3416,7 @@ expressionUnqualifiedFunctionReferenceFollowedByRecordAccess =
         (\range unqualified ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.FunctionOrValue [] unqualified)
+                GrenSyntax.Node range (GrenSyntax.ExpressionReference [] unqualified)
             }
         )
         |> followedByMultiRecordAccess
@@ -3430,7 +3430,7 @@ expressionRecordAccessFunction =
                 { comments = ropeEmpty
                 , syntax =
                     GrenSyntax.Node (range |> rangeMoveStartLeftByOneColumn)
-                        (GrenSyntax.RecordAccessFunction ("." ++ field))
+                        (GrenSyntax.ExpressionRecordAccessFunction ("." ++ field))
                 }
             )
         )
@@ -3452,7 +3452,7 @@ expressionStartingWithParensOpeningIfNecessaryFollowedByRecordAccess =
                     { comments = ropeEmpty
                     , syntax =
                         GrenSyntax.Node { start = { row = end.row, column = end.column - 2 }, end = end }
-                            GrenSyntax.UnitExpr
+                            GrenSyntax.ExpressionUnit
                     }
                 )
             )
@@ -3471,7 +3471,7 @@ allowedPrefixOperatorFollowedByClosingParensOneOf =
                     { start = { row = operatorRange.start.row, column = operatorRange.start.column - 1 }
                     , end = { row = operatorRange.end.row, column = operatorRange.end.column + 1 }
                     }
-                    (GrenSyntax.PrefixOperator operator)
+                    (GrenSyntax.ExpressionOperatorFunction operator)
             }
         )
         isOperatorSymbolCharAsString
@@ -3494,7 +3494,7 @@ expressionParenthesizedOrTupleOrTripleAfterOpeningParens =
                             { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
                             , end = rangeAfterOpeningParens.end
                             }
-                            (GrenSyntax.ParenthesizedExpression firstPart.syntax)
+                            (GrenSyntax.ExpressionParenthesized firstPart.syntax)
 
                     TupledTwoOrThree secondPart maybeThirdPart ->
                         GrenSyntax.Node
@@ -3503,10 +3503,10 @@ expressionParenthesizedOrTupleOrTripleAfterOpeningParens =
                             }
                             (case maybeThirdPart of
                                 Nothing ->
-                                    GrenSyntax.TupledExpression [ firstPart.syntax, secondPart ]
+                                    GrenSyntax.ExpressionTupled [ firstPart.syntax, secondPart ]
 
                                 Just thirdPart ->
-                                    GrenSyntax.TupledExpression [ firstPart.syntax, secondPart, thirdPart ]
+                                    GrenSyntax.ExpressionTupled [ firstPart.syntax, secondPart, thirdPart ]
                             )
             }
         )
@@ -3970,7 +3970,7 @@ followedByMultiArgumentApplication appliedExpressionParser =
                                 leftExpressionResult.syntax
                         in
                         GrenSyntax.Node { start = leftRange.start, end = lastArgRange.end }
-                            (GrenSyntax.Application
+                            (GrenSyntax.ExpressionCall
                                 (leftExpressionResult.syntax :: List.reverse maybeArgsReverse.syntax)
                             )
             }
@@ -4002,7 +4002,7 @@ applyExtensionRight (ExtendRightByOperation operation) leftNode =
             operation.expression
     in
     GrenSyntax.Node { start = leftRange.start, end = rightExpressionRange.end }
-        (GrenSyntax.OperatorApplication operation.symbol
+        (GrenSyntax.ExpressionInfixOperation operation.symbol
             leftNode
             operation.expression
         )

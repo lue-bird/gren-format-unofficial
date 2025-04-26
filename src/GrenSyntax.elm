@@ -242,42 +242,42 @@ type alias FunctionImplementation =
   - `CharLiteral`: `'a'`
   - `TupledExpression`: `(a, b)` or `(a, b, c)`
   - `ParenthesizedExpression`: `(a)`
-  - `LetExpression`: `let a = 4 in a`
-  - `CaseExpression`: `case a of` followed by pattern matches
-  - `LambdaExpression`: `(\a -> a)`
-  - `RecordExpr`: `{ name = "text" }`
-  - `ListExpr`: `[ x, y ]`
-  - `RecordAccess`: `a.name`
-  - `RecordAccessFunction`: `.name`
-  - `RecordUpdateExpression`: `{ a | name = "text" }`
-  - `GLSLExpression`: `[glsl| ... |]`
+  - `ExpressionLetIn`: `let a = 4 in a`
+  - `ExpressionCaseOf`: `case a of` followed by pattern matches
+  - `ExpressionLambda`: `(\a -> a)`
+  - `ExpressionRecord`: `{ name = "text" }`
+  - `ExpressionArray`: `[ x, y ]`
+  - `ExpressionRecordAccess`: `a.name`
+  - `ExpressionRecordAccessFunction`: `.name`
+  - `ExpressionRecordUpdate`: `{ a | name = "text" }`
+  - `ExpressionGlsl`: `[glsl| ... |]`
 
 -}
 type Expression
-    = UnitExpr
-    | Application (List (Node Expression))
-    | OperatorApplication String (Node Expression) (Node Expression)
-    | FunctionOrValue ModuleName String
-    | IfBlock (Node Expression) (Node Expression) (Node Expression)
-    | PrefixOperator String
+    = ExpressionUnit
+    | ExpressionCall (List (Node Expression))
+    | ExpressionInfixOperation String (Node Expression) (Node Expression)
+    | ExpressionReference ModuleName String
+    | ExpressionIfThenElse (Node Expression) (Node Expression) (Node Expression)
+    | ExpressionOperatorFunction String
     | Operator String
-    | Integer Int
-    | Hex Int
-    | Floatable Float
-    | Negation (Node Expression)
-    | Literal String
-    | CharLiteral Char
-    | TupledExpression (List (Node Expression))
-    | ParenthesizedExpression (Node Expression)
-    | LetExpression LetBlock
-    | CaseExpression CaseBlock
-    | LambdaExpression Lambda
-    | RecordExpr (List (Node RecordSetter))
-    | ListExpr (List (Node Expression))
-    | RecordAccess (Node Expression) (Node String)
-    | RecordAccessFunction String
-    | RecordUpdateExpression (Node String) (List (Node RecordSetter))
-    | GLSLExpression String
+    | ExpressionInteger Int
+    | ExpressionHex Int
+    | ExpressionFloat Float
+    | ExpressionNegation (Node Expression)
+    | ExpressionString String
+    | ExpressionChar Char
+    | ExpressionTupled (List (Node Expression))
+    | ExpressionParenthesized (Node Expression)
+    | ExpressionLetIn LetBlock
+    | ExpressionCaseOf CaseBlock
+    | ExpressionLambda Lambda
+    | ExpressionRecord (List (Node RecordSetter))
+    | ExpressionArray (List (Node Expression))
+    | ExpressionRecordAccess (Node Expression) (Node String)
+    | ExpressionRecordAccessFunction String
+    | ExpressionRecordUpdate (Node String) (List (Node RecordSetter))
+    | ExpressionGlsl String
 
 
 {-| Expression for setting a record field

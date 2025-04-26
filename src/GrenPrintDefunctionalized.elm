@@ -4905,10 +4905,10 @@ expressionParenthesized syntaxComments expressionNode =
 expressionIsSpaceSeparated : GrenSyntax.Expression -> Bool
 expressionIsSpaceSeparated syntaxExpression =
     case syntaxExpression of
-        GrenSyntax.UnitExpr ->
+        GrenSyntax.ExpressionUnit ->
             False
 
-        GrenSyntax.Application application ->
+        GrenSyntax.ExpressionCall application ->
             case application of
                 [] ->
                     -- invalid syntax
@@ -4921,41 +4921,41 @@ expressionIsSpaceSeparated syntaxExpression =
                 _ :: _ :: _ ->
                     True
 
-        GrenSyntax.OperatorApplication _ _ _ ->
+        GrenSyntax.ExpressionInfixOperation _ _ _ ->
             True
 
-        GrenSyntax.FunctionOrValue _ _ ->
+        GrenSyntax.ExpressionReference _ _ ->
             False
 
-        GrenSyntax.IfBlock _ _ _ ->
+        GrenSyntax.ExpressionIfThenElse _ _ _ ->
             True
 
-        GrenSyntax.PrefixOperator _ ->
+        GrenSyntax.ExpressionOperatorFunction _ ->
             False
 
         GrenSyntax.Operator _ ->
             -- invalid syntax
             False
 
-        GrenSyntax.Integer _ ->
+        GrenSyntax.ExpressionInteger _ ->
             False
 
-        GrenSyntax.Hex _ ->
+        GrenSyntax.ExpressionHex _ ->
             False
 
-        GrenSyntax.Floatable _ ->
+        GrenSyntax.ExpressionFloat _ ->
             False
 
-        GrenSyntax.Negation _ ->
+        GrenSyntax.ExpressionNegation _ ->
             False
 
-        GrenSyntax.Literal _ ->
+        GrenSyntax.ExpressionString _ ->
             False
 
-        GrenSyntax.CharLiteral _ ->
+        GrenSyntax.ExpressionChar _ ->
             False
 
-        GrenSyntax.TupledExpression parts ->
+        GrenSyntax.ExpressionTupled parts ->
             case parts of
                 [] ->
                     -- should be handled by UnitExpr
@@ -4975,34 +4975,34 @@ expressionIsSpaceSeparated syntaxExpression =
                     -- invalid syntax
                     False
 
-        GrenSyntax.ParenthesizedExpression (GrenSyntax.Node _ inParens) ->
+        GrenSyntax.ExpressionParenthesized (GrenSyntax.Node _ inParens) ->
             expressionIsSpaceSeparated inParens
 
-        GrenSyntax.LetExpression _ ->
+        GrenSyntax.ExpressionLetIn _ ->
             True
 
-        GrenSyntax.CaseExpression _ ->
+        GrenSyntax.ExpressionCaseOf _ ->
             True
 
-        GrenSyntax.LambdaExpression _ ->
+        GrenSyntax.ExpressionLambda _ ->
             True
 
-        GrenSyntax.RecordExpr _ ->
+        GrenSyntax.ExpressionRecord _ ->
             False
 
-        GrenSyntax.ListExpr _ ->
+        GrenSyntax.ExpressionArray _ ->
             False
 
-        GrenSyntax.RecordAccess _ _ ->
+        GrenSyntax.ExpressionRecordAccess _ _ ->
             False
 
-        GrenSyntax.RecordAccessFunction _ ->
+        GrenSyntax.ExpressionRecordAccessFunction _ ->
             False
 
-        GrenSyntax.RecordUpdateExpression _ _ ->
+        GrenSyntax.ExpressionRecordUpdate _ _ ->
             False
 
-        GrenSyntax.GLSLExpression _ ->
+        GrenSyntax.ExpressionGlsl _ ->
             False
 
 
@@ -5027,10 +5027,10 @@ expressionNotParenthesized :
 expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpression) =
     -- IGNORE TCO
     case syntaxExpression of
-        GrenSyntax.UnitExpr ->
+        GrenSyntax.ExpressionUnit ->
             printExactlyCurlyBraceOpeningCurlyBraceClosing
 
-        GrenSyntax.Application application ->
+        GrenSyntax.ExpressionCall application ->
             case application of
                 [] ->
                     -- invalid syntax
@@ -5048,7 +5048,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                         , argument1Up = argument1Up
                         }
 
-        GrenSyntax.OperatorApplication operator left right ->
+        GrenSyntax.ExpressionInfixOperation operator left right ->
             expressionOperation syntaxComments
                 { fullRange = fullRange
                 , operator = operator
@@ -5056,11 +5056,11 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 , right = right
                 }
 
-        GrenSyntax.FunctionOrValue qualification unqualified ->
+        GrenSyntax.ExpressionReference qualification unqualified ->
             Print.exactly
                 (qualifiedReference { qualification = qualification, unqualified = unqualified })
 
-        GrenSyntax.IfBlock condition onTrue onFalse ->
+        GrenSyntax.ExpressionIfThenElse condition onTrue onFalse ->
             expressionIfThenElse syntaxComments
                 { fullRange = fullRange
                 , condition = condition
@@ -5069,32 +5069,32 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 , onFalse = onFalse
                 }
 
-        GrenSyntax.PrefixOperator operatorSymbol ->
+        GrenSyntax.ExpressionOperatorFunction operatorSymbol ->
             Print.exactly ("(" ++ operatorSymbol ++ ")")
 
         GrenSyntax.Operator operatorSymbol ->
             -- invalid syntax
             Print.exactly operatorSymbol
 
-        GrenSyntax.Integer int ->
+        GrenSyntax.ExpressionInteger int ->
             Print.exactly (intLiteral int)
 
-        GrenSyntax.Hex int ->
+        GrenSyntax.ExpressionHex int ->
             Print.exactly (hexLiteral int)
 
-        GrenSyntax.Floatable float ->
+        GrenSyntax.ExpressionFloat float ->
             Print.exactly (floatLiteral float)
 
-        GrenSyntax.Negation negated ->
+        GrenSyntax.ExpressionNegation negated ->
             printExpressionNegation syntaxComments negated
 
-        GrenSyntax.Literal string ->
+        GrenSyntax.ExpressionString string ->
             stringLiteral (GrenSyntax.Node fullRange string)
 
-        GrenSyntax.CharLiteral char ->
+        GrenSyntax.ExpressionChar char ->
             Print.exactly (charLiteral char)
 
-        GrenSyntax.TupledExpression parts ->
+        GrenSyntax.ExpressionTupled parts ->
             case parts of
                 [] ->
                     -- should be handled by Unit
@@ -5148,7 +5148,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                         syntaxComments
                         { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
-        GrenSyntax.ParenthesizedExpression inParens ->
+        GrenSyntax.ExpressionParenthesized inParens ->
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
@@ -5169,7 +5169,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                         }
                         syntaxComments
 
-        GrenSyntax.LetExpression syntaxLetIn ->
+        GrenSyntax.ExpressionLetIn syntaxLetIn ->
             case syntaxLetIn.declarations of
                 [] ->
                     -- invalid syntax
@@ -5183,17 +5183,17 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                         , result = syntaxLetIn.expression
                         }
 
-        GrenSyntax.CaseExpression syntaxCaseOf ->
+        GrenSyntax.ExpressionCaseOf syntaxCaseOf ->
             expressionCaseOf syntaxComments
                 { fullRange = fullRange
                 , expression = syntaxCaseOf.expression
                 , cases = syntaxCaseOf.cases
                 }
 
-        GrenSyntax.LambdaExpression syntaxLambda ->
+        GrenSyntax.ExpressionLambda syntaxLambda ->
             expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda)
 
-        GrenSyntax.RecordExpr fields ->
+        GrenSyntax.ExpressionRecord fields ->
             recordLiteral
                 { printValueNotParenthesized = expressionNotParenthesized
                 , nameValueSeparator = "="
@@ -5201,24 +5201,24 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 syntaxComments
                 { fullRange = fullRange, fields = fields }
 
-        GrenSyntax.ListExpr elements ->
+        GrenSyntax.ExpressionArray elements ->
             expressionList syntaxComments { fullRange = fullRange, elements = elements }
 
-        GrenSyntax.RecordAccess syntaxRecord (GrenSyntax.Node _ accessedFieldName) ->
+        GrenSyntax.ExpressionRecordAccess syntaxRecord (GrenSyntax.Node _ accessedFieldName) ->
             expressionParenthesizedIfSpaceSeparated syntaxComments syntaxRecord
                 |> Print.followedBy (Print.exactly ("." ++ accessedFieldName))
 
-        GrenSyntax.RecordAccessFunction dotFieldName ->
+        GrenSyntax.ExpressionRecordAccessFunction dotFieldName ->
             Print.exactly ("." ++ (dotFieldName |> String.replace "." ""))
 
-        GrenSyntax.RecordUpdateExpression recordVariableNode fields ->
+        GrenSyntax.ExpressionRecordUpdate recordVariableNode fields ->
             expressionRecordUpdate syntaxComments
                 { fullRange = fullRange
                 , recordVariable = recordVariableNode
                 , fields = fields
                 }
 
-        GrenSyntax.GLSLExpression glsl ->
+        GrenSyntax.ExpressionGlsl glsl ->
             expressionGlsl glsl
 
 
@@ -5235,11 +5235,11 @@ printExpressionNegation syntaxComments negated =
 
     else
         case negated |> expressionToNotParenthesized of
-            GrenSyntax.Node doublyNegatedRange (GrenSyntax.Negation doublyNegated) ->
+            GrenSyntax.Node doublyNegatedRange (GrenSyntax.ExpressionNegation doublyNegated) ->
                 printExactlyMinus
                     |> Print.followedBy
                         (expressionParenthesized syntaxComments
-                            (GrenSyntax.Node doublyNegatedRange (GrenSyntax.Negation doublyNegated))
+                            (GrenSyntax.Node doublyNegatedRange (GrenSyntax.ExpressionNegation doublyNegated))
                         )
 
             negatedNotNegationOrIntegerZero ->
@@ -5253,10 +5253,10 @@ printExpressionNegation syntaxComments negated =
 expressionIsBase10Zero : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsBase10Zero expression =
     case expression |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
-        GrenSyntax.Integer 0 ->
+        GrenSyntax.ExpressionInteger 0 ->
             True
 
-        GrenSyntax.Negation doublyNegated ->
+        GrenSyntax.ExpressionNegation doublyNegated ->
             expressionIsBase10Zero doublyNegated
 
         _ ->
@@ -5266,10 +5266,10 @@ expressionIsBase10Zero expression =
 expressionIsBase16Zero : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsBase16Zero expression =
     case expression |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
-        GrenSyntax.Hex 0 ->
+        GrenSyntax.ExpressionHex 0 ->
             True
 
-        GrenSyntax.Negation doublyNegated ->
+        GrenSyntax.ExpressionNegation doublyNegated ->
             expressionIsBase16Zero doublyNegated
 
         _ ->
@@ -5735,7 +5735,7 @@ expressionOperationExpand left operator right =
             }
         rightExpanded =
             case right of
-                GrenSyntax.Node _ (GrenSyntax.OperatorApplication rightOperator rightLeft rightRight) ->
+                GrenSyntax.Node _ (GrenSyntax.ExpressionInfixOperation rightOperator rightLeft rightRight) ->
                     let
                         rightOperationExpanded :
                             { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5764,7 +5764,7 @@ expressionOperationExpand left operator right =
                     }
     in
     case left of
-        GrenSyntax.Node _ (GrenSyntax.OperatorApplication leftOperator leftLeft leftRight) ->
+        GrenSyntax.Node _ (GrenSyntax.ExpressionInfixOperation leftOperator leftLeft leftRight) ->
             let
                 leftOperationExpanded :
                     { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5803,7 +5803,7 @@ expressionIsSpaceSeparatedExceptApplication : GrenSyntax.Node GrenSyntax.Express
 expressionIsSpaceSeparatedExceptApplication expressionNode =
     if expressionIsSpaceSeparated (expressionNode |> GrenSyntax.nodeValue) then
         case expressionNode |> expressionToNotParenthesized of
-            GrenSyntax.Node _ (GrenSyntax.Application _) ->
+            GrenSyntax.Node _ (GrenSyntax.ExpressionCall _) ->
                 False
 
             _ ->
@@ -5832,10 +5832,10 @@ expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda :
 expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda syntaxComments expressionNode =
     if expressionNode |> GrenSyntax.nodeValue |> expressionIsSpaceSeparated then
         case expressionNode |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
-            GrenSyntax.Application _ ->
+            GrenSyntax.ExpressionCall _ ->
                 expressionNotParenthesized syntaxComments expressionNode
 
-            GrenSyntax.LambdaExpression _ ->
+            GrenSyntax.ExpressionLambda _ ->
                 expressionNotParenthesized syntaxComments expressionNode
 
             _ ->
@@ -6396,7 +6396,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         |> Print.followedBy printExactlyElse
         |> Print.followedBy
             (case ( commentsBeforeOnFalseNotParenthesizedInParens, onFalseNotParenthesized ) of
-                ( [], GrenSyntax.Node onFalseNotParenthesizedRange (GrenSyntax.IfBlock onFalseCondition onFalseOnTrue onFalseOnFalse) ) ->
+                ( [], GrenSyntax.Node onFalseNotParenthesizedRange (GrenSyntax.ExpressionIfThenElse onFalseCondition onFalseOnTrue onFalseOnFalse) ) ->
                     case commentsBeforeOnFalse of
                         [] ->
                             printExactlySpace
@@ -6724,27 +6724,27 @@ expressionToNotParenthesized :
 expressionToNotParenthesized (GrenSyntax.Node fullRange syntaxExpression) =
     -- IGNORE TCO
     case syntaxExpression of
-        GrenSyntax.ParenthesizedExpression inParens ->
+        GrenSyntax.ExpressionParenthesized inParens ->
             inParens |> expressionToNotParenthesized
 
-        GrenSyntax.TupledExpression parts ->
+        GrenSyntax.ExpressionTupled parts ->
             case parts of
                 [ inParens ] ->
                     -- should be handled by ParenthesizedExpression
                     inParens |> expressionToNotParenthesized
 
                 [] ->
-                    GrenSyntax.Node fullRange GrenSyntax.UnitExpr
+                    GrenSyntax.Node fullRange GrenSyntax.ExpressionUnit
 
                 [ part0, part1 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression [ part0, part1 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled [ part0, part1 ])
 
                 [ part0, part1, part2 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression [ part0, part1, part2 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled [ part0, part1, part2 ])
 
                 part0 :: part1 :: part2 :: part3 :: part4Up ->
                     -- invalid syntax
-                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression (part0 :: part1 :: part2 :: part3 :: part4Up))
+                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled (part0 :: part1 :: part2 :: part3 :: part4Up))
 
         syntaxExpressionNotParenthesized ->
             GrenSyntax.Node fullRange syntaxExpressionNotParenthesized
