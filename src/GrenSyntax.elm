@@ -1,25 +1,26 @@
 module GrenSyntax exposing
-    ( File, Import
+    ( File, ModuleName, Import
     , DefaultModuleData, EffectModuleData, Module(..)
-    , Declaration(..)
+    , Exposing(..), TopLevelExpose(..), ExposedType
+    , Declaration(..), Type, ValueConstructor, TypeAlias, Infix, InfixDirection(..)
+    , Pattern(..), QualifiedNameRef
+    , Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, CaseBlock, Cases, Case, Function, FunctionImplementation
+    , TypeAnnotation(..), TypeAnnotationRecordField
+    , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
     )
 
 {-| grain syntax tree
 
-@docs File, Import
+@docs File, ModuleName, Import
 @docs DefaultModuleData, EffectModuleData, Module
-@docs Declaration
+@docs Exposing, TopLevelExpose, ExposedType
+@docs Declaration, Type, ValueConstructor, TypeAlias, Infix, InfixDirection
+@docs Pattern, QualifiedNameRef
+@docs Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, CaseBlock, Cases, Case, Function, FunctionImplementation
+@docs TypeAnnotation, TypeAnnotationRecordField
+@docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
 
 -}
-
-import Gren.Syntax.Exposing
-import Gren.Syntax.Expression
-import Gren.Syntax.Infix
-import Gren.Syntax.ModuleName
-import Gren.Syntax.Node
-import Gren.Syntax.Type
-import Gren.Syntax.TypeAlias
-import Gren.Syntax.TypeAnnotation
 
 
 {-| module header. For example:
@@ -33,31 +34,78 @@ type Module
     | EffectModule EffectModuleData
 
 
+{-| Used for imports, module names, and for qualification.
+For example:
+
+    module GrenSyntax ...
+
+    import Foo.Bar ...
+
+    import ... as Something
+
+    My.Module.something
+
+    My.Module.SomeType
+
+-}
+type alias ModuleName =
+    List String
+
+
 {-| Data for a default default
 -}
 type alias DefaultModuleData =
-    { moduleName : Gren.Syntax.Node.Node Gren.Syntax.ModuleName.ModuleName
-    , exposingList : Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
+    { moduleName : Node ModuleName
+    , exposingList : Node Exposing
     }
 
 
 {-| Data for an effect module
 -}
 type alias EffectModuleData =
-    { moduleName : Gren.Syntax.Node.Node Gren.Syntax.ModuleName.ModuleName
-    , exposingList : Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
-    , command : Maybe (Gren.Syntax.Node.Node String)
-    , subscription : Maybe (Gren.Syntax.Node.Node String)
+    { moduleName : Node ModuleName
+    , exposingList : Node Exposing
+    , command : Maybe (Node String)
+    , subscription : Maybe (Node String)
     }
 
 
 {-| Type annotation for a file
 -}
 type alias File =
-    { moduleDefinition : Gren.Syntax.Node.Node Module
-    , imports : List (Gren.Syntax.Node.Node Import)
-    , declarations : List (Gren.Syntax.Node.Node Declaration)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { moduleDefinition : Node Module
+    , imports : List (Node Import)
+    , declarations : List (Node Declaration)
+    , comments : List (Node String)
+    }
+
+
+{-| exposing declaration for both imports and module headers.
+For example:
+
+    exposing (Foo(..))
+    exposing (..)
+
+-}
+type Exposing
+    = All Range
+    | Explicit (List (Node TopLevelExpose))
+
+
+{-| An exposed entity
+-}
+type TopLevelExpose
+    = InfixExpose String
+    | FunctionExpose String
+    | TypeOrAliasExpose String
+    | TypeExpose ExposedType
+
+
+{-| Exposed Type
+-}
+type alias ExposedType =
+    { name : String
+    , open : Maybe Range
     }
 
 
@@ -67,9 +115,9 @@ type alias File =
 
 -}
 type alias Import =
-    { moduleName : Gren.Syntax.Node.Node Gren.Syntax.ModuleName.ModuleName
-    , moduleAlias : Maybe (Gren.Syntax.Node.Node Gren.Syntax.ModuleName.ModuleName)
-    , exposingList : Maybe (Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing)
+    { moduleName : Node ModuleName
+    , moduleAlias : Maybe (Node ModuleName)
+    , exposingList : Maybe (Node Exposing)
     }
 
 
@@ -83,11 +131,325 @@ type alias Import =
 
 -}
 type Declaration
-    = FunctionDeclaration Gren.Syntax.Expression.Function
-    | AliasDeclaration Gren.Syntax.TypeAlias.TypeAlias
-    | CustomTypeDeclaration Gren.Syntax.Type.Type
+    = FunctionDeclaration Function
+    | AliasDeclaration TypeAlias
+    | CustomTypeDeclaration Type
     | PortDeclaration
-        { name : Gren.Syntax.Node.Node String
-        , typeAnnotation : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { name : Node String
+        , typeAnnotation : Node TypeAnnotation
         }
-    | InfixDeclaration Gren.Syntax.Infix.Infix
+    | InfixDeclaration Infix
+
+
+{-| custom type. For example:
+
+    {-| This is a color
+    -}
+    type Color
+        = Blue
+        | Red
+-}
+type alias Type =
+    { documentation : Maybe (Node String)
+    , name : Node String
+    , generics : List (Node String)
+    , constructors : List (Node ValueConstructor)
+    }
+
+
+{-| Syntax for a custom type value constructor.
+-}
+type alias ValueConstructor =
+    { name : Node String
+    , arguments : List (Node TypeAnnotation)
+    }
+
+
+{-| For example:
+
+    {-| This is a person
+    -}
+    type alias Person =
+        { name : String
+        , age : Int
+        }
+
+-}
+type alias TypeAlias =
+    { documentation : Maybe (Node String)
+    , name : Node String
+    , generics : List (Node String)
+    , typeAnnotation : Node TypeAnnotation
+    }
+
+
+{-| Type annotation for a infix definition
+-}
+type alias Infix =
+    { direction : Node InfixDirection
+    , precedence : Node Int
+    , operator : Node String
+    , function : Node String
+    }
+
+
+{-| Union type for infix direction
+-}
+type InfixDirection
+    = Left
+    | Right
+    | Non
+
+
+{-| Type alias for a full function
+-}
+type alias Function =
+    { documentation : Maybe (Node String)
+    , signature :
+        Maybe
+            (Node
+                { name : Node String
+                , typeAnnotation : Node TypeAnnotation
+                }
+            )
+    , declaration : Node FunctionImplementation
+    }
+
+
+{-| Type alias for a function's implementation
+-}
+type alias FunctionImplementation =
+    { name : Node String
+    , arguments : List (Node Pattern)
+    , expression : Node Expression
+    }
+
+
+{-| Custom type for all expressions such as:
+
+  - `Unit`: `()`
+  - `Application`: `add a b`
+  - `OperatorApplication`: `a + b`
+  - `FunctionOrValue`: `add` or `True`
+  - `IfBlock`: `if a then b else c`
+  - `PrefixOperator`: `(+)`
+  - `Operator`: `+` (not possible to get in practice)
+  - `Integer`: `42`
+  - `Hex`: `0x1F`
+  - `Floatable`: `42.0`
+  - `Negation`: `-a`
+  - `Literal`: `"text"`
+  - `CharLiteral`: `'a'`
+  - `TupledExpression`: `(a, b)` or `(a, b, c)`
+  - `ParenthesizedExpression`: `(a)`
+  - `LetExpression`: `let a = 4 in a`
+  - `CaseExpression`: `case a of` followed by pattern matches
+  - `LambdaExpression`: `(\a -> a)`
+  - `RecordExpr`: `{ name = "text" }`
+  - `ListExpr`: `[ x, y ]`
+  - `RecordAccess`: `a.name`
+  - `RecordAccessFunction`: `.name`
+  - `RecordUpdateExpression`: `{ a | name = "text" }`
+  - `GLSLExpression`: `[glsl| ... |]`
+
+-}
+type Expression
+    = UnitExpr
+    | Application (List (Node Expression))
+    | OperatorApplication String (Node Expression) (Node Expression)
+    | FunctionOrValue ModuleName String
+    | IfBlock (Node Expression) (Node Expression) (Node Expression)
+    | PrefixOperator String
+    | Operator String
+    | Integer Int
+    | Hex Int
+    | Floatable Float
+    | Negation (Node Expression)
+    | Literal String
+    | CharLiteral Char
+    | TupledExpression (List (Node Expression))
+    | ParenthesizedExpression (Node Expression)
+    | LetExpression LetBlock
+    | CaseExpression CaseBlock
+    | LambdaExpression Lambda
+    | RecordExpr (List (Node RecordSetter))
+    | ListExpr (List (Node Expression))
+    | RecordAccess (Node Expression) (Node String)
+    | RecordAccessFunction String
+    | RecordUpdateExpression (Node String) (List (Node RecordSetter))
+    | GLSLExpression String
+
+
+{-| Expression for setting a record field
+-}
+type alias RecordSetter =
+    ( Node String, Node Expression )
+
+
+{-| Expression for a let block
+-}
+type alias LetBlock =
+    { declarations : List (Node LetDeclaration)
+    , expression : Node Expression
+    }
+
+
+{-| Union type for all possible declarations in a let block
+-}
+type LetDeclaration
+    = LetFunction Function
+    | LetDestructuring (Node Pattern) (Node Expression)
+
+
+{-| Expression for a lambda
+-}
+type alias Lambda =
+    { args : List (Node Pattern)
+    , expression : Node Expression
+    }
+
+
+{-| Expression for a case block
+-}
+type alias CaseBlock =
+    { expression : Node Expression
+    , cases : Cases
+    }
+
+
+{-| A case in a case block
+-}
+type alias Case =
+    ( Node Pattern, Node Expression )
+
+
+{-| Type alias for a list of cases
+-}
+type alias Cases =
+    List Case
+
+
+{-| Custom type for different type annotations. For example:
+
+  - `TypeAnnotationVariable`: `a`
+  - `TypeAnnotationConstruct`: `Maybe (Int -> String)`
+  - `TypeAnnotationUnit`: `()`
+  - `TypeAnnotationTupled`: `(a, b, c)`
+  - `TypeAnnotationRecord`: `{ name : String}`
+  - `TypeAnnotationRecordExtension`: `{ a | name : String}`
+  - `TypeAnnotationFunction`: `Int -> String`
+
+-}
+type TypeAnnotation
+    = TypeAnnotationVariable String
+    | TypeAnnotationConstruct (Node ( ModuleName, String )) (List (Node TypeAnnotation))
+    | TypeAnnotationUnit
+    | TypeAnnotationTupled (List (Node TypeAnnotation))
+    | TypeAnnotationRecord (List (Node TypeAnnotationRecordField))
+    | TypeAnnotationRecordExtension (Node String) (Node (List (Node TypeAnnotationRecordField)))
+    | TypeAnnotationFunction (Node TypeAnnotation) (Node TypeAnnotation)
+
+
+{-| Single field of a record. A name and its type.
+-}
+type alias TypeAnnotationRecordField =
+    ( Node String, Node TypeAnnotation )
+
+
+{-| Custom type for all patterns such as:
+
+  - `PatternIgnored`: `_`
+  - `PatternUnit`: `()`
+  - `PatternChar`: `'c'`
+  - `PatternString`: `"hello"`
+  - `PatternInt`: `42`
+  - `PatternHex`: `0x11`
+  - `PatternTuple`: `(a, b)`
+  - `PatternRecord`: `{name, age}`
+  - `PatternListCons`: `x :: xs`
+  - `PatternListExact`: `[ x, y ]`
+  - `PatternVariable`: `x`
+  - `PatternVariant`: `Just _`
+  - `PatternAs`: `_ as x`
+  - `PatternParenthesized`: `( _ )`
+
+-}
+type Pattern
+    = PatternIgnored
+    | PatternUnit
+    | PatternChar Char
+    | PatternString String
+    | PatternInt Int
+    | PatternHex Int
+    | PatternTuple (List (Node Pattern))
+    | PatternRecord (List (Node String))
+    | PatternListCons (Node Pattern) (Node Pattern)
+    | PatternListExact (List (Node Pattern))
+    | PatternVariable String
+    | PatternVariant QualifiedNameRef (List (Node Pattern))
+    | PatternAs (Node Pattern) (Node String)
+    | PatternParenthesized (Node Pattern)
+
+
+{-| Qualified name reference such as `Maybe.Just`.
+-}
+type alias QualifiedNameRef =
+    { moduleName : List String
+    , name : String
+    }
+
+
+{-|  An element of the AST (Abstract Syntax Tree).
+
+The purpose of this type is to add the information of the [`Range`](#Range), i.e. where in the source code the
+element of the tree was found.
+
+-}
+type Node a
+    = Node Range a
+
+
+{-| Combine two nodes, constructing a new node which will have the outer most range of the child nodes
+-}
+nodeCombine : (Node a -> Node b -> c) -> Node a -> Node b -> Node c
+nodeCombine f ((Node { start } _) as a) ((Node { end } _) as b) =
+    Node
+        { start = start, end = end }
+        (f a b)
+
+
+{-| Map the value within a node leaving the range untouched
+-}
+nodeMap : (a -> b) -> Node a -> Node b
+nodeMap f (Node r a) =
+    Node r (f a)
+
+
+{-| Extract the range out of a `Node a`
+-}
+nodeRange : Node a -> Range
+nodeRange (Node r _) =
+    r
+
+
+{-| Extract the value (`a`) out of a `Node a`
+-}
+nodeValue : Node a -> a
+nodeValue (Node _ v) =
+    v
+
+
+{-| Source location
+-}
+type alias Location =
+    { row : Int
+    , column : Int
+    }
+
+
+{-| Range for a piece of code with a start and end
+-}
+type alias Range =
+    { start : Location
+    , end : Location
+    }

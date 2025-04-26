@@ -29,16 +29,6 @@ If you need other syntax printing like for collapsible comments to be exposed,
 
 -}
 
-import Gren.Syntax.Exposing
-import Gren.Syntax.Expression
-import Gren.Syntax.Infix
-import Gren.Syntax.ModuleName
-import Gren.Syntax.Node
-import Gren.Syntax.Pattern
-import Gren.Syntax.Range
-import Gren.Syntax.Type
-import Gren.Syntax.TypeAlias
-import Gren.Syntax.TypeAnnotation
 import GrenPrintDefunctionalized
 import GrenSyntax
 import Print
@@ -72,8 +62,8 @@ module_ syntaxModule =
 For import exposing: [`importExposing`](#importExposing)
 -}
 moduleExposing :
-    { atDocsLines : List (List String), comments : List (Gren.Syntax.Node.Node String) }
-    -> Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
+    -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 moduleExposing context moduleExposingNode =
     \state ->
@@ -85,7 +75,7 @@ moduleExposing context moduleExposingNode =
 (confusingly, that's their name for only the `module X exposing (Y)` lines)
 -}
 moduleHeader :
-    { atDocsLines : List (List String), comments : List (Gren.Syntax.Node.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Module
     -> Print
 moduleHeader context syntaxModuleHeader =
@@ -97,8 +87,8 @@ moduleHeader context syntaxModuleHeader =
 {-| Print a set of [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)s
 -}
 imports :
-    List (Gren.Syntax.Node.Node String)
-    -> List (Gren.Syntax.Node.Node GrenSyntax.Import)
+    List (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
     -> Print
 imports syntaxComments syntaxImports =
     \state ->
@@ -109,8 +99,8 @@ imports syntaxComments syntaxImports =
 {-| Print a single [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)
 -}
 import_ :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node GrenSyntax.Import
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Import
     -> Print
 import_ syntaxComments importNode =
     \state ->
@@ -122,8 +112,8 @@ import_ syntaxComments importNode =
 For module header exposing: [`moduleExposing`](#moduleExposing)
 -}
 importExposing :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 importExposing syntaxComments importExposingNode =
     \state ->
@@ -160,27 +150,27 @@ comment syntaxComment =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.ModuleName.ModuleName`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-ModuleName#ModuleName)
+{-| Print an [`GrenSyntax.ModuleName`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-ModuleName#ModuleName)
 -}
-moduleName : Gren.Syntax.ModuleName.ModuleName -> Print
+moduleName : GrenSyntax.ModuleName -> Print
 moduleName syntaxModuleName =
     \_ ->
         GrenPrintDefunctionalized.moduleName syntaxModuleName
 
 
-{-| Print a single [`Gren.Syntax.Exposing.TopLevelExpose`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Exposing#TopLevelExpose)
+{-| Print a single [`GrenSyntax.TopLevelExpose`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Exposing#TopLevelExpose)
 -}
-expose : Gren.Syntax.Exposing.TopLevelExpose -> Print
+expose : GrenSyntax.TopLevelExpose -> Print
 expose syntaxExpose =
     \_ ->
         GrenPrintDefunctionalized.expose syntaxExpose
 
 
-{-| Print an [`Gren.Syntax.Pattern.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
+{-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
 -}
 patternNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternNotParenthesized syntaxComments patternNode =
     \state ->
@@ -196,11 +186,11 @@ qualifiedReference syntaxReference =
         GrenPrintDefunctionalized.qualifiedReference syntaxReference
 
 
-{-| Print an [`Gren.Syntax.TypeAnnotation.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
+{-| Print an [`GrenSyntax.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
 -}
 typeNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeNotParenthesized syntaxComments typeNode =
     \state ->
@@ -212,11 +202,11 @@ typeNotParenthesized syntaxComments typeNode =
 and comments in between
 -}
 declarations :
-    { portDocumentationComments : List (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
-    , previousEnd : Gren.Syntax.Range.Location
+    { portDocumentationComments : List (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
+    , previousEnd : GrenSyntax.Location
     }
-    -> List (Gren.Syntax.Node.Node GrenSyntax.Declaration)
+    -> List (GrenSyntax.Node GrenSyntax.Declaration)
     -> Print
 declarations context syntaxDeclarations =
     \state ->
@@ -227,8 +217,8 @@ declarations context syntaxDeclarations =
 {-| Print an [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)
 -}
 declaration :
-    { portDocumentationComment : Maybe (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { portDocumentationComment : Maybe (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -242,10 +232,10 @@ declaration syntaxComments syntaxDeclaration =
 as `name : Type`
 -}
 declarationSignature :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { name : Gren.Syntax.Node.Node String
-        , typeAnnotation : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { name : GrenSyntax.Node String
+        , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 declarationSignature syntaxComments signature =
@@ -257,12 +247,12 @@ declarationSignature syntaxComments signature =
 {-| Print a `port` [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)
 -}
 declarationPort :
-    { documentationComment : Maybe (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { documentationComment : Maybe (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     ->
-        { name : Gren.Syntax.Node.Node String
-        , typeAnnotation : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { name : GrenSyntax.Node String
+        , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 declarationPort syntaxComments signature =
@@ -271,11 +261,11 @@ declarationPort syntaxComments signature =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.TypeAlias.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
+{-| Print an [`GrenSyntax.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
 -}
 declarationTypeAlias :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.TypeAlias.TypeAlias
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.TypeAlias
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
     \state ->
@@ -283,11 +273,11 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.Type.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
+{-| Print an [`GrenSyntax.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
 -}
 declarationChoiceType :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Type.Type
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Type
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
     \state ->
@@ -295,20 +285,20 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.Infix.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
+{-| Print an [`GrenSyntax.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
 -}
-declarationInfix : Gren.Syntax.Infix.Infix -> Print
+declarationInfix : GrenSyntax.Infix -> Print
 declarationInfix syntaxInfixDeclaration =
     \state ->
         GrenPrintDefunctionalized.declarationInfix syntaxInfixDeclaration
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.Expression.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
+{-| Print an [`GrenSyntax.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
 -}
 declarationExpression :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.Function
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Function
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
     \state ->
@@ -316,11 +306,11 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print an [`Gren.Syntax.Expression.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
+{-| Print an [`GrenSyntax.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
 -}
 expressionNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionNotParenthesized syntaxComments expressionNode =
     \state ->
@@ -328,11 +318,11 @@ expressionNotParenthesized syntaxComments expressionNode =
             |> Print.toStringWithIndent state.indent
 
 
-{-| Print a single [`Gren.Syntax.Expression.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
+{-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
 -}
 case_ :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.Case
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Case
     -> Print
 case_ syntaxComments syntaxCase =
     \state ->

@@ -18,16 +18,6 @@ module GrenPrintDefunctionalized exposing
 -}
 
 import Char.Extra
-import Gren.Syntax.Exposing
-import Gren.Syntax.Expression
-import Gren.Syntax.Infix
-import Gren.Syntax.ModuleName
-import Gren.Syntax.Node
-import Gren.Syntax.Pattern
-import Gren.Syntax.Range
-import Gren.Syntax.Type
-import Gren.Syntax.TypeAlias
-import Gren.Syntax.TypeAnnotation
 import GrenSyntax
 import Print exposing (Print)
 import Unicode
@@ -38,13 +28,13 @@ import Unicode
 module_ : GrenSyntax.File -> Print
 module_ syntaxModule =
     let
-        maybeModuleDocumentation : Maybe (Gren.Syntax.Node.Node String)
+        maybeModuleDocumentation : Maybe (GrenSyntax.Node String)
         maybeModuleDocumentation =
             moduleDocumentation syntaxModule
 
         commentsAndPortDocumentationComments :
-            { portDocumentationComments : List (Gren.Syntax.Node.Node String)
-            , remainingComments : List (Gren.Syntax.Node.Node String)
+            { portDocumentationComments : List (GrenSyntax.Node String)
+            , remainingComments : List (GrenSyntax.Node String)
             }
         commentsAndPortDocumentationComments =
             (case maybeModuleDocumentation of
@@ -67,7 +57,7 @@ module_ syntaxModule =
                 Nothing ->
                     Nothing
 
-                Just (Gren.Syntax.Node.Node _ syntaxModuleDocumentation) ->
+                Just (GrenSyntax.Node _ syntaxModuleDocumentation) ->
                     Just
                         (syntaxModuleDocumentation
                             |> moduleDocumentationParse
@@ -83,15 +73,15 @@ module_ syntaxModule =
                     moduleDocumentationParsed.whileAtDocsLines
                         |> List.map .atDocsLine
 
-        lastSyntaxLocationBeforeDeclarations : Gren.Syntax.Range.Location
+        lastSyntaxLocationBeforeDeclarations : GrenSyntax.Location
         lastSyntaxLocationBeforeDeclarations =
             case syntaxModule.imports of
-                (Gren.Syntax.Node.Node firstImportRange _) :: _ ->
+                (GrenSyntax.Node firstImportRange _) :: _ ->
                     firstImportRange.end
 
                 [] ->
                     syntaxModule.moduleDefinition
-                        |> Gren.Syntax.Node.range
+                        |> GrenSyntax.nodeRange
                         |> .end
 
         commentsBeforeDeclarations : List String
@@ -101,7 +91,7 @@ module_ syntaxModule =
                     -- invalid syntax
                     []
 
-                (Gren.Syntax.Node.Node declaration0Range _) :: _ ->
+                (GrenSyntax.Node declaration0Range _) :: _ ->
                     commentsInRange
                         { start = lastSyntaxLocationBeforeDeclarations
                         , end = declaration0Range.start
@@ -109,7 +99,7 @@ module_ syntaxModule =
                         commentsAndPortDocumentationComments.remainingComments
     in
     syntaxModule.moduleDefinition
-        |> Gren.Syntax.Node.value
+        |> GrenSyntax.nodeValue
         |> moduleHeader { atDocsLines = atDocsLines, comments = commentsAndPortDocumentationComments.remainingComments }
         |> Print.followedBy
             (case maybeModuleDocumentationParsed of
@@ -135,12 +125,12 @@ module_ syntaxModule =
                                 _ :: _ ->
                                     Print.empty
 
-                (Gren.Syntax.Node.Node import0Range import0) :: import1Up ->
+                (GrenSyntax.Node import0Range import0) :: import1Up ->
                     (case
                         commentsInRange
                             { start =
                                 syntaxModule.moduleDefinition
-                                    |> Gren.Syntax.Node.range
+                                    |> GrenSyntax.nodeRange
                                     |> .end
                             , end = import0Range.start
                             }
@@ -156,7 +146,7 @@ module_ syntaxModule =
                     )
                         |> Print.followedBy Print.linebreak
                         |> Print.followedBy
-                            ((Gren.Syntax.Node.Node import0Range import0 :: import1Up)
+                            ((GrenSyntax.Node import0Range import0 :: import1Up)
                                 |> imports commentsAndPortDocumentationComments.remainingComments
                             )
                         |> Print.followedBy printLinebreakLinebreak
@@ -190,7 +180,7 @@ module_ syntaxModule =
                     case
                         commentsAfter
                             (listFilledLast declaration0 declaration1Up
-                                |> Gren.Syntax.Node.range
+                                |> GrenSyntax.nodeRange
                                 |> .end
                             )
                             commentsAndPortDocumentationComments.remainingComments
@@ -256,16 +246,16 @@ printModuleDocumentation moduleDocumentationBlocks =
 {-| Resulting lists are sorted by range
 -}
 splitOffPortDocumentationComments :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { portDocumentationComments : List (Gren.Syntax.Node.Node String)
-        , remainingComments : List (Gren.Syntax.Node.Node String)
+        { portDocumentationComments : List (GrenSyntax.Node String)
+        , remainingComments : List (GrenSyntax.Node String)
         }
 splitOffPortDocumentationComments commentsAndPortDocumentationComments =
     commentsAndPortDocumentationComments
         |> List.foldr
             (\commentOrPortDocumentationComments soFar ->
-                if commentOrPortDocumentationComments |> Gren.Syntax.Node.value |> String.startsWith "{-|" then
+                if commentOrPortDocumentationComments |> GrenSyntax.nodeValue |> String.startsWith "{-|" then
                     { remainingComments = soFar.remainingComments
                     , portDocumentationComments = commentOrPortDocumentationComments :: soFar.portDocumentationComments
                     }
@@ -283,18 +273,18 @@ commentsEmptyPortDocumentationRemainingCommentsEmpty =
     { remainingComments = [], portDocumentationComments = [] }
 
 
-moduleDocumentation : GrenSyntax.File -> Maybe (Gren.Syntax.Node.Node String)
+moduleDocumentation : GrenSyntax.File -> Maybe (GrenSyntax.Node String)
 moduleDocumentation ast =
     let
         cutOffLine : Int
         cutOffLine =
             case ast.imports of
-                (Gren.Syntax.Node.Node firstImportRange _) :: _ ->
+                (GrenSyntax.Node firstImportRange _) :: _ ->
                     firstImportRange.start.row
 
                 [] ->
                     case ast.declarations of
-                        (Gren.Syntax.Node.Node firstDeclarationRange _) :: _ ->
+                        (GrenSyntax.Node firstDeclarationRange _) :: _ ->
                             firstDeclarationRange.start.row
 
                         [] ->
@@ -304,7 +294,7 @@ moduleDocumentation ast =
     moduleDocumentationBeforeCutOffLine cutOffLine ast.comments
 
 
-moduleDocumentationBeforeCutOffLine : Int -> List (Gren.Syntax.Node.Node String) -> Maybe (Gren.Syntax.Node.Node String)
+moduleDocumentationBeforeCutOffLine : Int -> List (GrenSyntax.Node String) -> Maybe (GrenSyntax.Node String)
 moduleDocumentationBeforeCutOffLine cutOffLine allComments =
     case allComments of
         [] ->
@@ -312,7 +302,7 @@ moduleDocumentationBeforeCutOffLine cutOffLine allComments =
 
         headComment :: restOfComments ->
             let
-                (Gren.Syntax.Node.Node range content) =
+                (GrenSyntax.Node range content) =
                     headComment
             in
             if range.start.row > cutOffLine then
@@ -387,22 +377,22 @@ rawSinceAtDocsEmptyFinishedBlocksEmpty =
     { rawSinceAtDocs = "", finishedBlocks = [] }
 
 
-commentsAfter : Gren.Syntax.Range.Location -> List (Gren.Syntax.Node.Node String) -> List String
+commentsAfter : GrenSyntax.Location -> List (GrenSyntax.Node String) -> List String
 commentsAfter end sortedComments =
     case sortedComments of
         [] ->
             []
 
-        (Gren.Syntax.Node.Node headCommentRange headComment) :: tailComments ->
+        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
             case locationCompareFast headCommentRange.start end of
                 LT ->
                     commentsAfter end tailComments
 
                 GT ->
-                    headComment :: (tailComments |> List.map Gren.Syntax.Node.value)
+                    headComment :: (tailComments |> List.map GrenSyntax.nodeValue)
 
                 EQ ->
-                    headComment :: (tailComments |> List.map Gren.Syntax.Node.value)
+                    headComment :: (tailComments |> List.map GrenSyntax.nodeValue)
 
 
 moduleLevelCommentsBeforeDeclaration : { comment0 : String, comment1Up : List String } -> Print
@@ -421,7 +411,7 @@ moduleLevelCommentsBeforeDeclaration syntaxComments =
             )
 
 
-commentNodesInRange : Gren.Syntax.Range.Range -> List (Gren.Syntax.Node.Node String) -> List (Gren.Syntax.Node.Node String)
+commentNodesInRange : GrenSyntax.Range -> List (GrenSyntax.Node String) -> List (GrenSyntax.Node String)
 commentNodesInRange range sortedComments =
     case sortedComments of
         [] ->
@@ -429,7 +419,7 @@ commentNodesInRange range sortedComments =
 
         headCommentNode :: tailComments ->
             let
-                (Gren.Syntax.Node.Node headCommentRange _) =
+                (GrenSyntax.Node headCommentRange _) =
                     headCommentNode
             in
             case locationCompareFast headCommentRange.start range.start of
@@ -451,13 +441,13 @@ commentNodesInRange range sortedComments =
                             headCommentNode :: commentNodesInRange range tailComments
 
 
-commentsInRange : Gren.Syntax.Range.Range -> List (Gren.Syntax.Node.Node String) -> List String
+commentsInRange : GrenSyntax.Range -> List (GrenSyntax.Node String) -> List String
 commentsInRange range sortedComments =
     case sortedComments of
         [] ->
             []
 
-        (Gren.Syntax.Node.Node headCommentRange headComment) :: tailComments ->
+        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
             case locationCompareFast headCommentRange.start range.start of
                 LT ->
                     commentsInRange range tailComments
@@ -477,7 +467,7 @@ commentsInRange range sortedComments =
                             headComment :: commentsInRange range tailComments
 
 
-lineSpreadInRange : Gren.Syntax.Range.Range -> Print.LineSpread
+lineSpreadInRange : GrenSyntax.Range -> Print.LineSpread
 lineSpreadInRange range =
     if range.end.row - range.start.row == 0 then
         Print.SingleLine
@@ -487,11 +477,11 @@ lineSpreadInRange range =
 
 
 exposingMulti :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , expose0 : Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose
-        , expose1Up : List (Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose)
+        { fullRange : GrenSyntax.Range
+        , expose0 : GrenSyntax.Node GrenSyntax.TopLevelExpose
+        , expose1Up : List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
         }
     -> Print
 exposingMulti syntaxComments syntaxExposing =
@@ -519,7 +509,7 @@ exposingMulti syntaxComments syntaxExposing =
         |> Print.followedBy
             ((syntaxExposing.expose0 :: syntaxExposing.expose1Up)
                 |> Print.listMapAndIntersperseAndFlatten
-                    (\(Gren.Syntax.Node.Node _ syntaxExpose) ->
+                    (\(GrenSyntax.Node _ syntaxExpose) ->
                         Print.exactly (expose syntaxExpose)
                     )
                     (Print.emptyOrLinebreakIndented lineSpread
@@ -560,81 +550,81 @@ listMapAndIntersperseAndFlattenToString elementToString betweenElements elements
                     (elementToString head)
 
 
-exposeCompare : Gren.Syntax.Exposing.TopLevelExpose -> Gren.Syntax.Exposing.TopLevelExpose -> Basics.Order
+exposeCompare : GrenSyntax.TopLevelExpose -> GrenSyntax.TopLevelExpose -> Basics.Order
 exposeCompare a b =
     case a of
-        Gren.Syntax.Exposing.InfixExpose aOperatorSymbol ->
+        GrenSyntax.InfixExpose aOperatorSymbol ->
             case b of
-                Gren.Syntax.Exposing.InfixExpose bOperatorSymbol ->
+                GrenSyntax.InfixExpose bOperatorSymbol ->
                     compare aOperatorSymbol bOperatorSymbol
 
-                Gren.Syntax.Exposing.FunctionExpose _ ->
+                GrenSyntax.FunctionExpose _ ->
                     LT
 
-                Gren.Syntax.Exposing.TypeOrAliasExpose _ ->
+                GrenSyntax.TypeOrAliasExpose _ ->
                     LT
 
-                Gren.Syntax.Exposing.TypeExpose _ ->
+                GrenSyntax.TypeExpose _ ->
                     LT
 
-        Gren.Syntax.Exposing.FunctionExpose aName ->
+        GrenSyntax.FunctionExpose aName ->
             case b of
-                Gren.Syntax.Exposing.InfixExpose _ ->
+                GrenSyntax.InfixExpose _ ->
                     GT
 
-                Gren.Syntax.Exposing.FunctionExpose bName ->
+                GrenSyntax.FunctionExpose bName ->
                     compare aName bName
 
-                Gren.Syntax.Exposing.TypeOrAliasExpose _ ->
+                GrenSyntax.TypeOrAliasExpose _ ->
                     GT
 
-                Gren.Syntax.Exposing.TypeExpose _ ->
+                GrenSyntax.TypeExpose _ ->
                     GT
 
-        Gren.Syntax.Exposing.TypeOrAliasExpose aName ->
+        GrenSyntax.TypeOrAliasExpose aName ->
             case b of
-                Gren.Syntax.Exposing.InfixExpose _ ->
+                GrenSyntax.InfixExpose _ ->
                     GT
 
-                Gren.Syntax.Exposing.FunctionExpose _ ->
+                GrenSyntax.FunctionExpose _ ->
                     LT
 
-                Gren.Syntax.Exposing.TypeOrAliasExpose bName ->
+                GrenSyntax.TypeOrAliasExpose bName ->
                     compare aName bName
 
-                Gren.Syntax.Exposing.TypeExpose bTypeExpose ->
+                GrenSyntax.TypeExpose bTypeExpose ->
                     compare aName bTypeExpose.name
 
-        Gren.Syntax.Exposing.TypeExpose aTypeExpose ->
+        GrenSyntax.TypeExpose aTypeExpose ->
             case b of
-                Gren.Syntax.Exposing.InfixExpose _ ->
+                GrenSyntax.InfixExpose _ ->
                     GT
 
-                Gren.Syntax.Exposing.FunctionExpose _ ->
+                GrenSyntax.FunctionExpose _ ->
                     LT
 
-                Gren.Syntax.Exposing.TypeOrAliasExpose bName ->
+                GrenSyntax.TypeOrAliasExpose bName ->
                     compare aTypeExpose.name bName
 
-                Gren.Syntax.Exposing.TypeExpose bTypeExpose ->
+                GrenSyntax.TypeExpose bTypeExpose ->
                     compare aTypeExpose.name bTypeExpose.name
 
 
 exposeListToNormal :
-    List (Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose)
-    -> List (Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose)
+    List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    -> List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
 exposeListToNormal syntaxExposeList =
     syntaxExposeList
         |> List.sortWith
-            (\(Gren.Syntax.Node.Node _ a) (Gren.Syntax.Node.Node _ b) ->
+            (\(GrenSyntax.Node _ a) (GrenSyntax.Node _ b) ->
                 exposeCompare a b
             )
         |> exposesCombine
 
 
 exposesCombine :
-    List (Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose)
-    -> List (Gren.Syntax.Node.Node Gren.Syntax.Exposing.TopLevelExpose)
+    List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    -> List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
 exposesCombine syntaxExposes =
     case syntaxExposes of
         [] ->
@@ -645,16 +635,16 @@ exposesCombine syntaxExposes =
 
         expose0Node :: (expose1Node :: expose2Up) ->
             let
-                (Gren.Syntax.Node.Node _ expose1) =
+                (GrenSyntax.Node _ expose1) =
                     expose1Node
 
-                (Gren.Syntax.Node.Node expose0Range expose0) =
+                (GrenSyntax.Node expose0Range expose0) =
                     expose0Node
             in
             case exposeCompare expose0 expose1 of
                 EQ ->
                     exposesCombine
-                        (Gren.Syntax.Node.Node expose0Range
+                        (GrenSyntax.Node expose0Range
                             (exposeMerge expose0 expose1)
                             :: expose2Up
                         )
@@ -666,13 +656,13 @@ exposesCombine syntaxExposes =
                     expose0Node :: exposesCombine (expose1Node :: expose2Up)
 
 
-exposeMerge : Gren.Syntax.Exposing.TopLevelExpose -> Gren.Syntax.Exposing.TopLevelExpose -> Gren.Syntax.Exposing.TopLevelExpose
+exposeMerge : GrenSyntax.TopLevelExpose -> GrenSyntax.TopLevelExpose -> GrenSyntax.TopLevelExpose
 exposeMerge a b =
     case a of
-        Gren.Syntax.Exposing.TypeExpose aTypeExpose ->
+        GrenSyntax.TypeExpose aTypeExpose ->
             case b of
-                Gren.Syntax.Exposing.TypeExpose bTypeExpose ->
-                    Gren.Syntax.Exposing.TypeExpose
+                GrenSyntax.TypeExpose bTypeExpose ->
+                    GrenSyntax.TypeExpose
                         { name = aTypeExpose.name
                         , open =
                             case aTypeExpose.open of
@@ -683,22 +673,22 @@ exposeMerge a b =
                                     bTypeExpose.open
                         }
 
-                Gren.Syntax.Exposing.InfixExpose _ ->
-                    Gren.Syntax.Exposing.TypeExpose aTypeExpose
+                GrenSyntax.InfixExpose _ ->
+                    GrenSyntax.TypeExpose aTypeExpose
 
-                Gren.Syntax.Exposing.FunctionExpose _ ->
-                    Gren.Syntax.Exposing.TypeExpose aTypeExpose
+                GrenSyntax.FunctionExpose _ ->
+                    GrenSyntax.TypeExpose aTypeExpose
 
-                Gren.Syntax.Exposing.TypeOrAliasExpose _ ->
-                    Gren.Syntax.Exposing.TypeExpose aTypeExpose
+                GrenSyntax.TypeOrAliasExpose _ ->
+                    GrenSyntax.TypeExpose aTypeExpose
 
-        Gren.Syntax.Exposing.InfixExpose _ ->
+        GrenSyntax.InfixExpose _ ->
             b
 
-        Gren.Syntax.Exposing.FunctionExpose _ ->
+        GrenSyntax.FunctionExpose _ ->
             b
 
-        Gren.Syntax.Exposing.TypeOrAliasExpose _ ->
+        GrenSyntax.TypeOrAliasExpose _ ->
             b
 
 
@@ -706,20 +696,20 @@ exposeMerge a b =
 For import exposing: [`importExposing`](#importExposing)
 -}
 moduleExposing :
-    { atDocsLines : List (List String), comments : List (Gren.Syntax.Node.Node String) }
-    -> Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
+    -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
-moduleExposing context (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
+moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
     case syntaxExposing of
-        Gren.Syntax.Exposing.All _ ->
+        GrenSyntax.All _ ->
             printExactlyParensOpeningDotDotParensClosing
 
-        Gren.Syntax.Exposing.Explicit exposingSet ->
+        GrenSyntax.Explicit exposingSet ->
             case exposingSet |> exposeListToNormal of
                 [] ->
                     printExactlyParensOpeningParensClosed
 
-                [ Gren.Syntax.Node.Node _ onlySyntaxExpose ] ->
+                [ GrenSyntax.Node _ onlySyntaxExpose ] ->
                     let
                         containedComments : List String
                         containedComments =
@@ -762,8 +752,8 @@ moduleExposing context (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
                         atDocsLine0 :: atDocsLine1Up ->
                             let
                                 atDocsExposeLines :
-                                    { remainingExposes : List Gren.Syntax.Exposing.TopLevelExpose
-                                    , atDocsExposeLines : List (List Gren.Syntax.Exposing.TopLevelExpose)
+                                    { remainingExposes : List GrenSyntax.TopLevelExpose
+                                    , atDocsExposeLines : List (List GrenSyntax.TopLevelExpose)
                                     }
                                 atDocsExposeLines =
                                     (atDocsLine0 :: atDocsLine1Up)
@@ -771,8 +761,8 @@ moduleExposing context (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
                                             (\atDocsLine soFar ->
                                                 let
                                                     atDocsExposeLine :
-                                                        { remaining : List Gren.Syntax.Exposing.TopLevelExpose
-                                                        , exposes : List Gren.Syntax.Exposing.TopLevelExpose
+                                                        { remaining : List GrenSyntax.TopLevelExpose
+                                                        , exposes : List GrenSyntax.TopLevelExpose
                                                         }
                                                     atDocsExposeLine =
                                                         atDocsLineToExposesAndRemaining atDocsLine soFar.remainingExposes
@@ -784,7 +774,7 @@ moduleExposing context (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
                                             )
                                             { remainingExposes =
                                                 (expose0 :: expose1 :: expose2Up)
-                                                    |> List.map Gren.Syntax.Node.value
+                                                    |> List.map GrenSyntax.nodeValue
                                             , atDocsExposeLines = []
                                             }
                             in
@@ -851,17 +841,17 @@ moduleExposing context (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
 
 atDocsLineToExposesAndRemaining :
     List String
-    -> List Gren.Syntax.Exposing.TopLevelExpose
+    -> List GrenSyntax.TopLevelExpose
     ->
-        { remaining : List Gren.Syntax.Exposing.TopLevelExpose
-        , exposes : List Gren.Syntax.Exposing.TopLevelExpose
+        { remaining : List GrenSyntax.TopLevelExpose
+        , exposes : List GrenSyntax.TopLevelExpose
         }
 atDocsLineToExposesAndRemaining atDocsLine remainingExposes =
     atDocsLine
         |> List.foldr
             (\exposeAsAtDocsString soFar ->
                 let
-                    toExposeReferencedByAtDocsString : Gren.Syntax.Exposing.TopLevelExpose -> Maybe Gren.Syntax.Exposing.TopLevelExpose
+                    toExposeReferencedByAtDocsString : GrenSyntax.TopLevelExpose -> Maybe GrenSyntax.TopLevelExpose
                     toExposeReferencedByAtDocsString ex =
                         if (ex |> exposeToAtDocsString) == exposeAsAtDocsString then
                             Just ex
@@ -885,19 +875,19 @@ atDocsLineToExposesAndRemaining atDocsLine remainingExposes =
             }
 
 
-exposeToAtDocsString : Gren.Syntax.Exposing.TopLevelExpose -> String
+exposeToAtDocsString : GrenSyntax.TopLevelExpose -> String
 exposeToAtDocsString syntaxExpose =
     case syntaxExpose of
-        Gren.Syntax.Exposing.InfixExpose operatorSymbol ->
+        GrenSyntax.InfixExpose operatorSymbol ->
             "(" ++ operatorSymbol ++ ")"
 
-        Gren.Syntax.Exposing.FunctionExpose name ->
+        GrenSyntax.FunctionExpose name ->
             name
 
-        Gren.Syntax.Exposing.TypeOrAliasExpose name ->
+        GrenSyntax.TypeOrAliasExpose name ->
             name
 
-        Gren.Syntax.Exposing.TypeExpose choiceTypeExpose ->
+        GrenSyntax.TypeExpose choiceTypeExpose ->
             choiceTypeExpose.name
 
 
@@ -920,7 +910,7 @@ listFirstJustMap elementToMaybe list =
 (confusingly, that's their name for only the `module X exposing (Y)` lines)
 -}
 moduleHeader :
-    { atDocsLines : List (List String), comments : List (Gren.Syntax.Node.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Module
     -> Print
 moduleHeader context syntaxModuleHeader =
@@ -938,7 +928,7 @@ moduleHeader context syntaxModuleHeader =
             in
             Print.exactly
                 ("module "
-                    ++ moduleName (defaultModuleData.moduleName |> Gren.Syntax.Node.value)
+                    ++ moduleName (defaultModuleData.moduleName |> GrenSyntax.nodeValue)
                     ++ " exposing"
                 )
                 |> Print.followedBy
@@ -962,7 +952,7 @@ moduleHeader context syntaxModuleHeader =
             Print.exactly
                 ("port module "
                     ++ moduleName
-                        (defaultModuleData.moduleName |> Gren.Syntax.Node.value)
+                        (defaultModuleData.moduleName |> GrenSyntax.nodeValue)
                     ++ " exposing"
                 )
                 |> Print.followedBy
@@ -986,19 +976,19 @@ moduleHeader context syntaxModuleHeader =
             Print.exactly
                 ("effect module "
                     ++ moduleName
-                        (effectModuleData.moduleName |> Gren.Syntax.Node.value)
+                        (effectModuleData.moduleName |> GrenSyntax.nodeValue)
                     ++ " where { "
                     ++ ([ case effectModuleData.command of
                             Nothing ->
                                 Nothing
 
-                            Just (Gren.Syntax.Node.Node _ name) ->
+                            Just (GrenSyntax.Node _ name) ->
                                 Just ("command = " ++ name)
                         , case effectModuleData.subscription of
                             Nothing ->
                                 Nothing
 
-                            Just (Gren.Syntax.Node.Node _ name) ->
+                            Just (GrenSyntax.Node _ name) ->
                                 Just ("subscription = " ++ name)
                         ]
                             |> List.filterMap identity
@@ -1017,21 +1007,21 @@ moduleHeader context syntaxModuleHeader =
 {-| Print a set of [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)s
 -}
 imports :
-    List (Gren.Syntax.Node.Node String)
-    -> List (Gren.Syntax.Node.Node GrenSyntax.Import)
+    List (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
     -> Print
 imports syntaxComments syntaxImports =
     case syntaxImports of
         [] ->
             Print.empty
 
-        (Gren.Syntax.Node.Node import0Range import0) :: imports1Up ->
+        (GrenSyntax.Node import0Range import0) :: imports1Up ->
             let
                 commentsBetweenImports : List String
                 commentsBetweenImports =
-                    (Gren.Syntax.Node.Node import0Range import0 :: imports1Up)
+                    (GrenSyntax.Node import0Range import0 :: imports1Up)
                         |> List.foldl
-                            (\(Gren.Syntax.Node.Node importRange _) soFar ->
+                            (\(GrenSyntax.Node importRange _) soFar ->
                                 { previousImportRange = importRange
                                 , commentsBetweenImports =
                                     soFar.commentsBetweenImports
@@ -1053,10 +1043,10 @@ imports syntaxComments syntaxImports =
                         |> Print.followedBy Print.linebreak
             )
                 |> Print.followedBy
-                    ((Gren.Syntax.Node.Node import0Range import0 :: imports1Up)
+                    ((GrenSyntax.Node import0Range import0 :: imports1Up)
                         |> List.sortWith
-                            (\(Gren.Syntax.Node.Node _ a) (Gren.Syntax.Node.Node _ b) ->
-                                compare (a.moduleName |> Gren.Syntax.Node.value) (b.moduleName |> Gren.Syntax.Node.value)
+                            (\(GrenSyntax.Node _ a) (GrenSyntax.Node _ b) ->
+                                compare (a.moduleName |> GrenSyntax.nodeValue) (b.moduleName |> GrenSyntax.nodeValue)
                             )
                         |> importsCombine
                         |> Print.listMapAndIntersperseAndFlatten
@@ -1066,27 +1056,27 @@ imports syntaxComments syntaxImports =
 
 
 importsCombine :
-    List (Gren.Syntax.Node.Node GrenSyntax.Import)
-    -> List (Gren.Syntax.Node.Node GrenSyntax.Import)
+    List (GrenSyntax.Node GrenSyntax.Import)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
 importsCombine syntaxImports =
     case syntaxImports of
         [] ->
             []
 
         [ onlyImport ] ->
-            [ onlyImport |> Gren.Syntax.Node.map importToNormal ]
+            [ onlyImport |> GrenSyntax.nodeMap importToNormal ]
 
-        (Gren.Syntax.Node.Node import0Range import0) :: (Gren.Syntax.Node.Node import1Range import1) :: import2Up ->
-            if (import0.moduleName |> Gren.Syntax.Node.value) == (import1.moduleName |> Gren.Syntax.Node.value) then
+        (GrenSyntax.Node import0Range import0) :: (GrenSyntax.Node import1Range import1) :: import2Up ->
+            if (import0.moduleName |> GrenSyntax.nodeValue) == (import1.moduleName |> GrenSyntax.nodeValue) then
                 importsCombine
-                    (Gren.Syntax.Node.Node import1Range
+                    (GrenSyntax.Node import1Range
                         (importsMerge import0 import1)
                         :: import2Up
                     )
 
             else
-                Gren.Syntax.Node.Node import0Range (import0 |> importToNormal)
-                    :: importsCombine (Gren.Syntax.Node.Node import1Range import1 :: import2Up)
+                GrenSyntax.Node import0Range (import0 |> importToNormal)
+                    :: importsCombine (GrenSyntax.Node import1Range import1 :: import2Up)
 
 
 importToNormal : GrenSyntax.Import -> GrenSyntax.Import
@@ -1098,22 +1088,22 @@ importToNormal syntaxImport =
             Nothing ->
                 Nothing
 
-            Just (Gren.Syntax.Node.Node exposingRange syntaxExposing) ->
+            Just (GrenSyntax.Node exposingRange syntaxExposing) ->
                 Just
-                    (Gren.Syntax.Node.Node exposingRange
+                    (GrenSyntax.Node exposingRange
                         (syntaxExposing |> exposingToNormal)
                     )
     }
 
 
-exposingToNormal : Gren.Syntax.Exposing.Exposing -> Gren.Syntax.Exposing.Exposing
+exposingToNormal : GrenSyntax.Exposing -> GrenSyntax.Exposing
 exposingToNormal syntaxExposing =
     case syntaxExposing of
-        Gren.Syntax.Exposing.All allRange ->
-            Gren.Syntax.Exposing.All allRange
+        GrenSyntax.All allRange ->
+            GrenSyntax.All allRange
 
-        Gren.Syntax.Exposing.Explicit exposeSet ->
-            Gren.Syntax.Exposing.Explicit (exposeSet |> exposeListToNormal)
+        GrenSyntax.Explicit exposeSet ->
+            GrenSyntax.Explicit (exposeSet |> exposeListToNormal)
 
 
 importsMerge : GrenSyntax.Import -> GrenSyntax.Import -> GrenSyntax.Import
@@ -1132,22 +1122,22 @@ importsMerge earlier later =
 
 
 exposingCombine :
-    Maybe (Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing)
-    -> Maybe (Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing)
-    -> Maybe (Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing)
+    Maybe (GrenSyntax.Node GrenSyntax.Exposing)
+    -> Maybe (GrenSyntax.Node GrenSyntax.Exposing)
+    -> Maybe (GrenSyntax.Node GrenSyntax.Exposing)
 exposingCombine a b =
     case a of
-        Just (Gren.Syntax.Node.Node exposingAllRange (Gren.Syntax.Exposing.All allRange)) ->
-            Just (Gren.Syntax.Node.Node exposingAllRange (Gren.Syntax.Exposing.All allRange))
+        Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)) ->
+            Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange))
 
-        Just (Gren.Syntax.Node.Node earlierExposingExplicitRange (Gren.Syntax.Exposing.Explicit earlierExposeSet)) ->
+        Just (GrenSyntax.Node earlierExposingExplicitRange (GrenSyntax.Explicit earlierExposeSet)) ->
             Just
                 (case b of
-                    Just (Gren.Syntax.Node.Node exposingAllRange (Gren.Syntax.Exposing.All allRange)) ->
-                        Gren.Syntax.Node.Node exposingAllRange (Gren.Syntax.Exposing.All allRange)
+                    Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)) ->
+                        GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)
 
-                    Just (Gren.Syntax.Node.Node laterExposingExplicitRange (Gren.Syntax.Exposing.Explicit laterExposeSet)) ->
-                        Gren.Syntax.Node.Node
+                    Just (GrenSyntax.Node laterExposingExplicitRange (GrenSyntax.Explicit laterExposeSet)) ->
+                        GrenSyntax.Node
                             (case lineSpreadInRange earlierExposingExplicitRange of
                                 Print.MultipleLines ->
                                     earlierExposingExplicitRange
@@ -1155,12 +1145,12 @@ exposingCombine a b =
                                 Print.SingleLine ->
                                     laterExposingExplicitRange
                             )
-                            (Gren.Syntax.Exposing.Explicit
+                            (GrenSyntax.Explicit
                                 (earlierExposeSet ++ laterExposeSet |> exposeListToNormal)
                             )
 
                     Nothing ->
-                        Gren.Syntax.Node.Node earlierExposingExplicitRange (Gren.Syntax.Exposing.Explicit earlierExposeSet)
+                        GrenSyntax.Node earlierExposingExplicitRange (GrenSyntax.Explicit earlierExposeSet)
                 )
 
         Nothing ->
@@ -1170,21 +1160,21 @@ exposingCombine a b =
 {-| Print a single [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)
 -}
 import_ :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node GrenSyntax.Import
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Import
     -> Print
-import_ syntaxComments (Gren.Syntax.Node.Node incorrectImportRange syntaxImport) =
+import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
     let
-        importRange : Gren.Syntax.Range.Range
+        importRange : GrenSyntax.Range
         importRange =
             case syntaxImport.exposingList of
                 Nothing ->
                     incorrectImportRange
 
-                Just (Gren.Syntax.Node.Node syntaxExposingRange _) ->
+                Just (GrenSyntax.Node syntaxExposingRange _) ->
                     { start = incorrectImportRange.start, end = syntaxExposingRange.end }
 
-        (Gren.Syntax.Node.Node moduleNameRange syntaxModuleName) =
+        (GrenSyntax.Node moduleNameRange syntaxModuleName) =
             syntaxImport.moduleName
     in
     printExactImport
@@ -1207,7 +1197,7 @@ import_ syntaxComments (Gren.Syntax.Node.Node incorrectImportRange syntaxImport)
                                         (Print.exactly (moduleName syntaxModuleName))
                                 )
 
-                Just (Gren.Syntax.Node.Node moduleAliasRange moduleAlias) ->
+                Just (GrenSyntax.Node moduleAliasRange moduleAlias) ->
                     case commentsInRange { start = moduleNameRange.end, end = moduleAliasRange.start } syntaxComments of
                         [] ->
                             (case commentsInRange { start = importRange.start, end = moduleNameRange.start } syntaxComments of
@@ -1267,13 +1257,13 @@ import_ syntaxComments (Gren.Syntax.Node.Node incorrectImportRange syntaxImport)
                         exposingPrint =
                             importExposing syntaxComments syntaxExposing
 
-                        exposingPartStart : Gren.Syntax.Range.Location
+                        exposingPartStart : GrenSyntax.Location
                         exposingPartStart =
                             case syntaxImport.moduleAlias of
                                 Nothing ->
                                     moduleNameRange.end
 
-                                Just (Gren.Syntax.Node.Node moduleAliasRange _) ->
+                                Just (GrenSyntax.Node moduleAliasRange _) ->
                                     moduleAliasRange.end
                     in
                     case commentsInRange { start = exposingPartStart, end = importRange.end } syntaxComments of
@@ -1313,15 +1303,15 @@ import_ syntaxComments (Gren.Syntax.Node.Node incorrectImportRange syntaxImport)
 For module header exposing: [`moduleExposing`](#moduleExposing)
 -}
 importExposing :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Exposing.Exposing
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
-importExposing syntaxComments (Gren.Syntax.Node.Node exposingRange syntaxExposing) =
+importExposing syntaxComments (GrenSyntax.Node exposingRange syntaxExposing) =
     case syntaxExposing of
-        Gren.Syntax.Exposing.All _ ->
+        GrenSyntax.All _ ->
             printExactlyParensOpeningDotDotParensClosing
 
-        Gren.Syntax.Exposing.Explicit exposingSet ->
+        GrenSyntax.Explicit exposingSet ->
             case exposingSet of
                 [] ->
                     -- invalid syntax
@@ -1576,28 +1566,28 @@ listDropLastIfIs lastElementShouldBeRemoved list =
             element0 :: listDropLastIfIs lastElementShouldBeRemoved (element1 :: element2Up)
 
 
-{-| Print an [`Gren.Syntax.ModuleName.ModuleName`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-ModuleName#ModuleName)
+{-| Print an [`GrenSyntax.ModuleName`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-ModuleName#ModuleName)
 -}
-moduleName : Gren.Syntax.ModuleName.ModuleName -> String
+moduleName : GrenSyntax.ModuleName -> String
 moduleName syntaxModuleName =
     syntaxModuleName |> String.join "."
 
 
-{-| Print a single [`Gren.Syntax.Exposing.TopLevelExpose`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Exposing#TopLevelExpose)
+{-| Print a single [`GrenSyntax.TopLevelExpose`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Exposing#TopLevelExpose)
 -}
-expose : Gren.Syntax.Exposing.TopLevelExpose -> String
+expose : GrenSyntax.TopLevelExpose -> String
 expose syntaxExpose =
     case syntaxExpose of
-        Gren.Syntax.Exposing.InfixExpose operatorSymbol ->
+        GrenSyntax.InfixExpose operatorSymbol ->
             "(" ++ operatorSymbol ++ ")"
 
-        Gren.Syntax.Exposing.FunctionExpose name ->
+        GrenSyntax.FunctionExpose name ->
             name
 
-        Gren.Syntax.Exposing.TypeOrAliasExpose name ->
+        GrenSyntax.TypeOrAliasExpose name ->
             name
 
-        Gren.Syntax.Exposing.TypeExpose syntaxExposeType ->
+        GrenSyntax.TypeExpose syntaxExposeType ->
             case syntaxExposeType.open of
                 Nothing ->
                     syntaxExposeType.name
@@ -1607,11 +1597,11 @@ expose syntaxExpose =
 
 
 patternParenthesizedIfSpaceSeparated :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternParenthesizedIfSpaceSeparated syntaxComments syntaxPattern =
-    if patternIsSpaceSeparated (syntaxPattern |> Gren.Syntax.Node.value) then
+    if patternIsSpaceSeparated (syntaxPattern |> GrenSyntax.nodeValue) then
         patternParenthesized syntaxComments syntaxPattern
 
     else
@@ -1619,51 +1609,47 @@ patternParenthesizedIfSpaceSeparated syntaxComments syntaxPattern =
 
 
 patternParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternParenthesized syntaxComments patternNode =
     parenthesized patternNotParenthesized
-        { fullRange = patternNode |> Gren.Syntax.Node.range
+        { fullRange = patternNode |> GrenSyntax.nodeRange
         , notParenthesized = patternNode |> patternToNotParenthesized
         }
         syntaxComments
 
 
-patternIsSpaceSeparated : Gren.Syntax.Pattern.Pattern -> Bool
+patternIsSpaceSeparated : GrenSyntax.Pattern -> Bool
 patternIsSpaceSeparated syntaxPattern =
     case syntaxPattern of
-        Gren.Syntax.Pattern.AllPattern ->
+        GrenSyntax.PatternIgnored ->
             False
 
-        Gren.Syntax.Pattern.UnitPattern ->
+        GrenSyntax.PatternUnit ->
             False
 
-        Gren.Syntax.Pattern.VarPattern _ ->
+        GrenSyntax.PatternVariable _ ->
             False
 
-        Gren.Syntax.Pattern.CharPattern _ ->
+        GrenSyntax.PatternChar _ ->
             False
 
-        Gren.Syntax.Pattern.StringPattern _ ->
+        GrenSyntax.PatternString _ ->
             False
 
-        Gren.Syntax.Pattern.IntPattern _ ->
+        GrenSyntax.PatternInt _ ->
             False
 
-        Gren.Syntax.Pattern.HexPattern _ ->
+        GrenSyntax.PatternHex _ ->
             False
 
-        Gren.Syntax.Pattern.FloatPattern _ ->
-            -- invalid syntax
-            False
-
-        Gren.Syntax.Pattern.ParenthesizedPattern (Gren.Syntax.Node.Node _ inParens) ->
+        GrenSyntax.PatternParenthesized (GrenSyntax.Node _ inParens) ->
             patternIsSpaceSeparated inParens
 
-        Gren.Syntax.Pattern.TuplePattern parts ->
+        GrenSyntax.PatternTuple parts ->
             case parts of
-                [ Gren.Syntax.Node.Node _ inParens ] ->
+                [ GrenSyntax.Node _ inParens ] ->
                     -- should be covered by ParenthesizedPattern
                     patternIsSpaceSeparated inParens
 
@@ -1681,16 +1667,16 @@ patternIsSpaceSeparated syntaxPattern =
                     -- invalid syntax
                     False
 
-        Gren.Syntax.Pattern.RecordPattern _ ->
+        GrenSyntax.PatternRecord _ ->
             False
 
-        Gren.Syntax.Pattern.UnConsPattern _ _ ->
+        GrenSyntax.PatternListCons _ _ ->
             True
 
-        Gren.Syntax.Pattern.ListPattern _ ->
+        GrenSyntax.PatternListExact _ ->
             False
 
-        Gren.Syntax.Pattern.NamedPattern _ argumentPatterns ->
+        GrenSyntax.PatternVariant _ argumentPatterns ->
             case argumentPatterns of
                 [] ->
                     False
@@ -1698,12 +1684,12 @@ patternIsSpaceSeparated syntaxPattern =
                 _ :: _ ->
                     True
 
-        Gren.Syntax.Pattern.AsPattern _ _ ->
+        GrenSyntax.PatternAs _ _ ->
             True
 
 
-stringLiteral : Gren.Syntax.Node.Node String -> Print
-stringLiteral (Gren.Syntax.Node.Node range stringContent) =
+stringLiteral : GrenSyntax.Node String -> Print
+stringLiteral (GrenSyntax.Node range stringContent) =
     let
         singleDoubleQuotedStringContentEscaped : String
         singleDoubleQuotedStringContentEscaped =
@@ -2116,118 +2102,110 @@ stringResizePadLeftWith0s length unpaddedString =
 
 
 patternToNotParenthesized :
-    Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
-patternToNotParenthesized (Gren.Syntax.Node.Node fullRange syntaxPattern) =
+    GrenSyntax.Node GrenSyntax.Pattern
+    -> GrenSyntax.Node GrenSyntax.Pattern
+patternToNotParenthesized (GrenSyntax.Node fullRange syntaxPattern) =
     -- IGNORE TCO
     case syntaxPattern of
-        Gren.Syntax.Pattern.ParenthesizedPattern inParens ->
+        GrenSyntax.PatternParenthesized inParens ->
             inParens |> patternToNotParenthesized
 
-        Gren.Syntax.Pattern.TuplePattern parts ->
+        GrenSyntax.PatternTuple parts ->
             case parts of
                 [ inParens ] ->
                     -- should be covered by ParenthesizedPattern
                     inParens |> patternToNotParenthesized
 
                 [ part0, part1 ] ->
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.TuplePattern [ part0, part1 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple [ part0, part1 ])
 
                 [ part0, part1, part2 ] ->
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.TuplePattern [ part0, part1, part2 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple [ part0, part1, part2 ])
 
                 [] ->
                     -- should be covered by UnitPattern
-                    Gren.Syntax.Node.Node fullRange Gren.Syntax.Pattern.UnitPattern
+                    GrenSyntax.Node fullRange GrenSyntax.PatternUnit
 
                 part0 :: part1 :: part2 :: part3 :: part4Up ->
                     -- invalid syntax
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.TuplePattern (part0 :: part1 :: part2 :: part3 :: part4Up))
+                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple (part0 :: part1 :: part2 :: part3 :: part4Up))
 
-        Gren.Syntax.Pattern.AllPattern ->
-            Gren.Syntax.Node.Node fullRange Gren.Syntax.Pattern.AllPattern
+        GrenSyntax.PatternIgnored ->
+            GrenSyntax.Node fullRange GrenSyntax.PatternIgnored
 
-        Gren.Syntax.Pattern.UnitPattern ->
-            Gren.Syntax.Node.Node fullRange Gren.Syntax.Pattern.UnitPattern
+        GrenSyntax.PatternUnit ->
+            GrenSyntax.Node fullRange GrenSyntax.PatternUnit
 
-        Gren.Syntax.Pattern.VarPattern name ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.VarPattern name)
+        GrenSyntax.PatternVariable name ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternVariable name)
 
-        Gren.Syntax.Pattern.CharPattern char ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.CharPattern char)
+        GrenSyntax.PatternChar char ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternChar char)
 
-        Gren.Syntax.Pattern.StringPattern string ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.StringPattern string)
+        GrenSyntax.PatternString string ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternString string)
 
-        Gren.Syntax.Pattern.IntPattern int ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.IntPattern int)
+        GrenSyntax.PatternInt int ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternInt int)
 
-        Gren.Syntax.Pattern.HexPattern int ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.HexPattern int)
+        GrenSyntax.PatternHex int ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternHex int)
 
-        Gren.Syntax.Pattern.FloatPattern float ->
-            -- invalid syntax
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.FloatPattern float)
+        GrenSyntax.PatternRecord fields ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternRecord fields)
 
-        Gren.Syntax.Pattern.RecordPattern fields ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.RecordPattern fields)
+        GrenSyntax.PatternListCons headPattern tailPattern ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternListCons headPattern tailPattern)
 
-        Gren.Syntax.Pattern.UnConsPattern headPattern tailPattern ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.UnConsPattern headPattern tailPattern)
+        GrenSyntax.PatternListExact elementPatterns ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternListExact elementPatterns)
 
-        Gren.Syntax.Pattern.ListPattern elementPatterns ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.ListPattern elementPatterns)
+        GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns)
 
-        Gren.Syntax.Pattern.NamedPattern syntaxQualifiedNameRef argumentPatterns ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.NamedPattern syntaxQualifiedNameRef argumentPatterns)
-
-        Gren.Syntax.Pattern.AsPattern aliasedPattern aliasNameNode ->
-            Gren.Syntax.Node.Node fullRange (Gren.Syntax.Pattern.AsPattern aliasedPattern aliasNameNode)
+        GrenSyntax.PatternAs aliasedPattern aliasNameNode ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternAs aliasedPattern aliasNameNode)
 
 
-{-| Print an [`Gren.Syntax.Pattern.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
+{-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
 -}
 patternNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
-patternNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxPattern) =
+patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern) =
     -- IGNORE TCO
     case syntaxPattern of
-        Gren.Syntax.Pattern.AllPattern ->
+        GrenSyntax.PatternIgnored ->
             printExactlyUnderscore
 
-        Gren.Syntax.Pattern.UnitPattern ->
+        GrenSyntax.PatternUnit ->
             printExactlyParensOpeningParensClosed
 
-        Gren.Syntax.Pattern.VarPattern name ->
+        GrenSyntax.PatternVariable name ->
             Print.exactly name
 
-        Gren.Syntax.Pattern.CharPattern char ->
+        GrenSyntax.PatternChar char ->
             Print.exactly (charLiteral char)
 
-        Gren.Syntax.Pattern.StringPattern string ->
-            stringLiteral (Gren.Syntax.Node.Node fullRange string)
+        GrenSyntax.PatternString string ->
+            stringLiteral (GrenSyntax.Node fullRange string)
 
-        Gren.Syntax.Pattern.IntPattern int ->
+        GrenSyntax.PatternInt int ->
             Print.exactly (intLiteral int)
 
-        Gren.Syntax.Pattern.HexPattern int ->
+        GrenSyntax.PatternHex int ->
             Print.exactly (hexLiteral int)
 
-        Gren.Syntax.Pattern.FloatPattern float ->
-            -- invalid syntax
-            Print.exactly (String.fromFloat float)
-
-        Gren.Syntax.Pattern.ParenthesizedPattern inParens ->
+        GrenSyntax.PatternParenthesized inParens ->
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
-                    commentsInRange { start = fullRange.start, end = inParens |> Gren.Syntax.Node.range |> .start } syntaxComments
+                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
                 commentsAfterInParens : List String
                 commentsAfterInParens =
-                    commentsInRange { start = inParens |> Gren.Syntax.Node.range |> .end, end = fullRange.end } syntaxComments
+                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
             in
             case ( commentsBeforeInParens, commentsAfterInParens ) of
                 ( [], [] ) ->
@@ -2240,7 +2218,7 @@ patternNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxPa
                         }
                         syntaxComments
 
-        Gren.Syntax.Pattern.TuplePattern parts ->
+        GrenSyntax.PatternTuple parts ->
             case parts of
                 [ part0, part1 ] ->
                     { part0 = part0, part1 = part1, fullRange = fullRange }
@@ -2267,11 +2245,11 @@ patternNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxPa
                     let
                         commentsBeforeInParens : List String
                         commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> Gren.Syntax.Node.range |> .start } syntaxComments
+                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
                         commentsAfterInParens : List String
                         commentsAfterInParens =
-                            commentsInRange { start = inParens |> Gren.Syntax.Node.range |> .end, end = fullRange.end } syntaxComments
+                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
                     in
                     case ( commentsBeforeInParens, commentsAfterInParens ) of
                         ( [], [] ) ->
@@ -2290,19 +2268,19 @@ patternNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxPa
                         syntaxComments
                         { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
-        Gren.Syntax.Pattern.RecordPattern fields ->
+        GrenSyntax.PatternRecord fields ->
             patternRecord syntaxComments
                 { fullRange = fullRange, fields = fields }
 
-        Gren.Syntax.Pattern.UnConsPattern headPattern tailPattern ->
+        GrenSyntax.PatternListCons headPattern tailPattern ->
             patternCons syntaxComments
                 { head = headPattern, tail = tailPattern }
 
-        Gren.Syntax.Pattern.ListPattern elementPatterns ->
+        GrenSyntax.PatternListExact elementPatterns ->
             patternList syntaxComments
                 { fullRange = fullRange, elements = elementPatterns }
 
-        Gren.Syntax.Pattern.NamedPattern syntaxQualifiedNameRef argumentPatterns ->
+        GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns ->
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     patternParenthesizedIfSpaceSeparated
@@ -2318,16 +2296,16 @@ patternNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxPa
                 , arguments = argumentPatterns
                 }
 
-        Gren.Syntax.Pattern.AsPattern aliasedPattern aliasNameNode ->
+        GrenSyntax.PatternAs aliasedPattern aliasNameNode ->
             patternAs syntaxComments
                 { aliasedPattern = aliasedPattern, aliasNameNode = aliasNameNode }
 
 
 patternList :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { elements : List (Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern)
-        , fullRange : Gren.Syntax.Range.Range
+        { elements : List (GrenSyntax.Node GrenSyntax.Pattern)
+        , fullRange : GrenSyntax.Range
         }
     -> Print
 patternList syntaxComments syntaxList =
@@ -2357,7 +2335,7 @@ patternList syntaxComments syntaxList =
         element0 :: element1Up ->
             let
                 elementPrintsWithCommentsBefore :
-                    { endLocation : Gren.Syntax.Range.Location
+                    { endLocation : GrenSyntax.Location
                     , reverse : List Print
                     }
                 elementPrintsWithCommentsBefore =
@@ -2365,7 +2343,7 @@ patternList syntaxComments syntaxList =
                         |> List.foldl
                             (\elementNode soFar ->
                                 let
-                                    (Gren.Syntax.Node.Node elementRange _) =
+                                    (GrenSyntax.Node elementRange _) =
                                         elementNode
 
                                     elementPrint : Print
@@ -2462,10 +2440,10 @@ maybeLineSpread valueToLineSpread maybe =
 
 
 patternCons :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { head : Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
-        , tail : Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+        { head : GrenSyntax.Node GrenSyntax.Pattern
+        , tail : GrenSyntax.Node GrenSyntax.Pattern
         }
     -> Print
 patternCons syntaxComments syntaxCons =
@@ -2474,7 +2452,7 @@ patternCons syntaxComments syntaxCons =
         headPrint =
             patternParenthesizedIfSpaceSeparated syntaxComments syntaxCons.head
 
-        tailPatterns : List (Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern)
+        tailPatterns : List (GrenSyntax.Node GrenSyntax.Pattern)
         tailPatterns =
             syntaxCons.tail |> patternConsExpand
 
@@ -2484,7 +2462,7 @@ patternCons syntaxComments syntaxCons =
                 |> List.foldl
                     (\tailPatternNode soFar ->
                         let
-                            (Gren.Syntax.Node.Node tailPatternRange _) =
+                            (GrenSyntax.Node tailPatternRange _) =
                                 tailPatternNode
 
                             print : Print
@@ -2521,7 +2499,7 @@ patternCons syntaxComments syntaxCons =
                         }
                     )
                     { reverse = []
-                    , endLocation = syntaxCons.head |> Gren.Syntax.Node.range |> .end
+                    , endLocation = syntaxCons.head |> GrenSyntax.nodeRange |> .end
                     }
                 |> .reverse
 
@@ -2556,78 +2534,75 @@ patternCons syntaxComments syntaxCons =
 
 
 patternConsExpand :
-    Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
-    -> List (Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern)
-patternConsExpand (Gren.Syntax.Node.Node fulRange syntaxPattern) =
+    GrenSyntax.Node GrenSyntax.Pattern
+    -> List (GrenSyntax.Node GrenSyntax.Pattern)
+patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
     case syntaxPattern of
-        Gren.Syntax.Pattern.UnConsPattern headPattern tailPattern ->
+        GrenSyntax.PatternListCons headPattern tailPattern ->
             headPattern :: patternConsExpand tailPattern
 
-        Gren.Syntax.Pattern.AllPattern ->
-            [ Gren.Syntax.Node.Node fulRange Gren.Syntax.Pattern.AllPattern ]
+        GrenSyntax.PatternIgnored ->
+            [ GrenSyntax.Node fulRange GrenSyntax.PatternIgnored ]
 
-        Gren.Syntax.Pattern.UnitPattern ->
-            [ Gren.Syntax.Node.Node fulRange Gren.Syntax.Pattern.UnitPattern ]
+        GrenSyntax.PatternUnit ->
+            [ GrenSyntax.Node fulRange GrenSyntax.PatternUnit ]
 
-        Gren.Syntax.Pattern.CharPattern char ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.CharPattern char) ]
+        GrenSyntax.PatternChar char ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternChar char) ]
 
-        Gren.Syntax.Pattern.StringPattern string ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.StringPattern string) ]
+        GrenSyntax.PatternString string ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternString string) ]
 
-        Gren.Syntax.Pattern.IntPattern int ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.IntPattern int) ]
+        GrenSyntax.PatternInt int ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternInt int) ]
 
-        Gren.Syntax.Pattern.HexPattern int ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.HexPattern int) ]
+        GrenSyntax.PatternHex int ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternHex int) ]
 
-        Gren.Syntax.Pattern.FloatPattern float ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.FloatPattern float) ]
-
-        Gren.Syntax.Pattern.TuplePattern parts ->
+        GrenSyntax.PatternTuple parts ->
             case parts of
                 [ part0, part1 ] ->
-                    [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.TuplePattern [ part0, part1 ]) ]
+                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ part0, part1 ]) ]
 
                 [ part0, part1, part2 ] ->
-                    [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.TuplePattern [ part0, part1, part2 ]) ]
+                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ part0, part1, part2 ]) ]
 
                 [] ->
                     -- should be handled by UnitPattern
-                    [ Gren.Syntax.Node.Node fulRange Gren.Syntax.Pattern.UnitPattern ]
+                    [ GrenSyntax.Node fulRange GrenSyntax.PatternUnit ]
 
                 [ inParens ] ->
                     -- should be handled by ParenthesizedPattern
-                    [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.TuplePattern [ inParens ]) ]
+                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ inParens ]) ]
 
                 part0 :: part1 :: part2 :: part3 :: part4Up ->
                     -- should be handled by ParenthesizedPattern
-                    [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.TuplePattern (part0 :: part1 :: part2 :: part3 :: part4Up)) ]
+                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple (part0 :: part1 :: part2 :: part3 :: part4Up)) ]
 
-        Gren.Syntax.Pattern.RecordPattern fields ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.RecordPattern fields) ]
+        GrenSyntax.PatternRecord fields ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternRecord fields) ]
 
-        Gren.Syntax.Pattern.ListPattern elements ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.ListPattern elements) ]
+        GrenSyntax.PatternListExact elements ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternListExact elements) ]
 
-        Gren.Syntax.Pattern.VarPattern variableName ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.VarPattern variableName) ]
+        GrenSyntax.PatternVariable variableName ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariable variableName) ]
 
-        Gren.Syntax.Pattern.NamedPattern reference parameters ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.NamedPattern reference parameters) ]
+        GrenSyntax.PatternVariant reference parameters ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariant reference parameters) ]
 
-        Gren.Syntax.Pattern.AsPattern aliasedPattern aliasName ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.AsPattern aliasedPattern aliasName) ]
+        GrenSyntax.PatternAs aliasedPattern aliasName ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternAs aliasedPattern aliasName) ]
 
-        Gren.Syntax.Pattern.ParenthesizedPattern inParens ->
-            [ Gren.Syntax.Node.Node fulRange (Gren.Syntax.Pattern.ParenthesizedPattern inParens) ]
+        GrenSyntax.PatternParenthesized inParens ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternParenthesized inParens) ]
 
 
 patternAs :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { aliasNameNode : Gren.Syntax.Node.Node String
-        , aliasedPattern : Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
+        { aliasNameNode : GrenSyntax.Node String
+        , aliasedPattern : GrenSyntax.Node GrenSyntax.Pattern
         }
     -> Print
 patternAs syntaxComments syntaxAs =
@@ -2639,8 +2614,8 @@ patternAs syntaxComments syntaxAs =
         commentsBeforeAliasName : List String
         commentsBeforeAliasName =
             commentsInRange
-                { start = syntaxAs.aliasedPattern |> Gren.Syntax.Node.range |> .end
-                , end = syntaxAs.aliasNameNode |> Gren.Syntax.Node.range |> .start
+                { start = syntaxAs.aliasedPattern |> GrenSyntax.nodeRange |> .end
+                , end = syntaxAs.aliasNameNode |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -2656,7 +2631,7 @@ patternAs syntaxComments syntaxAs =
 
         namePrint : Print
         namePrint =
-            Print.exactly (syntaxAs.aliasNameNode |> Gren.Syntax.Node.value)
+            Print.exactly (syntaxAs.aliasNameNode |> GrenSyntax.nodeValue)
     in
     aliasedPatternPrint
         |> Print.followedBy (Print.spaceOrLinebreakIndented lineSpread)
@@ -2682,10 +2657,10 @@ patternAs syntaxComments syntaxAs =
 
 
 patternRecord :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fields : List (Gren.Syntax.Node.Node String)
-        , fullRange : Gren.Syntax.Range.Range
+        { fields : List (GrenSyntax.Node String)
+        , fullRange : GrenSyntax.Range
         }
     -> Print
 patternRecord syntaxComments syntaxRecord =
@@ -2715,13 +2690,13 @@ patternRecord syntaxComments syntaxRecord =
         field0 :: field1Up ->
             let
                 fieldPrintsWithCommentsBefore :
-                    { endLocation : Gren.Syntax.Range.Location
+                    { endLocation : GrenSyntax.Location
                     , reverse : List Print
                     }
                 fieldPrintsWithCommentsBefore =
                     (field0 :: field1Up)
                         |> List.foldl
-                            (\(Gren.Syntax.Node.Node elementRange fieldName) soFar ->
+                            (\(GrenSyntax.Node elementRange fieldName) soFar ->
                                 { endLocation = elementRange.end
                                 , reverse =
                                     (case commentsInRange { start = soFar.endLocation, end = elementRange.start } syntaxComments of
@@ -2800,15 +2775,15 @@ patternRecord syntaxComments syntaxRecord =
 
 
 typeRecordExtension :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , recordVariable : Gren.Syntax.Node.Node String
+        { fullRange : GrenSyntax.Range
+        , recordVariable : GrenSyntax.Node String
         , fields :
             List
-                (Gren.Syntax.Node.Node
-                    ( Gren.Syntax.Node.Node String
-                    , Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+                (GrenSyntax.Node
+                    ( GrenSyntax.Node String
+                    , GrenSyntax.Node GrenSyntax.TypeAnnotation
                     )
                 )
         }
@@ -2819,7 +2794,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         commentsBeforeRecordVariable =
             commentsInRange
                 { start = syntaxRecordExtension.fullRange.start
-                , end = syntaxRecordExtension.recordVariable |> Gren.Syntax.Node.range |> .start
+                , end = syntaxRecordExtension.recordVariable |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -2828,12 +2803,12 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
             collapsibleComments commentsBeforeRecordVariable
 
         fieldPrintsAndComments :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse :
                 List
                     { syntax :
-                        ( Gren.Syntax.Node.Node String
-                        , Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+                        ( GrenSyntax.Node String
+                        , GrenSyntax.Node GrenSyntax.TypeAnnotation
                         )
                     , valuePrint : Print
                     , maybeCommentsBeforeName : Maybe { print : Print, lineSpread : Print.LineSpread }
@@ -2843,9 +2818,9 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         fieldPrintsAndComments =
             syntaxRecordExtension.fields
                 |> List.foldl
-                    (\(Gren.Syntax.Node.Node _ ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
+                    (\(GrenSyntax.Node _ ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
                         let
-                            (Gren.Syntax.Node.Node fieldValueRange _) =
+                            (GrenSyntax.Node fieldValueRange _) =
                                 fieldValueNode
 
                             commentsBeforeName : List String
@@ -2862,7 +2837,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                         in
                         { endLocation = fieldValueRange.end
                         , reverse =
-                            { syntax = ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode )
+                            { syntax = ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )
                             , valuePrint = typeNotParenthesized syntaxComments fieldValueNode
                             , maybeCommentsBeforeName =
                                 case commentsBeforeName of
@@ -2884,7 +2859,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                     )
                     { endLocation =
                         syntaxRecordExtension.recordVariable
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     , reverse = []
                     }
@@ -2942,7 +2917,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         recordVariablePrint : Print
         recordVariablePrint =
             Print.exactly
-                (syntaxRecordExtension.recordVariable |> Gren.Syntax.Node.value)
+                (syntaxRecordExtension.recordVariable |> GrenSyntax.nodeValue)
     in
     printExactlyCurlyOpeningSpace
         |> Print.followedBy
@@ -2969,14 +2944,14 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                             |> Print.listReverseAndMapAndIntersperseAndFlatten
                                 (\field ->
                                     let
-                                        ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode ) =
+                                        ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode ) =
                                             field.syntax
 
                                         lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                         lineSpreadBetweenNameAndValueNotConsideringComments () =
                                             lineSpreadInRange
                                                 { start = fieldNameRange.start
-                                                , end = fieldValueNode |> Gren.Syntax.Node.range |> .end
+                                                , end = fieldValueNode |> GrenSyntax.nodeRange |> .end
                                                 }
                                                 |> Print.lineSpreadMergeWith
                                                     (\() -> field.valuePrint |> Print.lineSpread)
@@ -3044,13 +3019,13 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
 
 construct :
     { printArgumentParenthesizedIfSpaceSeparated :
-        List (Gren.Syntax.Node.Node String) -> Gren.Syntax.Node.Node a -> Print
+        List (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print
     , lineSpreadMinimum : Print.LineSpread
     }
-    -> List (Gren.Syntax.Node.Node String)
+    -> List (GrenSyntax.Node String)
     ->
-        { arguments : List (Gren.Syntax.Node.Node a)
-        , fullRange : Gren.Syntax.Range.Range
+        { arguments : List (GrenSyntax.Node a)
+        , fullRange : GrenSyntax.Range
         , start : String
         }
     -> Print
@@ -3071,7 +3046,7 @@ construct specific syntaxComments syntaxConstruct =
                             (case
                                 commentsInRange
                                     { start = soFar.endLocation
-                                    , end = argument |> Gren.Syntax.Node.range |> .start
+                                    , end = argument |> GrenSyntax.nodeRange |> .start
                                     }
                                     syntaxComments
                              of
@@ -3095,7 +3070,7 @@ construct specific syntaxComments syntaxConstruct =
                                         |> Print.followedBy print
                             )
                                 :: soFar.reverse
-                        , endLocation = argument |> Gren.Syntax.Node.range |> .end
+                        , endLocation = argument |> GrenSyntax.nodeRange |> .end
                         }
                     )
                     { reverse = []
@@ -3129,14 +3104,14 @@ construct specific syntaxComments syntaxConstruct =
 
 tuple :
     { printPartNotParenthesized :
-        List (Gren.Syntax.Node.Node String) -> Gren.Syntax.Node.Node part -> Print
+        List (GrenSyntax.Node String) -> GrenSyntax.Node part -> Print
     , lineSpreadMinimum : Print.LineSpread
     }
-    -> List (Gren.Syntax.Node.Node String)
+    -> List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , part0 : Gren.Syntax.Node.Node part
-        , part1 : Gren.Syntax.Node.Node part
+        { fullRange : GrenSyntax.Range
+        , part0 : GrenSyntax.Node part
+        , part1 : GrenSyntax.Node part
         }
     -> Print
 tuple config syntaxComments syntaxTuple =
@@ -3145,7 +3120,7 @@ tuple config syntaxComments syntaxTuple =
         beforePart0Comments =
             commentsInRange
                 { start = syntaxTuple.fullRange.start
-                , end = syntaxTuple.part0 |> Gren.Syntax.Node.range |> .start
+                , end = syntaxTuple.part0 |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3156,8 +3131,8 @@ tuple config syntaxComments syntaxTuple =
         beforePart1Comments : List String
         beforePart1Comments =
             commentsInRange
-                { start = syntaxTuple.part0 |> Gren.Syntax.Node.range |> .end
-                , end = syntaxTuple.part1 |> Gren.Syntax.Node.range |> .start
+                { start = syntaxTuple.part0 |> GrenSyntax.nodeRange |> .end
+                , end = syntaxTuple.part1 |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3168,7 +3143,7 @@ tuple config syntaxComments syntaxTuple =
         afterPart1Comments : List String
         afterPart1Comments =
             commentsInRange
-                { start = syntaxTuple.part1 |> Gren.Syntax.Node.range |> .end
+                { start = syntaxTuple.part1 |> GrenSyntax.nodeRange |> .end
                 , end = syntaxTuple.fullRange.end
                 }
                 syntaxComments
@@ -3253,15 +3228,15 @@ tuple config syntaxComments syntaxTuple =
 
 triple :
     { printPartNotParenthesized :
-        List (Gren.Syntax.Node.Node String) -> Gren.Syntax.Node.Node part -> Print
+        List (GrenSyntax.Node String) -> GrenSyntax.Node part -> Print
     , lineSpreadMinimum : Print.LineSpread
     }
-    -> List (Gren.Syntax.Node.Node String)
+    -> List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , part0 : Gren.Syntax.Node.Node part
-        , part1 : Gren.Syntax.Node.Node part
-        , part2 : Gren.Syntax.Node.Node part
+        { fullRange : GrenSyntax.Range
+        , part0 : GrenSyntax.Node part
+        , part1 : GrenSyntax.Node part
+        , part2 : GrenSyntax.Node part
         }
     -> Print
 triple config syntaxComments syntaxTriple =
@@ -3270,7 +3245,7 @@ triple config syntaxComments syntaxTriple =
         beforePart0Comments =
             commentsInRange
                 { start = syntaxTriple.fullRange.start
-                , end = syntaxTriple.part0 |> Gren.Syntax.Node.range |> .start
+                , end = syntaxTriple.part0 |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3281,8 +3256,8 @@ triple config syntaxComments syntaxTriple =
         beforePart1Comments : List String
         beforePart1Comments =
             commentsInRange
-                { start = syntaxTriple.part0 |> Gren.Syntax.Node.range |> .end
-                , end = syntaxTriple.part1 |> Gren.Syntax.Node.range |> .start
+                { start = syntaxTriple.part0 |> GrenSyntax.nodeRange |> .end
+                , end = syntaxTriple.part1 |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3293,8 +3268,8 @@ triple config syntaxComments syntaxTriple =
         beforePart2Comments : List String
         beforePart2Comments =
             commentsInRange
-                { start = syntaxTriple.part1 |> Gren.Syntax.Node.range |> .end
-                , end = syntaxTriple.part2 |> Gren.Syntax.Node.range |> .start
+                { start = syntaxTriple.part1 |> GrenSyntax.nodeRange |> .end
+                , end = syntaxTriple.part2 |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3305,7 +3280,7 @@ triple config syntaxComments syntaxTriple =
         afterPart2Comments : List String
         afterPart2Comments =
             commentsInRange
-                { start = syntaxTriple.part2 |> Gren.Syntax.Node.range |> .end
+                { start = syntaxTriple.part2 |> GrenSyntax.nodeRange |> .end
                 , end = syntaxTriple.fullRange.end
                 }
                 syntaxComments
@@ -3418,7 +3393,7 @@ invalidNTuple :
     (b -> a -> Print)
     -> b
     ->
-        { fullRange : Gren.Syntax.Range.Range
+        { fullRange : GrenSyntax.Range
         , part0 : a
         , part1 : a
         , part2 : a
@@ -3451,18 +3426,18 @@ invalidNTuple printPartNotParenthesized syntaxComments syntaxTuple =
 
 recordLiteral :
     { nameValueSeparator : String
-    , printValueNotParenthesized : List (Gren.Syntax.Node.Node String) -> Gren.Syntax.Node.Node fieldValue -> Print
+    , printValueNotParenthesized : List (GrenSyntax.Node String) -> GrenSyntax.Node fieldValue -> Print
     }
-    -> List (Gren.Syntax.Node.Node String)
+    -> List (GrenSyntax.Node String)
     ->
         { fields :
             List
-                (Gren.Syntax.Node.Node
-                    ( Gren.Syntax.Node.Node String
-                    , Gren.Syntax.Node.Node fieldValue
+                (GrenSyntax.Node
+                    ( GrenSyntax.Node String
+                    , GrenSyntax.Node fieldValue
                     )
                 )
-        , fullRange : Gren.Syntax.Range.Range
+        , fullRange : GrenSyntax.Range
         }
     -> Print
 recordLiteral fieldSpecific syntaxComments syntaxRecord =
@@ -3492,12 +3467,12 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
         field0 :: field1Up ->
             let
                 fieldPrintsAndComments :
-                    { endLocation : Gren.Syntax.Range.Location
+                    { endLocation : GrenSyntax.Location
                     , reverse :
                         List
                             { syntax :
-                                ( Gren.Syntax.Node.Node String
-                                , Gren.Syntax.Node.Node fieldValue
+                                ( GrenSyntax.Node String
+                                , GrenSyntax.Node fieldValue
                                 )
                             , valuePrint : Print
                             , maybeCommentsBeforeName : Maybe { print : Print, lineSpread : Print.LineSpread }
@@ -3507,9 +3482,9 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 fieldPrintsAndComments =
                     (field0 :: field1Up)
                         |> List.foldl
-                            (\(Gren.Syntax.Node.Node _ ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
+                            (\(GrenSyntax.Node _ ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
                                 let
-                                    (Gren.Syntax.Node.Node fieldValueRange _) =
+                                    (GrenSyntax.Node fieldValueRange _) =
                                         fieldValueNode
 
                                     commentsBeforeName : List String
@@ -3526,7 +3501,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                 in
                                 { endLocation = fieldValueRange.end
                                 , reverse =
-                                    { syntax = ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode )
+                                    { syntax = ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )
                                     , valuePrint = fieldSpecific.printValueNotParenthesized syntaxComments fieldValueNode
                                     , maybeCommentsBeforeName =
                                         case commentsBeforeName of
@@ -3604,14 +3579,14 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                         |> Print.listReverseAndMapAndIntersperseAndFlatten
                             (\field ->
                                 let
-                                    ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValue ) =
+                                    ( GrenSyntax.Node fieldNameRange fieldName, fieldValue ) =
                                         field.syntax
 
                                     lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                     lineSpreadBetweenNameAndValueNotConsideringComments () =
                                         lineSpreadInRange
                                             { start = fieldNameRange.start
-                                            , end = fieldValue |> Gren.Syntax.Node.range |> .end
+                                            , end = fieldValue |> GrenSyntax.nodeRange |> .end
                                             }
                                             |> Print.lineSpreadMergeWith
                                                 (\() -> field.valuePrint |> Print.lineSpread)
@@ -3695,7 +3670,7 @@ qualifiedReference syntaxReference =
                 ++ syntaxReference.unqualified
 
 
-lineSpreadBetweenRanges : Gren.Syntax.Range.Range -> Gren.Syntax.Range.Range -> Print.LineSpread
+lineSpreadBetweenRanges : GrenSyntax.Range -> GrenSyntax.Range -> Print.LineSpread
 lineSpreadBetweenRanges earlierRange laterRange =
     if laterRange.end.row - earlierRange.start.row == 0 then
         Print.SingleLine
@@ -3704,8 +3679,8 @@ lineSpreadBetweenRanges earlierRange laterRange =
         Print.MultipleLines
 
 
-lineSpreadBetweenNodes : Gren.Syntax.Node.Node a_ -> Gren.Syntax.Node.Node b_ -> Print.LineSpread
-lineSpreadBetweenNodes (Gren.Syntax.Node.Node earlierRange _) (Gren.Syntax.Node.Node laterRange _) =
+lineSpreadBetweenNodes : GrenSyntax.Node a_ -> GrenSyntax.Node b_ -> Print.LineSpread
+lineSpreadBetweenNodes (GrenSyntax.Node earlierRange _) (GrenSyntax.Node laterRange _) =
     if laterRange.end.row - earlierRange.start.row == 0 then
         Print.SingleLine
 
@@ -3713,30 +3688,30 @@ lineSpreadBetweenNodes (Gren.Syntax.Node.Node earlierRange _) (Gren.Syntax.Node.
         Print.MultipleLines
 
 
-lineSpreadInNode : Gren.Syntax.Node.Node a_ -> Print.LineSpread
-lineSpreadInNode (Gren.Syntax.Node.Node range _) =
+lineSpreadInNode : GrenSyntax.Node a_ -> Print.LineSpread
+lineSpreadInNode (GrenSyntax.Node range _) =
     lineSpreadInRange range
 
 
 typeFunctionNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , inType : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
-        , outType : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { fullRange : GrenSyntax.Range
+        , inType : GrenSyntax.Node GrenSyntax.TypeAnnotation
+        , outType : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 typeFunctionNotParenthesized syntaxComments function =
     let
         afterArrowTypes :
-            { beforeRightest : List (Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation)
-            , rightest : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+            { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+            , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
             }
         afterArrowTypes =
             typeFunctionExpand function.outType
 
         afterArrowTypesBeforeRightestPrintsWithCommentsBefore :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         afterArrowTypesBeforeRightestPrintsWithCommentsBefore =
@@ -3744,7 +3719,7 @@ typeFunctionNotParenthesized syntaxComments function =
                 |> List.foldl
                     (\afterArrowTypeNode soFar ->
                         let
-                            (Gren.Syntax.Node.Node afterArrowTypeRange _) =
+                            (GrenSyntax.Node afterArrowTypeRange _) =
                                 afterArrowTypeNode
 
                             print : Print
@@ -3787,7 +3762,7 @@ typeFunctionNotParenthesized syntaxComments function =
                                 :: soFar.reverse
                         }
                     )
-                    { endLocation = function.inType |> Gren.Syntax.Node.range |> .end
+                    { endLocation = function.inType |> GrenSyntax.nodeRange |> .end
                     , reverse = []
                     }
 
@@ -3795,7 +3770,7 @@ typeFunctionNotParenthesized syntaxComments function =
         commentsBeforeRightestAfterArrowType =
             commentsInRange
                 { start = afterArrowTypesBeforeRightestPrintsWithCommentsBefore.endLocation
-                , end = afterArrowTypes.rightest |> Gren.Syntax.Node.range |> .start
+                , end = afterArrowTypes.rightest |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -3879,12 +3854,12 @@ typeFunctionNotParenthesized syntaxComments function =
 
 
 typeParenthesizedIfParenthesizedFunction :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfParenthesizedFunction syntaxComments typeNode =
-    case typeNode |> Gren.Syntax.Node.value of
-        Gren.Syntax.TypeAnnotation.Tupled [ inParens ] ->
+    case typeNode |> GrenSyntax.nodeValue of
+        GrenSyntax.TypeAnnotationTupled [ inParens ] ->
             inParens |> typeParenthesizedIfFunction syntaxComments
 
         _ ->
@@ -3892,8 +3867,8 @@ typeParenthesizedIfParenthesizedFunction syntaxComments typeNode =
 
 
 typeParenthesizedIfFunction :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfFunction syntaxComments typeNode =
     case typeNode |> typeToFunction of
@@ -3905,95 +3880,95 @@ typeParenthesizedIfFunction syntaxComments typeNode =
 
 
 typeToFunction :
-    Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    GrenSyntax.Node GrenSyntax.TypeAnnotation
     ->
         Maybe
-            { inType : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
-            , outType : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+            { inType : GrenSyntax.Node GrenSyntax.TypeAnnotation
+            , outType : GrenSyntax.Node GrenSyntax.TypeAnnotation
             }
 typeToFunction typeNode =
-    case typeNode |> typeToNotParenthesized |> Gren.Syntax.Node.value of
-        Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation inType outType ->
+    case typeNode |> typeToNotParenthesized |> GrenSyntax.nodeValue of
+        GrenSyntax.TypeAnnotationFunction inType outType ->
             Just { inType = inType, outType = outType }
 
-        Gren.Syntax.TypeAnnotation.GenericType _ ->
+        GrenSyntax.TypeAnnotationVariable _ ->
             Nothing
 
-        Gren.Syntax.TypeAnnotation.Typed _ _ ->
+        GrenSyntax.TypeAnnotationConstruct _ _ ->
             Nothing
 
-        Gren.Syntax.TypeAnnotation.Unit ->
+        GrenSyntax.TypeAnnotationUnit ->
             Nothing
 
-        Gren.Syntax.TypeAnnotation.Tupled _ ->
+        GrenSyntax.TypeAnnotationTupled _ ->
             Nothing
 
-        Gren.Syntax.TypeAnnotation.Record _ ->
+        GrenSyntax.TypeAnnotationRecord _ ->
             Nothing
 
-        Gren.Syntax.TypeAnnotation.GenericRecord _ _ ->
+        GrenSyntax.TypeAnnotationRecordExtension _ _ ->
             Nothing
 
 
 {-| Remove as many parens as possible
 -}
 typeToNotParenthesized :
-    Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
-typeToNotParenthesized (Gren.Syntax.Node.Node typeRange syntaxType) =
+    GrenSyntax.Node GrenSyntax.TypeAnnotation
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
+typeToNotParenthesized (GrenSyntax.Node typeRange syntaxType) =
     case syntaxType of
-        Gren.Syntax.TypeAnnotation.GenericType name ->
-            Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.GenericType name)
+        GrenSyntax.TypeAnnotationVariable name ->
+            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationVariable name)
 
-        Gren.Syntax.TypeAnnotation.Typed reference arguments ->
-            Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.Typed reference arguments)
+        GrenSyntax.TypeAnnotationConstruct reference arguments ->
+            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationConstruct reference arguments)
 
-        Gren.Syntax.TypeAnnotation.Unit ->
-            Gren.Syntax.Node.Node typeRange Gren.Syntax.TypeAnnotation.Unit
+        GrenSyntax.TypeAnnotationUnit ->
+            GrenSyntax.Node typeRange GrenSyntax.TypeAnnotationUnit
 
-        Gren.Syntax.TypeAnnotation.Tupled parts ->
+        GrenSyntax.TypeAnnotationTupled parts ->
             case parts of
                 [ inParens ] ->
                     typeToNotParenthesized inParens
 
                 [] ->
                     -- should be handled by Unit
-                    Gren.Syntax.Node.Node typeRange Gren.Syntax.TypeAnnotation.Unit
+                    GrenSyntax.Node typeRange GrenSyntax.TypeAnnotationUnit
 
                 [ part0, part1 ] ->
-                    Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.Tupled [ part0, part1 ])
+                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled [ part0, part1 ])
 
                 [ part0, part1, part2 ] ->
-                    Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.Tupled [ part0, part1, part2 ])
+                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled [ part0, part1, part2 ])
 
                 part0 :: part1 :: part2 :: part3 :: part4Up ->
                     -- invalid syntax
-                    Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.Tupled (part0 :: part1 :: part2 :: part3 :: part4Up))
+                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled (part0 :: part1 :: part2 :: part3 :: part4Up))
 
-        Gren.Syntax.TypeAnnotation.Record fields ->
-            Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.Record fields)
+        GrenSyntax.TypeAnnotationRecord fields ->
+            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationRecord fields)
 
-        Gren.Syntax.TypeAnnotation.GenericRecord extendedRecordVariableName additionalFieldsNode ->
-            Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.GenericRecord extendedRecordVariableName additionalFieldsNode)
+        GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode ->
+            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode)
 
-        Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation inType outType ->
-            Gren.Syntax.Node.Node typeRange (Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation inType outType)
+        GrenSyntax.TypeAnnotationFunction inType outType ->
+            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationFunction inType outType)
 
 
 typeFunctionExpand :
-    Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    GrenSyntax.Node GrenSyntax.TypeAnnotation
     ->
         { beforeRightest :
-            List (Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation)
-        , rightest : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+            List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+        , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
 typeFunctionExpand typeNode =
     case typeNode of
-        Gren.Syntax.Node.Node _ (Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation inType outType) ->
+        GrenSyntax.Node _ (GrenSyntax.TypeAnnotationFunction inType outType) ->
             let
                 outTypeExpanded :
-                    { beforeRightest : List (Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation)
-                    , rightest : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+                    { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                    , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
                     }
                 outTypeExpanded =
                     typeFunctionExpand outType
@@ -4007,11 +3982,11 @@ typeFunctionExpand typeNode =
 
 
 typeParenthesizedIfSpaceSeparated :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfSpaceSeparated syntaxComments typeNode =
-    if typeIsSpaceSeparated (typeNode |> Gren.Syntax.Node.value) then
+    if typeIsSpaceSeparated (typeNode |> GrenSyntax.nodeValue) then
         typeParenthesized syntaxComments typeNode
 
     else
@@ -4019,24 +3994,24 @@ typeParenthesizedIfSpaceSeparated syntaxComments typeNode =
 
 
 typeParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesized syntaxComments typeNode =
     parenthesized typeNotParenthesized
         { notParenthesized = typeNode |> typeToNotParenthesized
-        , fullRange = typeNode |> Gren.Syntax.Node.range
+        , fullRange = typeNode |> GrenSyntax.nodeRange
         }
         syntaxComments
 
 
 parenthesized :
-    (List (Gren.Syntax.Node.Node String) -> Gren.Syntax.Node.Node a -> Print)
+    (List (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print)
     ->
-        { notParenthesized : Gren.Syntax.Node.Node a
-        , fullRange : Gren.Syntax.Range.Range
+        { notParenthesized : GrenSyntax.Node a
+        , fullRange : GrenSyntax.Range
         }
-    -> List (Gren.Syntax.Node.Node String)
+    -> List (GrenSyntax.Node String)
     -> Print
 parenthesized printNotParenthesized syntax syntaxComments =
     let
@@ -4044,14 +4019,14 @@ parenthesized printNotParenthesized syntax syntaxComments =
         commentsBeforeInner =
             commentsInRange
                 { start = syntax.fullRange.start
-                , end = syntax.notParenthesized |> Gren.Syntax.Node.range |> .start
+                , end = syntax.notParenthesized |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
         commentsAfterInner : List String
         commentsAfterInner =
             commentsInRange
-                { start = syntax.notParenthesized |> Gren.Syntax.Node.range |> .end
+                { start = syntax.notParenthesized |> GrenSyntax.nodeRange |> .end
                 , end = syntax.fullRange.end
                 }
                 syntaxComments
@@ -4107,13 +4082,13 @@ parenthesized printNotParenthesized syntax syntaxComments =
         |> Print.followedBy printExactlyParensClosing
 
 
-typeIsSpaceSeparated : Gren.Syntax.TypeAnnotation.TypeAnnotation -> Bool
+typeIsSpaceSeparated : GrenSyntax.TypeAnnotation -> Bool
 typeIsSpaceSeparated syntaxType =
     case syntaxType of
-        Gren.Syntax.TypeAnnotation.GenericType _ ->
+        GrenSyntax.TypeAnnotationVariable _ ->
             False
 
-        Gren.Syntax.TypeAnnotation.Typed _ arguments ->
+        GrenSyntax.TypeAnnotationConstruct _ arguments ->
             case arguments of
                 [] ->
                     False
@@ -4121,16 +4096,16 @@ typeIsSpaceSeparated syntaxType =
                 _ :: _ ->
                     True
 
-        Gren.Syntax.TypeAnnotation.Unit ->
+        GrenSyntax.TypeAnnotationUnit ->
             False
 
-        Gren.Syntax.TypeAnnotation.Tupled parts ->
+        GrenSyntax.TypeAnnotationTupled parts ->
             case parts of
                 [] ->
                     -- should be handled by Unit
                     False
 
-                [ Gren.Syntax.Node.Node _ inParens ] ->
+                [ GrenSyntax.Node _ inParens ] ->
                     typeIsSpaceSeparated inParens
 
                 [ _, _ ] ->
@@ -4142,32 +4117,32 @@ typeIsSpaceSeparated syntaxType =
                 _ :: _ :: _ :: _ :: _ ->
                     False
 
-        Gren.Syntax.TypeAnnotation.Record _ ->
+        GrenSyntax.TypeAnnotationRecord _ ->
             False
 
-        Gren.Syntax.TypeAnnotation.GenericRecord _ _ ->
+        GrenSyntax.TypeAnnotationRecordExtension _ _ ->
             False
 
-        Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation _ _ ->
+        GrenSyntax.TypeAnnotationFunction _ _ ->
             True
 
 
-{-| Print an [`Gren.Syntax.TypeAnnotation.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
+{-| Print an [`GrenSyntax.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
 -}
 typeNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
-typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType) =
+typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
     -- IGNORE TCO
     case syntaxType of
-        Gren.Syntax.TypeAnnotation.Unit ->
+        GrenSyntax.TypeAnnotationUnit ->
             printExactlyParensOpeningParensClosed
 
-        Gren.Syntax.TypeAnnotation.GenericType name ->
+        GrenSyntax.TypeAnnotationVariable name ->
             Print.exactly name
 
-        Gren.Syntax.TypeAnnotation.Typed (Gren.Syntax.Node.Node _ ( referenceQualification, referenceUnqualified )) arguments ->
+        GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node _ ( referenceQualification, referenceUnqualified )) arguments ->
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     typeParenthesizedIfSpaceSeparated
@@ -4183,7 +4158,7 @@ typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType)
                 , arguments = arguments
                 }
 
-        Gren.Syntax.TypeAnnotation.Tupled parts ->
+        GrenSyntax.TypeAnnotationTupled parts ->
             case parts of
                 [] ->
                     -- should be handled by Unit
@@ -4193,11 +4168,11 @@ typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType)
                     let
                         commentsBeforeInParens : List String
                         commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> Gren.Syntax.Node.range |> .start } syntaxComments
+                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
                         commentsAfterInParens : List String
                         commentsAfterInParens =
-                            commentsInRange { start = inParens |> Gren.Syntax.Node.range |> .end, end = fullRange.end } syntaxComments
+                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
                     in
                     case ( commentsBeforeInParens, commentsAfterInParens ) of
                         ( [], [] ) ->
@@ -4239,7 +4214,7 @@ typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType)
                         syntaxComments
                         { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
-        Gren.Syntax.TypeAnnotation.Record fields ->
+        GrenSyntax.TypeAnnotationRecord fields ->
             recordLiteral
                 { printValueNotParenthesized = typeNotParenthesized
                 , nameValueSeparator = ":"
@@ -4247,14 +4222,14 @@ typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType)
                 syntaxComments
                 { fullRange = fullRange, fields = fields }
 
-        Gren.Syntax.TypeAnnotation.GenericRecord recordVariable (Gren.Syntax.Node.Node _ fields) ->
+        GrenSyntax.TypeAnnotationRecordExtension recordVariable (GrenSyntax.Node _ fields) ->
             typeRecordExtension syntaxComments
                 { fullRange = fullRange
                 , recordVariable = recordVariable
                 , fields = fields
                 }
 
-        Gren.Syntax.TypeAnnotation.FunctionTypeAnnotation inType outType ->
+        GrenSyntax.TypeAnnotationFunction inType outType ->
             { fullRange = fullRange, inType = inType, outType = outType }
                 |> typeFunctionNotParenthesized syntaxComments
 
@@ -4263,11 +4238,11 @@ typeNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxType)
 and comments in between
 -}
 declarations :
-    { portDocumentationComments : List (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
-    , previousEnd : Gren.Syntax.Range.Location
+    { portDocumentationComments : List (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
+    , previousEnd : GrenSyntax.Location
     }
-    -> List (Gren.Syntax.Node.Node GrenSyntax.Declaration)
+    -> List (GrenSyntax.Node GrenSyntax.Declaration)
     -> Print
 declarations context syntaxDeclarations =
     case syntaxDeclarations of
@@ -4275,7 +4250,7 @@ declarations context syntaxDeclarations =
             -- invalid syntax
             Print.empty
 
-        (Gren.Syntax.Node.Node declaration0Range declaration0) :: declarations1Up ->
+        (GrenSyntax.Node declaration0Range declaration0) :: declarations1Up ->
             declaration
                 { comments = context.comments
                 , portDocumentationComment =
@@ -4299,9 +4274,9 @@ declarations context syntaxDeclarations =
                 |> Print.followedBy
                     (declarations1Up
                         |> List.foldl
-                            (\(Gren.Syntax.Node.Node declarationRange syntaxDeclaration) soFar ->
+                            (\(GrenSyntax.Node declarationRange syntaxDeclaration) soFar ->
                                 let
-                                    maybeDeclarationPortDocumentationComment : Maybe (Gren.Syntax.Node.Node String)
+                                    maybeDeclarationPortDocumentationComment : Maybe (GrenSyntax.Node String)
                                     maybeDeclarationPortDocumentationComment =
                                         case syntaxDeclaration of
                                             GrenSyntax.PortDeclaration _ ->
@@ -4355,21 +4330,21 @@ declarations context syntaxDeclarations =
 
 
 firstCommentInRange :
-    Gren.Syntax.Range.Range
-    -> List (Gren.Syntax.Node.Node String)
-    -> Maybe (Gren.Syntax.Node.Node String)
+    GrenSyntax.Range
+    -> List (GrenSyntax.Node String)
+    -> Maybe (GrenSyntax.Node String)
 firstCommentInRange range sortedComments =
     case sortedComments of
         [] ->
             Nothing
 
-        (Gren.Syntax.Node.Node headCommentRange headComment) :: tailComments ->
+        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
             case locationCompareFast headCommentRange.start range.start of
                 LT ->
                     firstCommentInRange range tailComments
 
                 EQ ->
-                    Just (Gren.Syntax.Node.Node headCommentRange headComment)
+                    Just (GrenSyntax.Node headCommentRange headComment)
 
                 GT ->
                     case locationCompareFast headCommentRange.end range.end of
@@ -4377,13 +4352,13 @@ firstCommentInRange range sortedComments =
                             Nothing
 
                         LT ->
-                            Just (Gren.Syntax.Node.Node headCommentRange headComment)
+                            Just (GrenSyntax.Node headCommentRange headComment)
 
                         EQ ->
-                            Just (Gren.Syntax.Node.Node headCommentRange headComment)
+                            Just (GrenSyntax.Node headCommentRange headComment)
 
 
-locationCompareFast : Gren.Syntax.Range.Location -> Gren.Syntax.Range.Location -> Basics.Order
+locationCompareFast : GrenSyntax.Location -> GrenSyntax.Location -> Basics.Order
 locationCompareFast left right =
     if left.row - right.row < 0 then
         LT
@@ -4396,8 +4371,8 @@ locationCompareFast left right =
 
 
 linebreaksFollowedByDeclaration :
-    { portDocumentationComment : Maybe (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { portDocumentationComment : Maybe (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -4441,9 +4416,9 @@ listFilledLast head tail =
 
 
 declarationDestructuring :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Pattern.Pattern
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Pattern
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 declarationDestructuring syntaxComments destructuringPattern destructuringExpression =
     -- invalid syntax
@@ -4460,8 +4435,8 @@ declarationDestructuring syntaxComments destructuringPattern destructuringExpres
 {-| Print an [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)
 -}
 declaration :
-    { portDocumentationComment : Maybe (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { portDocumentationComment : Maybe (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -4491,10 +4466,10 @@ declaration syntaxComments syntaxDeclaration =
 as `name : Type`
 -}
 declarationSignature :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { name : Gren.Syntax.Node.Node String
-        , typeAnnotation : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { name : GrenSyntax.Node String
+        , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 declarationSignature syntaxComments signature =
@@ -4503,14 +4478,14 @@ declarationSignature syntaxComments signature =
         typePrint =
             typeNotParenthesized syntaxComments signature.typeAnnotation
 
-        rangeBetweenNameAndType : Gren.Syntax.Range.Range
+        rangeBetweenNameAndType : GrenSyntax.Range
         rangeBetweenNameAndType =
-            { start = signature.name |> Gren.Syntax.Node.range |> .end
-            , end = signature.typeAnnotation |> Gren.Syntax.Node.range |> .start
+            { start = signature.name |> GrenSyntax.nodeRange |> .end
+            , end = signature.typeAnnotation |> GrenSyntax.nodeRange |> .start
             }
     in
     Print.exactly
-        ((signature.name |> Gren.Syntax.Node.value)
+        ((signature.name |> GrenSyntax.nodeValue)
             ++ " :"
         )
         |> Print.followedBy
@@ -4533,12 +4508,12 @@ declarationSignature syntaxComments signature =
 {-| Print a `port` [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)
 -}
 declarationPort :
-    { documentationComment : Maybe (Gren.Syntax.Node.Node String)
-    , comments : List (Gren.Syntax.Node.Node String)
+    { documentationComment : Maybe (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     ->
-        { name : Gren.Syntax.Node.Node String
-        , typeAnnotation : Gren.Syntax.Node.Node Gren.Syntax.TypeAnnotation.TypeAnnotation
+        { name : GrenSyntax.Node String
+        , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 declarationPort syntaxComments signature =
@@ -4546,7 +4521,7 @@ declarationPort syntaxComments signature =
         Nothing ->
             printExactlyPortSpace
 
-        Just (Gren.Syntax.Node.Node documentationRange documentation) ->
+        Just (GrenSyntax.Node documentationRange documentation) ->
             Print.exactly documentation
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
@@ -4555,7 +4530,7 @@ declarationPort syntaxComments signature =
                             { start = documentationRange.start
                             , end =
                                 signature.name
-                                    |> Gren.Syntax.Node.range
+                                    |> GrenSyntax.nodeRange
                                     |> .start
                             }
                             syntaxComments.comments
@@ -4566,11 +4541,11 @@ declarationPort syntaxComments signature =
         |> Print.followedBy (declarationSignature syntaxComments.comments signature)
 
 
-{-| Print an [`Gren.Syntax.TypeAlias.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
+{-| Print an [`GrenSyntax.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
 -}
 declarationTypeAlias :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.TypeAlias.TypeAlias
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.TypeAlias
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
     let
@@ -4580,13 +4555,13 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
                 |> List.foldl
                     (\parameterName soFar ->
                         let
-                            parameterPrintedRange : Gren.Syntax.Range.Range
+                            parameterPrintedRange : GrenSyntax.Range
                             parameterPrintedRange =
-                                parameterName |> Gren.Syntax.Node.range
+                                parameterName |> GrenSyntax.nodeRange
 
                             parameterNamePrint : Print
                             parameterNamePrint =
-                                Print.exactly (parameterName |> Gren.Syntax.Node.value)
+                                Print.exactly (parameterName |> GrenSyntax.nodeValue)
                         in
                         { reverse =
                             (case
@@ -4617,7 +4592,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
                     { reverse = []
                     , endLocation =
                         syntaxTypeAliasDeclaration.name
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     }
                 |> .reverse
@@ -4626,23 +4601,23 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
         parametersLineSpread =
             parameterPrintsWithCommentsBeforeReverse |> Print.lineSpreadListMapAndCombine Print.lineSpread
 
-        rangeBetweenParametersAndType : Gren.Syntax.Range.Range
+        rangeBetweenParametersAndType : GrenSyntax.Range
         rangeBetweenParametersAndType =
             case syntaxTypeAliasDeclaration.generics of
                 [] ->
                     { start =
                         syntaxTypeAliasDeclaration.name
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
-                    , end = syntaxTypeAliasDeclaration.typeAnnotation |> Gren.Syntax.Node.range |> .start
+                    , end = syntaxTypeAliasDeclaration.typeAnnotation |> GrenSyntax.nodeRange |> .start
                     }
 
                 parameter0 :: parameter1Up ->
                     { start =
                         listFilledLast parameter0 parameter1Up
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
-                    , end = syntaxTypeAliasDeclaration.typeAnnotation |> Gren.Syntax.Node.range |> .start
+                    , end = syntaxTypeAliasDeclaration.typeAnnotation |> GrenSyntax.nodeRange |> .start
                     }
 
         aliasedTypePrint : Print
@@ -4654,7 +4629,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
         Nothing ->
             printExactlyTypeSpaceAlias
 
-        Just (Gren.Syntax.Node.Node documentationRange documentation) ->
+        Just (GrenSyntax.Node documentationRange documentation) ->
             Print.exactly documentation
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
@@ -4663,7 +4638,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
                             { start = documentationRange.start
                             , end =
                                 syntaxTypeAliasDeclaration.name
-                                    |> Gren.Syntax.Node.range
+                                    |> GrenSyntax.nodeRange
                                     |> .start
                             }
                             syntaxComments
@@ -4675,7 +4650,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
             (Print.withIndentAtNextMultipleOf4
                 (Print.spaceOrLinebreakIndented parametersLineSpread
                     |> Print.followedBy
-                        (Print.exactly (syntaxTypeAliasDeclaration.name |> Gren.Syntax.Node.value))
+                        (Print.exactly (syntaxTypeAliasDeclaration.name |> GrenSyntax.nodeValue))
                     |> Print.followedBy
                         (Print.withIndentAtNextMultipleOf4
                             (parameterPrintsWithCommentsBeforeReverse
@@ -4705,16 +4680,16 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
             )
 
 
-{-| Print an [`Gren.Syntax.Type.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
+{-| Print an [`GrenSyntax.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
 -}
 declarationChoiceType :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Type.Type
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Type
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
     let
         parameterPrints :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         parameterPrints =
@@ -4722,13 +4697,13 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                 |> List.foldl
                     (\parameterName soFar ->
                         let
-                            parameterPrintedRange : Gren.Syntax.Range.Range
+                            parameterPrintedRange : GrenSyntax.Range
                             parameterPrintedRange =
-                                parameterName |> Gren.Syntax.Node.range
+                                parameterName |> GrenSyntax.nodeRange
 
                             parameterNamePrint : Print
                             parameterNamePrint =
-                                Print.exactly (parameterName |> Gren.Syntax.Node.value)
+                                Print.exactly (parameterName |> GrenSyntax.nodeValue)
                         in
                         { reverse =
                             (case
@@ -4759,7 +4734,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                     { reverse = []
                     , endLocation =
                         syntaxChoiceTypeDeclaration.name
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     }
 
@@ -4771,7 +4746,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
         variantPrintsWithCommentsBeforeReverse =
             syntaxChoiceTypeDeclaration.constructors
                 |> List.foldl
-                    (\(Gren.Syntax.Node.Node variantRange variant) soFar ->
+                    (\(GrenSyntax.Node variantRange variant) soFar ->
                         let
                             variantPrint : Print
                             variantPrint =
@@ -4781,14 +4756,14 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                     , lineSpreadMinimum = Print.SingleLine
                                     }
                                     syntaxComments
-                                    { start = variant.name |> Gren.Syntax.Node.value
+                                    { start = variant.name |> GrenSyntax.nodeValue
                                     , fullRange = variantRange
                                     , arguments = variant.arguments
                                     }
 
                             commentsVariantPrint : Print
                             commentsVariantPrint =
-                                case commentsInRange { start = soFar.endLocation, end = variant.name |> Gren.Syntax.Node.range |> .start } syntaxComments of
+                                case commentsInRange { start = soFar.endLocation, end = variant.name |> GrenSyntax.nodeRange |> .start } syntaxComments of
                                     [] ->
                                         variantPrint
 
@@ -4821,7 +4796,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
         Nothing ->
             printExactlyType
 
-        Just (Gren.Syntax.Node.Node documentationRange documentation) ->
+        Just (GrenSyntax.Node documentationRange documentation) ->
             Print.exactly documentation
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
@@ -4830,7 +4805,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                             { start = documentationRange.start
                             , end =
                                 syntaxChoiceTypeDeclaration.name
-                                    |> Gren.Syntax.Node.range
+                                    |> GrenSyntax.nodeRange
                                     |> .start
                             }
                             syntaxComments
@@ -4843,7 +4818,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                 (Print.spaceOrLinebreakIndented parametersLineSpread
                     |> Print.followedBy
                         (Print.exactly
-                            (syntaxChoiceTypeDeclaration.name |> Gren.Syntax.Node.value)
+                            (syntaxChoiceTypeDeclaration.name |> GrenSyntax.nodeValue)
                         )
                     |> Print.followedBy
                         (Print.withIndentAtNextMultipleOf4
@@ -4867,43 +4842,43 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
             )
 
 
-{-| Print an [`Gren.Syntax.Infix.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
+{-| Print an [`GrenSyntax.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
 -}
-declarationInfix : Gren.Syntax.Infix.Infix -> Print
+declarationInfix : GrenSyntax.Infix -> Print
 declarationInfix syntaxInfixDeclaration =
     Print.exactly
         ("infix "
-            ++ infixDirection (syntaxInfixDeclaration.direction |> Gren.Syntax.Node.value)
+            ++ infixDirection (syntaxInfixDeclaration.direction |> GrenSyntax.nodeValue)
             ++ " "
-            ++ String.fromInt (syntaxInfixDeclaration.precedence |> Gren.Syntax.Node.value)
+            ++ String.fromInt (syntaxInfixDeclaration.precedence |> GrenSyntax.nodeValue)
             ++ " ("
-            ++ (syntaxInfixDeclaration.operator |> Gren.Syntax.Node.value)
+            ++ (syntaxInfixDeclaration.operator |> GrenSyntax.nodeValue)
             ++ ") = "
-            ++ (syntaxInfixDeclaration.function |> Gren.Syntax.Node.value)
+            ++ (syntaxInfixDeclaration.function |> GrenSyntax.nodeValue)
         )
 
 
-infixDirection : Gren.Syntax.Infix.InfixDirection -> String
+infixDirection : GrenSyntax.InfixDirection -> String
 infixDirection syntaxInfixDirection =
     case syntaxInfixDirection of
-        Gren.Syntax.Infix.Left ->
+        GrenSyntax.Left ->
             "left "
 
-        Gren.Syntax.Infix.Right ->
+        GrenSyntax.Right ->
             "right"
 
-        Gren.Syntax.Infix.Non ->
+        GrenSyntax.Non ->
             "non  "
 
 
 declarationExpressionImplementation :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.FunctionImplementation
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.FunctionImplementation
     -> Print
 declarationExpressionImplementation syntaxComments implementation =
     let
         parameterPrintsWithCommentsBefore :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
@@ -4911,9 +4886,9 @@ declarationExpressionImplementation syntaxComments implementation =
                 |> List.foldl
                     (\parameterPattern soFar ->
                         let
-                            parameterRange : Gren.Syntax.Range.Range
+                            parameterRange : GrenSyntax.Range
                             parameterRange =
-                                parameterPattern |> Gren.Syntax.Node.range
+                                parameterPattern |> GrenSyntax.nodeRange
 
                             parameterPrint : Print
                             parameterPrint =
@@ -4951,7 +4926,7 @@ declarationExpressionImplementation syntaxComments implementation =
                     { reverse = []
                     , endLocation =
                         implementation.name
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     }
 
@@ -4967,7 +4942,7 @@ declarationExpressionImplementation syntaxComments implementation =
                 { start = parameterPrintsWithCommentsBefore.endLocation
                 , end =
                     implementation.expression
-                        |> Gren.Syntax.Node.range
+                        |> GrenSyntax.nodeRange
                         |> .start
                 }
                 syntaxComments
@@ -4977,7 +4952,7 @@ declarationExpressionImplementation syntaxComments implementation =
             expressionNotParenthesized syntaxComments
                 implementation.expression
     in
-    Print.exactly (implementation.name |> Gren.Syntax.Node.value)
+    Print.exactly (implementation.name |> GrenSyntax.nodeValue)
         |> Print.followedBy
             (Print.withIndentAtNextMultipleOf4
                 (parameterPrintsWithCommentsBefore.reverse
@@ -5018,11 +4993,11 @@ commentsBetweenDocumentationAndDeclaration syntaxComments =
                 |> Print.followedBy printLinebreakLinebreak
 
 
-{-| Print an [`Gren.Syntax.Expression.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
+{-| Print an [`GrenSyntax.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
 -}
 declarationExpression :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.Function
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Function
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
     let
@@ -5030,7 +5005,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
         implementationPrint =
             declarationExpressionImplementation
                 syntaxComments
-                (syntaxExpressionDeclaration.declaration |> Gren.Syntax.Node.value)
+                (syntaxExpressionDeclaration.declaration |> GrenSyntax.nodeValue)
 
         withoutDocumentationPrint : Print
         withoutDocumentationPrint =
@@ -5038,7 +5013,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
                 Nothing ->
                     implementationPrint
 
-                Just (Gren.Syntax.Node.Node signatureRange signature) ->
+                Just (GrenSyntax.Node signatureRange signature) ->
                     let
                         commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
@@ -5046,7 +5021,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
                                 { start = signatureRange.end
                                 , end =
                                     syntaxExpressionDeclaration.declaration
-                                        |> Gren.Syntax.Node.range
+                                        |> GrenSyntax.nodeRange
                                         |> .start
                                 }
                                 syntaxComments
@@ -5070,7 +5045,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
         Nothing ->
             withoutDocumentationPrint
 
-        Just (Gren.Syntax.Node.Node documentationRange documentation) ->
+        Just (GrenSyntax.Node documentationRange documentation) ->
             Print.exactly documentation
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
@@ -5080,9 +5055,9 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
                             , end =
                                 case syntaxExpressionDeclaration.signature of
                                     Nothing ->
-                                        syntaxExpressionDeclaration.declaration |> Gren.Syntax.Node.range |> .start
+                                        syntaxExpressionDeclaration.declaration |> GrenSyntax.nodeRange |> .start
 
-                                    Just (Gren.Syntax.Node.Node signatureRange _) ->
+                                    Just (GrenSyntax.Node signatureRange _) ->
                                         signatureRange.start
                             }
                             syntaxComments
@@ -5092,77 +5067,77 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
 
 
 expressionParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesized syntaxComments expressionNode =
     parenthesized expressionNotParenthesized
         { notParenthesized = expressionNode |> expressionToNotParenthesized
-        , fullRange = expressionNode |> Gren.Syntax.Node.range
+        , fullRange = expressionNode |> GrenSyntax.nodeRange
         }
         syntaxComments
 
 
-expressionIsSpaceSeparated : Gren.Syntax.Expression.Expression -> Bool
+expressionIsSpaceSeparated : GrenSyntax.Expression -> Bool
 expressionIsSpaceSeparated syntaxExpression =
     case syntaxExpression of
-        Gren.Syntax.Expression.UnitExpr ->
+        GrenSyntax.UnitExpr ->
             False
 
-        Gren.Syntax.Expression.Application application ->
+        GrenSyntax.Application application ->
             case application of
                 [] ->
                     -- invalid syntax
                     False
 
-                [ Gren.Syntax.Node.Node _ notActuallyApplied ] ->
+                [ GrenSyntax.Node _ notActuallyApplied ] ->
                     -- invalid syntax
                     expressionIsSpaceSeparated notActuallyApplied
 
                 _ :: _ :: _ ->
                     True
 
-        Gren.Syntax.Expression.OperatorApplication _ _ _ ->
+        GrenSyntax.OperatorApplication _ _ _ ->
             True
 
-        Gren.Syntax.Expression.FunctionOrValue _ _ ->
+        GrenSyntax.FunctionOrValue _ _ ->
             False
 
-        Gren.Syntax.Expression.IfBlock _ _ _ ->
+        GrenSyntax.IfBlock _ _ _ ->
             True
 
-        Gren.Syntax.Expression.PrefixOperator _ ->
+        GrenSyntax.PrefixOperator _ ->
             False
 
-        Gren.Syntax.Expression.Operator _ ->
+        GrenSyntax.Operator _ ->
             -- invalid syntax
             False
 
-        Gren.Syntax.Expression.Integer _ ->
+        GrenSyntax.Integer _ ->
             False
 
-        Gren.Syntax.Expression.Hex _ ->
+        GrenSyntax.Hex _ ->
             False
 
-        Gren.Syntax.Expression.Floatable _ ->
+        GrenSyntax.Floatable _ ->
             False
 
-        Gren.Syntax.Expression.Negation _ ->
+        GrenSyntax.Negation _ ->
             False
 
-        Gren.Syntax.Expression.Literal _ ->
+        GrenSyntax.Literal _ ->
             False
 
-        Gren.Syntax.Expression.CharLiteral _ ->
+        GrenSyntax.CharLiteral _ ->
             False
 
-        Gren.Syntax.Expression.TupledExpression parts ->
+        GrenSyntax.TupledExpression parts ->
             case parts of
                 [] ->
                     -- should be handled by UnitExpr
                     False
 
-                [ Gren.Syntax.Node.Node _ inParens ] ->
+                [ GrenSyntax.Node _ inParens ] ->
                     -- should be handled by ParenthesizedExpression
                     expressionIsSpaceSeparated inParens
 
@@ -5176,62 +5151,62 @@ expressionIsSpaceSeparated syntaxExpression =
                     -- invalid syntax
                     False
 
-        Gren.Syntax.Expression.ParenthesizedExpression (Gren.Syntax.Node.Node _ inParens) ->
+        GrenSyntax.ParenthesizedExpression (GrenSyntax.Node _ inParens) ->
             expressionIsSpaceSeparated inParens
 
-        Gren.Syntax.Expression.LetExpression _ ->
+        GrenSyntax.LetExpression _ ->
             True
 
-        Gren.Syntax.Expression.CaseExpression _ ->
+        GrenSyntax.CaseExpression _ ->
             True
 
-        Gren.Syntax.Expression.LambdaExpression _ ->
+        GrenSyntax.LambdaExpression _ ->
             True
 
-        Gren.Syntax.Expression.RecordExpr _ ->
+        GrenSyntax.RecordExpr _ ->
             False
 
-        Gren.Syntax.Expression.ListExpr _ ->
+        GrenSyntax.ListExpr _ ->
             False
 
-        Gren.Syntax.Expression.RecordAccess _ _ ->
+        GrenSyntax.RecordAccess _ _ ->
             False
 
-        Gren.Syntax.Expression.RecordAccessFunction _ ->
+        GrenSyntax.RecordAccessFunction _ ->
             False
 
-        Gren.Syntax.Expression.RecordUpdateExpression _ _ ->
+        GrenSyntax.RecordUpdateExpression _ _ ->
             False
 
-        Gren.Syntax.Expression.GLSLExpression _ ->
+        GrenSyntax.GLSLExpression _ ->
             False
 
 
 expressionParenthesizedIfSpaceSeparated :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparated syntaxComments expressionNode =
-    if expressionIsSpaceSeparated (expressionNode |> Gren.Syntax.Node.value) then
+    if expressionIsSpaceSeparated (expressionNode |> GrenSyntax.nodeValue) then
         expressionParenthesized syntaxComments expressionNode
 
     else
         expressionNotParenthesized syntaxComments expressionNode
 
 
-{-| Print an [`Gren.Syntax.Expression.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
+{-| Print an [`GrenSyntax.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
 -}
 expressionNotParenthesized :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
-expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange syntaxExpression) =
+expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpression) =
     -- IGNORE TCO
     case syntaxExpression of
-        Gren.Syntax.Expression.UnitExpr ->
+        GrenSyntax.UnitExpr ->
             printExactlyParensOpeningParensClosed
 
-        Gren.Syntax.Expression.Application application ->
+        GrenSyntax.Application application ->
             case application of
                 [] ->
                     -- invalid syntax
@@ -5249,7 +5224,7 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                         , argument1Up = argument1Up
                         }
 
-        Gren.Syntax.Expression.OperatorApplication operator left right ->
+        GrenSyntax.OperatorApplication operator left right ->
             expressionOperation syntaxComments
                 { fullRange = fullRange
                 , operator = operator
@@ -5257,11 +5232,11 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                 , right = right
                 }
 
-        Gren.Syntax.Expression.FunctionOrValue qualification unqualified ->
+        GrenSyntax.FunctionOrValue qualification unqualified ->
             Print.exactly
                 (qualifiedReference { qualification = qualification, unqualified = unqualified })
 
-        Gren.Syntax.Expression.IfBlock condition onTrue onFalse ->
+        GrenSyntax.IfBlock condition onTrue onFalse ->
             expressionIfThenElse syntaxComments
                 { fullRange = fullRange
                 , condition = condition
@@ -5270,32 +5245,32 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                 , onFalse = onFalse
                 }
 
-        Gren.Syntax.Expression.PrefixOperator operatorSymbol ->
+        GrenSyntax.PrefixOperator operatorSymbol ->
             Print.exactly ("(" ++ operatorSymbol ++ ")")
 
-        Gren.Syntax.Expression.Operator operatorSymbol ->
+        GrenSyntax.Operator operatorSymbol ->
             -- invalid syntax
             Print.exactly operatorSymbol
 
-        Gren.Syntax.Expression.Integer int ->
+        GrenSyntax.Integer int ->
             Print.exactly (intLiteral int)
 
-        Gren.Syntax.Expression.Hex int ->
+        GrenSyntax.Hex int ->
             Print.exactly (hexLiteral int)
 
-        Gren.Syntax.Expression.Floatable float ->
+        GrenSyntax.Floatable float ->
             Print.exactly (floatLiteral float)
 
-        Gren.Syntax.Expression.Negation negated ->
+        GrenSyntax.Negation negated ->
             printExpressionNegation syntaxComments negated
 
-        Gren.Syntax.Expression.Literal string ->
-            stringLiteral (Gren.Syntax.Node.Node fullRange string)
+        GrenSyntax.Literal string ->
+            stringLiteral (GrenSyntax.Node fullRange string)
 
-        Gren.Syntax.Expression.CharLiteral char ->
+        GrenSyntax.CharLiteral char ->
             Print.exactly (charLiteral char)
 
-        Gren.Syntax.Expression.TupledExpression parts ->
+        GrenSyntax.TupledExpression parts ->
             case parts of
                 [] ->
                     -- should be handled by Unit
@@ -5306,11 +5281,11 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                     let
                         commentsBeforeInParens : List String
                         commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> Gren.Syntax.Node.range |> .start } syntaxComments
+                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
                         commentsAfterInParens : List String
                         commentsAfterInParens =
-                            commentsInRange { start = inParens |> Gren.Syntax.Node.range |> .end, end = fullRange.end } syntaxComments
+                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
                     in
                     case ( commentsBeforeInParens, commentsAfterInParens ) of
                         ( [], [] ) ->
@@ -5349,15 +5324,15 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                         syntaxComments
                         { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
-        Gren.Syntax.Expression.ParenthesizedExpression inParens ->
+        GrenSyntax.ParenthesizedExpression inParens ->
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
-                    commentsInRange { start = fullRange.start, end = inParens |> Gren.Syntax.Node.range |> .start } syntaxComments
+                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
                 commentsAfterInParens : List String
                 commentsAfterInParens =
-                    commentsInRange { start = inParens |> Gren.Syntax.Node.range |> .end, end = fullRange.end } syntaxComments
+                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
             in
             case ( commentsBeforeInParens, commentsAfterInParens ) of
                 ( [], [] ) ->
@@ -5370,7 +5345,7 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                         }
                         syntaxComments
 
-        Gren.Syntax.Expression.LetExpression syntaxLetIn ->
+        GrenSyntax.LetExpression syntaxLetIn ->
             case syntaxLetIn.declarations of
                 [] ->
                     -- invalid syntax
@@ -5384,17 +5359,17 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                         , result = syntaxLetIn.expression
                         }
 
-        Gren.Syntax.Expression.CaseExpression syntaxCaseOf ->
+        GrenSyntax.CaseExpression syntaxCaseOf ->
             expressionCaseOf syntaxComments
                 { fullRange = fullRange
                 , expression = syntaxCaseOf.expression
                 , cases = syntaxCaseOf.cases
                 }
 
-        Gren.Syntax.Expression.LambdaExpression syntaxLambda ->
-            expressionLambda syntaxComments (Gren.Syntax.Node.Node fullRange syntaxLambda)
+        GrenSyntax.LambdaExpression syntaxLambda ->
+            expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda)
 
-        Gren.Syntax.Expression.RecordExpr fields ->
+        GrenSyntax.RecordExpr fields ->
             recordLiteral
                 { printValueNotParenthesized = expressionNotParenthesized
                 , nameValueSeparator = "="
@@ -5402,30 +5377,30 @@ expressionNotParenthesized syntaxComments (Gren.Syntax.Node.Node fullRange synta
                 syntaxComments
                 { fullRange = fullRange, fields = fields }
 
-        Gren.Syntax.Expression.ListExpr elements ->
+        GrenSyntax.ListExpr elements ->
             expressionList syntaxComments { fullRange = fullRange, elements = elements }
 
-        Gren.Syntax.Expression.RecordAccess syntaxRecord (Gren.Syntax.Node.Node _ accessedFieldName) ->
+        GrenSyntax.RecordAccess syntaxRecord (GrenSyntax.Node _ accessedFieldName) ->
             expressionParenthesizedIfSpaceSeparated syntaxComments syntaxRecord
                 |> Print.followedBy (Print.exactly ("." ++ accessedFieldName))
 
-        Gren.Syntax.Expression.RecordAccessFunction dotFieldName ->
+        GrenSyntax.RecordAccessFunction dotFieldName ->
             Print.exactly ("." ++ (dotFieldName |> String.replace "." ""))
 
-        Gren.Syntax.Expression.RecordUpdateExpression recordVariableNode fields ->
+        GrenSyntax.RecordUpdateExpression recordVariableNode fields ->
             expressionRecordUpdate syntaxComments
                 { fullRange = fullRange
                 , recordVariable = recordVariableNode
                 , fields = fields
                 }
 
-        Gren.Syntax.Expression.GLSLExpression glsl ->
+        GrenSyntax.GLSLExpression glsl ->
             expressionGlsl glsl
 
 
 printExpressionNegation :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 printExpressionNegation syntaxComments negated =
     if negated |> expressionIsBase10Zero then
@@ -5436,11 +5411,11 @@ printExpressionNegation syntaxComments negated =
 
     else
         case negated |> expressionToNotParenthesized of
-            Gren.Syntax.Node.Node doublyNegatedRange (Gren.Syntax.Expression.Negation doublyNegated) ->
+            GrenSyntax.Node doublyNegatedRange (GrenSyntax.Negation doublyNegated) ->
                 printExactlyMinus
                     |> Print.followedBy
                         (expressionParenthesized syntaxComments
-                            (Gren.Syntax.Node.Node doublyNegatedRange (Gren.Syntax.Expression.Negation doublyNegated))
+                            (GrenSyntax.Node doublyNegatedRange (GrenSyntax.Negation doublyNegated))
                         )
 
             negatedNotNegationOrIntegerZero ->
@@ -5451,26 +5426,26 @@ printExpressionNegation syntaxComments negated =
                         )
 
 
-expressionIsBase10Zero : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression -> Bool
+expressionIsBase10Zero : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsBase10Zero expression =
-    case expression |> expressionToNotParenthesized |> Gren.Syntax.Node.value of
-        Gren.Syntax.Expression.Integer 0 ->
+    case expression |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
+        GrenSyntax.Integer 0 ->
             True
 
-        Gren.Syntax.Expression.Negation doublyNegated ->
+        GrenSyntax.Negation doublyNegated ->
             expressionIsBase10Zero doublyNegated
 
         _ ->
             False
 
 
-expressionIsBase16Zero : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression -> Bool
+expressionIsBase16Zero : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsBase16Zero expression =
-    case expression |> expressionToNotParenthesized |> Gren.Syntax.Node.value of
-        Gren.Syntax.Expression.Hex 0 ->
+    case expression |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
+        GrenSyntax.Hex 0 ->
             True
 
-        Gren.Syntax.Expression.Negation doublyNegated ->
+        GrenSyntax.Negation doublyNegated ->
             expressionIsBase16Zero doublyNegated
 
         _ ->
@@ -5500,12 +5475,12 @@ floatLiteral float =
 
 
 expressionCall :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , applied : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-        , argument0 : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-        , argument1Up : List (Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression)
+        { fullRange : GrenSyntax.Range
+        , applied : GrenSyntax.Node GrenSyntax.Expression
+        , argument0 : GrenSyntax.Node GrenSyntax.Expression
+        , argument1Up : List (GrenSyntax.Node GrenSyntax.Expression)
         }
     -> Print
 expressionCall syntaxComments syntaxCall =
@@ -5518,10 +5493,10 @@ expressionCall syntaxComments syntaxCall =
         commentsBeforeArgument0 : List String
         commentsBeforeArgument0 =
             commentsInRange
-                { start = syntaxCall.applied |> Gren.Syntax.Node.range |> .end
+                { start = syntaxCall.applied |> GrenSyntax.nodeRange |> .end
                 , end =
                     syntaxCall.argument0
-                        |> Gren.Syntax.Node.range
+                        |> GrenSyntax.nodeRange
                         |> .start
                 }
                 syntaxComments
@@ -5549,7 +5524,7 @@ expressionCall syntaxComments syntaxCall =
                             (case
                                 commentsInRange
                                     { start = soFar.endLocation
-                                    , end = argument |> Gren.Syntax.Node.range |> .start
+                                    , end = argument |> GrenSyntax.nodeRange |> .start
                                     }
                                     syntaxComments
                              of
@@ -5573,13 +5548,13 @@ expressionCall syntaxComments syntaxCall =
                                         |> Print.followedBy print
                             )
                                 :: soFar.reverse
-                        , endLocation = argument |> Gren.Syntax.Node.range |> .end
+                        , endLocation = argument |> GrenSyntax.nodeRange |> .end
                         }
                     )
                     { reverse = []
                     , endLocation =
                         syntaxCall.argument0
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     }
                 |> .reverse
@@ -5643,25 +5618,25 @@ expressionCall syntaxComments syntaxCall =
 
 
 expressionOperation :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , left : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        { fullRange : GrenSyntax.Range
+        , left : GrenSyntax.Node GrenSyntax.Expression
         , operator : String
-        , right : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        , right : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
 expressionOperation syntaxComments syntaxOperation =
     let
         operationExpanded :
-            { leftest : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+            { leftest : GrenSyntax.Node GrenSyntax.Expression
             , beforeRightestOperatorExpressionChain :
                 List
                     { operator : String
-                    , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                    , expression : GrenSyntax.Node GrenSyntax.Expression
                     }
             , rightestOperator : String
-            , rightestExpression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+            , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
             }
         operationExpanded =
             expressionOperationExpand syntaxOperation.left
@@ -5672,21 +5647,21 @@ expressionOperation syntaxComments syntaxOperation =
             { reverse :
                 List
                     { operator : String
-                    , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                    , expression : GrenSyntax.Node GrenSyntax.Expression
                     , maybeCommentsBeforeExpression :
                         Maybe { print : Print, lineSpread : Print.LineSpread }
                     }
-            , endLocation : Gren.Syntax.Range.Location
+            , endLocation : GrenSyntax.Location
             }
         beforeRightestPrintsAndComments =
             operationExpanded.beforeRightestOperatorExpressionChain
                 |> List.foldl
                     (\operatorAndExpressionBeforeRightest soFar ->
                         let
-                            expressionRange : Gren.Syntax.Range.Range
+                            expressionRange : GrenSyntax.Range
                             expressionRange =
                                 operatorAndExpressionBeforeRightest.expression
-                                    |> Gren.Syntax.Node.range
+                                    |> GrenSyntax.nodeRange
 
                             commentsBefore : List String
                             commentsBefore =
@@ -5710,7 +5685,7 @@ expressionOperation syntaxComments syntaxOperation =
                         }
                     )
                     { endLocation =
-                        operationExpanded.leftest |> Gren.Syntax.Node.range |> .end
+                        operationExpanded.leftest |> GrenSyntax.nodeRange |> .end
                     , reverse = []
                     }
 
@@ -5720,7 +5695,7 @@ expressionOperation syntaxComments syntaxOperation =
                 { start = beforeRightestPrintsAndComments.endLocation
                 , end =
                     operationExpanded.rightestExpression
-                        |> Gren.Syntax.Node.range
+                        |> GrenSyntax.nodeRange
                         |> .start
                 }
                 syntaxComments
@@ -5754,7 +5729,7 @@ expressionOperation syntaxComments syntaxOperation =
             , rightToLeft :
                 List
                     { operator : String
-                    , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                    , expression : GrenSyntax.Node GrenSyntax.Expression
                     , expressionPrint : Print
                     , maybeCommentsBeforeExpression : Maybe { print : Print, lineSpread : Print.LineSpread }
                     , previousLineSpread : Print.LineSpread
@@ -5913,40 +5888,40 @@ expressionOperation syntaxComments syntaxOperation =
 
 
 expressionOperationExpand :
-    Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    GrenSyntax.Node GrenSyntax.Expression
     -> String
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    -> GrenSyntax.Node GrenSyntax.Expression
     ->
-        { leftest : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        { leftest : GrenSyntax.Node GrenSyntax.Expression
         , beforeRightestOperatorExpressionChain :
             List
                 { operator : String
-                , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                , expression : GrenSyntax.Node GrenSyntax.Expression
                 }
         , rightestOperator : String
-        , rightestExpression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
         }
 expressionOperationExpand left operator right =
     let
         rightExpanded :
             { beforeRightestOperatorExpressionChain :
-                List { operator : String, expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression }
+                List { operator : String, expression : GrenSyntax.Node GrenSyntax.Expression }
             , rightestOperator : String
-            , rightestExpression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+            , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
             }
         rightExpanded =
             case right of
-                Gren.Syntax.Node.Node _ (Gren.Syntax.Expression.OperatorApplication rightOperator rightLeft rightRight) ->
+                GrenSyntax.Node _ (GrenSyntax.OperatorApplication rightOperator rightLeft rightRight) ->
                     let
                         rightOperationExpanded :
-                            { leftest : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                            { leftest : GrenSyntax.Node GrenSyntax.Expression
                             , beforeRightestOperatorExpressionChain :
                                 List
                                     { operator : String
-                                    , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                                    , expression : GrenSyntax.Node GrenSyntax.Expression
                                     }
                             , rightestOperator : String
-                            , rightestExpression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                            , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
                             }
                         rightOperationExpanded =
                             expressionOperationExpand rightLeft rightOperator rightRight
@@ -5965,17 +5940,17 @@ expressionOperationExpand left operator right =
                     }
     in
     case left of
-        Gren.Syntax.Node.Node _ (Gren.Syntax.Expression.OperatorApplication leftOperator leftLeft leftRight) ->
+        GrenSyntax.Node _ (GrenSyntax.OperatorApplication leftOperator leftLeft leftRight) ->
             let
                 leftOperationExpanded :
-                    { leftest : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                    { leftest : GrenSyntax.Node GrenSyntax.Expression
                     , beforeRightestOperatorExpressionChain :
                         List
                             { operator : String
-                            , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                            , expression : GrenSyntax.Node GrenSyntax.Expression
                             }
                     , rightestOperator : String
-                    , rightestExpression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                    , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
                     }
                 leftOperationExpanded =
                     expressionOperationExpand leftLeft leftOperator leftRight
@@ -6000,11 +5975,11 @@ expressionOperationExpand left operator right =
             }
 
 
-expressionIsSpaceSeparatedExceptApplication : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression -> Bool
+expressionIsSpaceSeparatedExceptApplication : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsSpaceSeparatedExceptApplication expressionNode =
-    if expressionIsSpaceSeparated (expressionNode |> Gren.Syntax.Node.value) then
+    if expressionIsSpaceSeparated (expressionNode |> GrenSyntax.nodeValue) then
         case expressionNode |> expressionToNotParenthesized of
-            Gren.Syntax.Node.Node _ (Gren.Syntax.Expression.Application _) ->
+            GrenSyntax.Node _ (GrenSyntax.Application _) ->
                 False
 
             _ ->
@@ -6015,8 +5990,8 @@ expressionIsSpaceSeparatedExceptApplication expressionNode =
 
 
 expressionParenthesizedIfSpaceSeparatedExceptApplication :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparatedExceptApplication syntaxComments expressionNode =
     if expressionNode |> expressionIsSpaceSeparatedExceptApplication then
@@ -6027,16 +6002,16 @@ expressionParenthesizedIfSpaceSeparatedExceptApplication syntaxComments expressi
 
 
 expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda syntaxComments expressionNode =
-    if expressionNode |> Gren.Syntax.Node.value |> expressionIsSpaceSeparated then
-        case expressionNode |> expressionToNotParenthesized |> Gren.Syntax.Node.value of
-            Gren.Syntax.Expression.Application _ ->
+    if expressionNode |> GrenSyntax.nodeValue |> expressionIsSpaceSeparated then
+        case expressionNode |> expressionToNotParenthesized |> GrenSyntax.nodeValue of
+            GrenSyntax.Application _ ->
                 expressionNotParenthesized syntaxComments expressionNode
 
-            Gren.Syntax.Expression.LambdaExpression _ ->
+            GrenSyntax.LambdaExpression _ ->
                 expressionNotParenthesized syntaxComments expressionNode
 
             _ ->
@@ -6047,10 +6022,10 @@ expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda syntaxComments
 
 
 expressionList :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { elements : List (Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression)
-        , fullRange : Gren.Syntax.Range.Range
+        { elements : List (GrenSyntax.Node GrenSyntax.Expression)
+        , fullRange : GrenSyntax.Range
         }
     -> Print
 expressionList syntaxComments syntaxList =
@@ -6080,7 +6055,7 @@ expressionList syntaxComments syntaxList =
         element0 :: element1Up ->
             let
                 elementPrintsWithCommentsBefore :
-                    { endLocation : Gren.Syntax.Range.Location
+                    { endLocation : GrenSyntax.Location
                     , reverse : List Print
                     }
                 elementPrintsWithCommentsBefore =
@@ -6088,7 +6063,7 @@ expressionList syntaxComments syntaxList =
                         |> List.foldl
                             (\elementNode soFar ->
                                 let
-                                    (Gren.Syntax.Node.Node elementRange _) =
+                                    (GrenSyntax.Node elementRange _) =
                                         elementNode
 
                                     print : Print
@@ -6177,15 +6152,15 @@ expressionList syntaxComments syntaxList =
 
 
 expressionRecordUpdate :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , recordVariable : Gren.Syntax.Node.Node String
+        { fullRange : GrenSyntax.Range
+        , recordVariable : GrenSyntax.Node String
         , fields :
             List
-                (Gren.Syntax.Node.Node
-                    ( Gren.Syntax.Node.Node String
-                    , Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+                (GrenSyntax.Node
+                    ( GrenSyntax.Node String
+                    , GrenSyntax.Node GrenSyntax.Expression
                     )
                 )
         }
@@ -6193,22 +6168,22 @@ expressionRecordUpdate :
 expressionRecordUpdate syntaxComments syntaxRecordUpdate =
     let
         fieldPrintsWithCommentsBefore :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         fieldPrintsWithCommentsBefore =
             syntaxRecordUpdate.fields
                 |> List.foldl
-                    (\(Gren.Syntax.Node.Node _ fieldSyntax) soFar ->
+                    (\(GrenSyntax.Node _ fieldSyntax) soFar ->
                         let
-                            ( Gren.Syntax.Node.Node fieldNameRange fieldName, fieldValueNode ) =
+                            ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode ) =
                                 fieldSyntax
 
                             valuePrint : Print
                             valuePrint =
                                 expressionNotParenthesized syntaxComments fieldValueNode
 
-                            (Gren.Syntax.Node.Node fieldValueRange _) =
+                            (GrenSyntax.Node fieldValueRange _) =
                                 fieldValueNode
                         in
                         { endLocation = fieldValueRange.end
@@ -6244,7 +6219,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                 Print.spaceOrLinebreakIndented
                                                     (lineSpreadBetweenRanges
                                                         fieldNameRange
-                                                        (fieldValueNode |> Gren.Syntax.Node.range)
+                                                        (fieldValueNode |> GrenSyntax.nodeRange)
                                                         |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                     )
 
@@ -6262,7 +6237,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                                     (\() ->
                                                                         lineSpreadBetweenRanges
                                                                             fieldNameRange
-                                                                            (fieldValueNode |> Gren.Syntax.Node.range)
+                                                                            (fieldValueNode |> GrenSyntax.nodeRange)
                                                                     )
                                                                 |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                             )
@@ -6280,7 +6255,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                     )
                     { endLocation =
                         syntaxRecordUpdate.recordVariable
-                            |> Gren.Syntax.Node.range
+                            |> GrenSyntax.nodeRange
                             |> .end
                     , reverse = []
                     }
@@ -6298,7 +6273,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
             case
                 commentsInRange
                     { start = syntaxRecordUpdate.fullRange.start
-                    , end = syntaxRecordUpdate.recordVariable |> Gren.Syntax.Node.range |> .start
+                    , end = syntaxRecordUpdate.recordVariable |> GrenSyntax.nodeRange |> .start
                     }
                     syntaxComments
             of
@@ -6331,7 +6306,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
         recordVariablePrint : Print
         recordVariablePrint =
             Print.exactly
-                (syntaxRecordUpdate.recordVariable |> Gren.Syntax.Node.value)
+                (syntaxRecordUpdate.recordVariable |> GrenSyntax.nodeValue)
     in
     printExactlyCurlyOpeningSpace
         |> Print.followedBy
@@ -6376,13 +6351,13 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
 
 
 expressionLambda :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Lambda
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Node GrenSyntax.Lambda
     -> Print
-expressionLambda syntaxComments (Gren.Syntax.Node.Node fullRange syntaxLambda) =
+expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
     let
         parameterPrintsWithCommentsBefore :
-            { endLocation : Gren.Syntax.Range.Location
+            { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
@@ -6390,9 +6365,9 @@ expressionLambda syntaxComments (Gren.Syntax.Node.Node fullRange syntaxLambda) =
                 |> List.foldl
                     (\parameterPattern soFar ->
                         let
-                            parameterRange : Gren.Syntax.Range.Range
+                            parameterRange : GrenSyntax.Range
                             parameterRange =
-                                parameterPattern |> Gren.Syntax.Node.range
+                                parameterPattern |> GrenSyntax.nodeRange
 
                             print : Print
                             print =
@@ -6435,7 +6410,7 @@ expressionLambda syntaxComments (Gren.Syntax.Node.Node fullRange syntaxLambda) =
         commentsBeforeResult =
             commentsInRange
                 { start = parameterPrintsWithCommentsBefore.endLocation
-                , end = syntaxLambda.expression |> Gren.Syntax.Node.range |> .start
+                , end = syntaxLambda.expression |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -6488,13 +6463,13 @@ expressionLambda syntaxComments (Gren.Syntax.Node.Node fullRange syntaxLambda) =
 
 
 expressionIfThenElse :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , condition : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        { fullRange : GrenSyntax.Range
+        , condition : GrenSyntax.Node GrenSyntax.Expression
         , conditionLineSpreadMinimum : Print.LineSpread
-        , onTrue : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-        , onFalse : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        , onTrue : GrenSyntax.Node GrenSyntax.Expression
+        , onFalse : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
 expressionIfThenElse syntaxComments syntaxIfThenElse =
@@ -6504,35 +6479,35 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         commentsBeforeCondition =
             commentsInRange
                 { start = syntaxIfThenElse.fullRange.start
-                , end = syntaxIfThenElse.condition |> Gren.Syntax.Node.range |> .start
+                , end = syntaxIfThenElse.condition |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
         commentsBeforeOnTrue : List String
         commentsBeforeOnTrue =
             commentsInRange
-                { start = syntaxIfThenElse.condition |> Gren.Syntax.Node.range |> .end
-                , end = syntaxIfThenElse.onTrue |> Gren.Syntax.Node.range |> .start
+                { start = syntaxIfThenElse.condition |> GrenSyntax.nodeRange |> .end
+                , end = syntaxIfThenElse.onTrue |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
-        onFalseNotParenthesized : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        onFalseNotParenthesized : GrenSyntax.Node GrenSyntax.Expression
         onFalseNotParenthesized =
             syntaxIfThenElse.onFalse |> expressionToNotParenthesized
 
         commentsBeforeOnFalseNotParenthesizedInParens : List String
         commentsBeforeOnFalseNotParenthesizedInParens =
             commentsInRange
-                { start = syntaxIfThenElse.onFalse |> Gren.Syntax.Node.range |> .start
-                , end = onFalseNotParenthesized |> Gren.Syntax.Node.range |> .start
+                { start = syntaxIfThenElse.onFalse |> GrenSyntax.nodeRange |> .start
+                , end = onFalseNotParenthesized |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
         commentsBeforeOnFalse : List String
         commentsBeforeOnFalse =
             commentsInRange
-                { start = syntaxIfThenElse.onTrue |> Gren.Syntax.Node.range |> .end
-                , end = syntaxIfThenElse.onFalse |> Gren.Syntax.Node.range |> .start
+                { start = syntaxIfThenElse.onTrue |> GrenSyntax.nodeRange |> .end
+                , end = syntaxIfThenElse.onFalse |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -6597,7 +6572,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         |> Print.followedBy printExactlyElse
         |> Print.followedBy
             (case ( commentsBeforeOnFalseNotParenthesizedInParens, onFalseNotParenthesized ) of
-                ( [], Gren.Syntax.Node.Node onFalseNotParenthesizedRange (Gren.Syntax.Expression.IfBlock onFalseCondition onFalseOnTrue onFalseOnFalse) ) ->
+                ( [], GrenSyntax.Node onFalseNotParenthesizedRange (GrenSyntax.IfBlock onFalseCondition onFalseOnTrue onFalseOnFalse) ) ->
                     case commentsBeforeOnFalse of
                         [] ->
                             printExactlySpace
@@ -6651,11 +6626,11 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
 
 
 expressionCaseOf :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , expression : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-        , cases : Gren.Syntax.Expression.Cases
+        { fullRange : GrenSyntax.Range
+        , expression : GrenSyntax.Node GrenSyntax.Expression
+        , cases : GrenSyntax.Cases
         }
     -> Print
 expressionCaseOf syntaxComments syntaxCaseOf =
@@ -6664,7 +6639,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
         commentsBeforeCasedExpression =
             commentsInRange
                 { start = syntaxCaseOf.fullRange.start
-                , end = syntaxCaseOf.expression |> Gren.Syntax.Node.range |> .start
+                , end = syntaxCaseOf.expression |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -6713,7 +6688,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                                         commentsBeforeCasePattern =
                                             commentsInRange
                                                 { start = soFar.endLocation
-                                                , end = casePattern |> Gren.Syntax.Node.range |> .start
+                                                , end = casePattern |> GrenSyntax.nodeRange |> .start
                                                 }
                                                 syntaxComments
 
@@ -6732,11 +6707,11 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                                                         |> Print.followedBy Print.linebreakIndented
                                                         |> Print.followedBy casePrint
                                     in
-                                    { endLocation = caseResult |> Gren.Syntax.Node.range |> .end
+                                    { endLocation = caseResult |> GrenSyntax.nodeRange |> .end
                                     , reverse = commentsAndCasePrint :: soFar.reverse
                                     }
                                 )
-                                { endLocation = syntaxCaseOf.expression |> Gren.Syntax.Node.range |> .end
+                                { endLocation = syntaxCaseOf.expression |> GrenSyntax.nodeRange |> .end
                                 , reverse = []
                                 }
                             |> .reverse
@@ -6748,21 +6723,21 @@ expressionCaseOf syntaxComments syntaxCaseOf =
 
 
 expressionLetIn :
-    List (Gren.Syntax.Node.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { fullRange : Gren.Syntax.Range.Range
-        , letDeclaration0 : Gren.Syntax.Node.Node Gren.Syntax.Expression.LetDeclaration
-        , letDeclaration1Up : List (Gren.Syntax.Node.Node Gren.Syntax.Expression.LetDeclaration)
-        , result : Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
+        { fullRange : GrenSyntax.Range
+        , letDeclaration0 : GrenSyntax.Node GrenSyntax.LetDeclaration
+        , letDeclaration1Up : List (GrenSyntax.Node GrenSyntax.LetDeclaration)
+        , result : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
 expressionLetIn syntaxComments syntaxLetIn =
     let
-        letDeclarationPrints : { endLocation : Gren.Syntax.Range.Location, reverse : List Print }
+        letDeclarationPrints : { endLocation : GrenSyntax.Location, reverse : List Print }
         letDeclarationPrints =
             (syntaxLetIn.letDeclaration0 :: syntaxLetIn.letDeclaration1Up)
                 |> List.foldl
-                    (\(Gren.Syntax.Node.Node letDeclarationRange letDeclaration) soFar ->
+                    (\(GrenSyntax.Node letDeclarationRange letDeclaration) soFar ->
                         let
                             commentsBefore : List String
                             commentsBefore =
@@ -6802,7 +6777,7 @@ expressionLetIn syntaxComments syntaxLetIn =
                 { start = letDeclarationPrints.endLocation
                 , end =
                     syntaxLetIn.result
-                        |> Gren.Syntax.Node.range
+                        |> GrenSyntax.nodeRange
                         |> .start
                 }
                 syntaxComments
@@ -6836,23 +6811,23 @@ expressionLetIn syntaxComments syntaxLetIn =
 
 
 expressionLetDeclaration :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.LetDeclaration
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.LetDeclaration
     -> Print
 expressionLetDeclaration syntaxComments letDeclaration =
     case letDeclaration of
-        Gren.Syntax.Expression.LetFunction letDeclarationExpression ->
+        GrenSyntax.LetFunction letDeclarationExpression ->
             let
                 implementationPrint : Print
                 implementationPrint =
                     declarationExpressionImplementation syntaxComments
-                        (letDeclarationExpression.declaration |> Gren.Syntax.Node.value)
+                        (letDeclarationExpression.declaration |> GrenSyntax.nodeValue)
             in
             case letDeclarationExpression.signature of
                 Nothing ->
                     implementationPrint
 
-                Just (Gren.Syntax.Node.Node signatureRange signature) ->
+                Just (GrenSyntax.Node signatureRange signature) ->
                     let
                         commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
@@ -6860,7 +6835,7 @@ expressionLetDeclaration syntaxComments letDeclaration =
                                 { start = signatureRange.end
                                 , end =
                                     letDeclarationExpression.declaration
-                                        |> Gren.Syntax.Node.range
+                                        |> GrenSyntax.nodeRange
                                         |> .start
                                 }
                                 syntaxComments
@@ -6879,13 +6854,13 @@ expressionLetDeclaration syntaxComments letDeclaration =
                             )
                         |> Print.followedBy implementationPrint
 
-        Gren.Syntax.Expression.LetDestructuring destructuringPattern destructuredExpression ->
+        GrenSyntax.LetDestructuring destructuringPattern destructuredExpression ->
             let
                 commentsBeforeDestructuredExpression : List String
                 commentsBeforeDestructuredExpression =
                     commentsInRange
-                        { start = destructuringPattern |> Gren.Syntax.Node.range |> .end
-                        , end = destructuredExpression |> Gren.Syntax.Node.range |> .start
+                        { start = destructuringPattern |> GrenSyntax.nodeRange |> .end
+                        , end = destructuredExpression |> GrenSyntax.nodeRange |> .start
                         }
                         syntaxComments
 
@@ -6920,42 +6895,42 @@ expressionLetDeclaration syntaxComments letDeclaration =
 
 
 expressionToNotParenthesized :
-    Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-    -> Gren.Syntax.Node.Node Gren.Syntax.Expression.Expression
-expressionToNotParenthesized (Gren.Syntax.Node.Node fullRange syntaxExpression) =
+    GrenSyntax.Node GrenSyntax.Expression
+    -> GrenSyntax.Node GrenSyntax.Expression
+expressionToNotParenthesized (GrenSyntax.Node fullRange syntaxExpression) =
     -- IGNORE TCO
     case syntaxExpression of
-        Gren.Syntax.Expression.ParenthesizedExpression inParens ->
+        GrenSyntax.ParenthesizedExpression inParens ->
             inParens |> expressionToNotParenthesized
 
-        Gren.Syntax.Expression.TupledExpression parts ->
+        GrenSyntax.TupledExpression parts ->
             case parts of
                 [ inParens ] ->
                     -- should be handled by ParenthesizedExpression
                     inParens |> expressionToNotParenthesized
 
                 [] ->
-                    Gren.Syntax.Node.Node fullRange Gren.Syntax.Expression.UnitExpr
+                    GrenSyntax.Node fullRange GrenSyntax.UnitExpr
 
                 [ part0, part1 ] ->
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Expression.TupledExpression [ part0, part1 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression [ part0, part1 ])
 
                 [ part0, part1, part2 ] ->
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Expression.TupledExpression [ part0, part1, part2 ])
+                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression [ part0, part1, part2 ])
 
                 part0 :: part1 :: part2 :: part3 :: part4Up ->
                     -- invalid syntax
-                    Gren.Syntax.Node.Node fullRange (Gren.Syntax.Expression.TupledExpression (part0 :: part1 :: part2 :: part3 :: part4Up))
+                    GrenSyntax.Node fullRange (GrenSyntax.TupledExpression (part0 :: part1 :: part2 :: part3 :: part4Up))
 
         syntaxExpressionNotParenthesized ->
-            Gren.Syntax.Node.Node fullRange syntaxExpressionNotParenthesized
+            GrenSyntax.Node fullRange syntaxExpressionNotParenthesized
 
 
-{-| Print a single [`Gren.Syntax.Expression.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
+{-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
 -}
 case_ :
-    List (Gren.Syntax.Node.Node String)
-    -> Gren.Syntax.Expression.Case
+    List (GrenSyntax.Node String)
+    -> GrenSyntax.Case
     -> Print
 case_ syntaxComments ( casePattern, caseResult ) =
     let
@@ -6966,8 +6941,8 @@ case_ syntaxComments ( casePattern, caseResult ) =
         commentsBeforeExpression : List String
         commentsBeforeExpression =
             commentsInRange
-                { start = casePattern |> Gren.Syntax.Node.range |> .end
-                , end = caseResult |> Gren.Syntax.Node.range |> .start
+                { start = casePattern |> GrenSyntax.nodeRange |> .end
+                , end = caseResult |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 

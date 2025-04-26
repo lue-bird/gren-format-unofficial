@@ -9,7 +9,7 @@ import Bytes.Encode
 import Gren.Project
 import GrenSyntax
 import GrenSyntax
-import Gren.Syntax.Node
+import GrenSyntax
 import GrenParserLenient
 import GrenPrint
 import FastDict

@@ -881,14 +881,14 @@ import Dict exposing (Dict)
 import Gren.Docs
 import Gren.Project exposing (Exposed)
 import GrenSyntax as Declaration exposing (Declaration)
-import Gren.Syntax.Exposing as Exposing
-import Gren.Syntax.Expression as Expression exposing (Expression)
+import GrenSyntax as Exposing
+import GrenSyntax as Expression exposing (Expression)
 import Gren.Syntax.Import exposing (Import)
 import GrenSyntax
-import Gren.Syntax.ModuleName exposing (ModuleName)
-import Gren.Syntax.Node as Node exposing (Node(..))
-import Gren.Syntax.Pattern as Pattern exposing (Pattern)
-import Gren.Syntax.Range as Range exposing (Location, Range)
+import GrenSyntax exposing (ModuleName)
+import GrenSyntax as Node exposing (Node(..))
+import GrenSyntax as Pattern exposing (Pattern)
+import GrenSyntax as Range exposing (Location, Range)
 import Review.Fix as Fix exposing (Fix)
 import Review.ModuleNameLookupTable as ModuleNameLookupTable exposing (ModuleNameLookupTable)
 import Review.Project.Dependency as Dependency exposing (Dependency)
@@ -984,14 +984,14 @@ import Dict exposing (Dict)
 import Gren.Docs
 import Gren.Project exposing (Exposed)
 import GrenSyntax as Declaration exposing (Declaration)
-import Gren.Syntax.Exposing as Exposing
-import Gren.Syntax.Expression as Expression exposing (Expression)
+import GrenSyntax as Exposing
+import GrenSyntax as Expression exposing (Expression)
 import Gren.Syntax.Import exposing (Import)
 import GrenSyntax
-import Gren.Syntax.ModuleName exposing (ModuleName)
-import Gren.Syntax.Node as Node exposing (Node(..))
-import Gren.Syntax.Pattern as Pattern exposing (Pattern)
-import Gren.Syntax.Range as Range exposing (Location, Range)
+import GrenSyntax exposing (ModuleName)
+import GrenSyntax as Node exposing (Node(..))
+import GrenSyntax as Pattern exposing (Pattern)
+import GrenSyntax as Range exposing (Location, Range)
 import Review.Fix as Fix exposing (Fix)
 import Review.ModuleNameLookupTable as ModuleNameLookupTable exposing (ModuleNameLookupTable)
 import Review.Project.Dependency as Dependency exposing (Dependency)

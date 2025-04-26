@@ -121,7 +121,7 @@ Once a path is chosen, it does not come back and try the others.
 -}
 
 import Char.Extra
-import Gren.Syntax.Range
+import GrenSyntax
 
 
 {-| A `Parser` helps turn a `String` into nicely structured data. For example,
@@ -361,7 +361,7 @@ map2 func (Parser parseA) (Parser parseB) =
         )
 
 
-map2WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> value) -> Parser a -> Parser b -> Parser value
+map2WithStartLocation : (GrenSyntax.Location -> a -> b -> value) -> Parser a -> Parser b -> Parser value
 map2WithStartLocation func (Parser parseA) (Parser parseB) =
     Parser
         (\s0 ->
@@ -379,7 +379,7 @@ map2WithStartLocation func (Parser parseA) (Parser parseB) =
         )
 
 
-map2WithRange : (Gren.Syntax.Range.Range -> a -> b -> value) -> Parser a -> Parser b -> Parser value
+map2WithRange : (GrenSyntax.Range -> a -> b -> value) -> Parser a -> Parser b -> Parser value
 map2WithRange func (Parser parseA) (Parser parseB) =
     Parser
         (\s0 ->
@@ -420,7 +420,7 @@ map3 func (Parser parseA) (Parser parseB) (Parser parseC) =
         )
 
 
-map3WithRange : (Gren.Syntax.Range.Range -> a -> b -> c -> value) -> Parser a -> Parser b -> Parser c -> Parser value
+map3WithRange : (GrenSyntax.Range -> a -> b -> c -> value) -> Parser a -> Parser b -> Parser c -> Parser value
 map3WithRange func (Parser parseA) (Parser parseB) (Parser parseC) =
     Parser
         (\s0 ->
@@ -471,7 +471,7 @@ map4 func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) =
         )
 
 
-map4WithRange : (Gren.Syntax.Range.Range -> a -> b -> c -> d -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser value
+map4WithRange : (GrenSyntax.Range -> a -> b -> c -> d -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser value
 map4WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) =
     Parser
         (\s0 ->
@@ -499,7 +499,7 @@ map4WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parse
         )
 
 
-map4WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> c -> d -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser value
+map4WithStartLocation : (GrenSyntax.Location -> a -> b -> c -> d -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser value
 map4WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) =
     Parser
         (\s0 ->
@@ -527,7 +527,7 @@ map4WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Pars
         )
 
 
-map3WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> c -> value) -> Parser a -> Parser b -> Parser c -> Parser value
+map3WithStartLocation : (GrenSyntax.Location -> a -> b -> c -> value) -> Parser a -> Parser b -> Parser c -> Parser value
 map3WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) =
     Parser
         (\s0 ->
@@ -583,7 +583,7 @@ map5 func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parse
         )
 
 
-map5WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> c -> d -> e -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser value
+map5WithStartLocation : (GrenSyntax.Location -> a -> b -> c -> d -> e -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser value
 map5WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) =
     Parser
         (\s0 ->
@@ -616,7 +616,7 @@ map5WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Pars
         )
 
 
-map5WithRange : (Gren.Syntax.Range.Range -> a -> b -> c -> d -> e -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser value
+map5WithRange : (GrenSyntax.Range -> a -> b -> c -> d -> e -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser value
 map5WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) =
     Parser
         (\s0 ->
@@ -687,7 +687,7 @@ map6 func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parse
         )
 
 
-map6WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> c -> d -> e -> f -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser value
+map6WithStartLocation : (GrenSyntax.Location -> a -> b -> c -> d -> e -> f -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser value
 map6WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) (Parser parseF) =
     Parser
         (\s0 ->
@@ -768,7 +768,7 @@ map7 func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parse
         )
 
 
-map7WithRange : (Gren.Syntax.Range.Range -> a -> b -> c -> d -> e -> f -> g -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser value
+map7WithRange : (GrenSyntax.Range -> a -> b -> c -> d -> e -> f -> g -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser value
 map7WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) (Parser parseF) (Parser parseG) =
     Parser
         (\s0 ->
@@ -811,7 +811,7 @@ map7WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parse
         )
 
 
-map8WithStartLocation : (Gren.Syntax.Range.Location -> a -> b -> c -> d -> e -> f -> g -> h -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser h -> Parser value
+map8WithStartLocation : (GrenSyntax.Location -> a -> b -> c -> d -> e -> f -> g -> h -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser h -> Parser value
 map8WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) (Parser parseF) (Parser parseG) (Parser parseH) =
     Parser
         (\s0 ->
@@ -859,7 +859,7 @@ map8WithStartLocation func (Parser parseA) (Parser parseB) (Parser parseC) (Pars
         )
 
 
-map9WithRange : (Gren.Syntax.Range.Range -> a -> b -> c -> d -> e -> f -> g -> h -> i -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser h -> Parser i -> Parser value
+map9WithRange : (GrenSyntax.Range -> a -> b -> c -> d -> e -> f -> g -> h -> i -> value) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f -> Parser g -> Parser h -> Parser i -> Parser value
 map9WithRange func (Parser parseA) (Parser parseB) (Parser parseC) (Parser parseD) (Parser parseE) (Parser parseF) (Parser parseG) (Parser parseH) (Parser parseI) =
     Parser
         (\s0 ->
@@ -986,7 +986,7 @@ map2OrSucceed func (Parser parseA) (Parser parseB) fallback =
         )
 
 
-map2WithRangeOrSucceed : (Gren.Syntax.Range.Range -> a -> b -> value) -> Parser a -> Parser b -> value -> Parser value
+map2WithRangeOrSucceed : (GrenSyntax.Range -> a -> b -> value) -> Parser a -> Parser b -> value -> Parser value
 map2WithRangeOrSucceed func (Parser parseA) (Parser parseB) fallback =
     Parser
         (\s0 ->
@@ -1670,7 +1670,7 @@ loopUntilHelp ((Parser parseEnd) as endParser) ((Parser parseElement) as element
         ParserFast.integerDecimalMapWithRange (\_ n -> n)
 
 -}
-integerDecimalMapWithRange : (Gren.Syntax.Range.Range -> Int -> res) -> Parser res
+integerDecimalMapWithRange : (GrenSyntax.Range -> Int -> res) -> Parser res
 integerDecimalMapWithRange rangeAndIntToRes =
     Parser
         (\s0 ->
@@ -1723,7 +1723,7 @@ integerDecimalMapWithRange rangeAndIntToRes =
         ParserFast.integerDecimalOrHexadecimalMapWithRange (\_ n -> n) (\_ n -> n)
 
 -}
-integerDecimalOrHexadecimalMapWithRange : (Gren.Syntax.Range.Range -> Int -> res) -> (Gren.Syntax.Range.Range -> Int -> res) -> Parser res
+integerDecimalOrHexadecimalMapWithRange : (GrenSyntax.Range -> Int -> res) -> (GrenSyntax.Range -> Int -> res) -> Parser res
 integerDecimalOrHexadecimalMapWithRange rangeAndIntDecimalToRes rangeAndIntHexadecimalToRes =
     Parser
         (\s0 ->
@@ -1741,7 +1741,7 @@ integerDecimalOrHexadecimalMapWithRange rangeAndIntDecimalToRes rangeAndIntHexad
                     newColumn =
                         s0.col + (s1.offsetAndInt.offset - s0.offset)
 
-                    range : Gren.Syntax.Range.Range
+                    range : GrenSyntax.Range
                     range =
                         { start = { row = s0.row, column = s0.col }
                         , end = { row = s0.row, column = newColumn }
@@ -1783,7 +1783,7 @@ integerDecimalOrHexadecimalMapWithRange rangeAndIntDecimalToRes rangeAndIntHexad
         ParserFast.integerDecimalOrHexadecimalMapWithRange (\_ n -> n) (\_ n -> n) (\_ n -> n)
 
 -}
-floatOrIntegerDecimalOrHexadecimalMapWithRange : (Gren.Syntax.Range.Range -> Float -> res) -> (Gren.Syntax.Range.Range -> Int -> res) -> (Gren.Syntax.Range.Range -> Int -> res) -> Parser res
+floatOrIntegerDecimalOrHexadecimalMapWithRange : (GrenSyntax.Range -> Float -> res) -> (GrenSyntax.Range -> Int -> res) -> (GrenSyntax.Range -> Int -> res) -> Parser res
 floatOrIntegerDecimalOrHexadecimalMapWithRange rangeAndFloatToRes rangeAndIntDecimalToRes rangeAndIntHexadecimalToRes =
     Parser
         (\s0 ->
@@ -1807,7 +1807,7 @@ floatOrIntegerDecimalOrHexadecimalMapWithRange rangeAndFloatToRes rangeAndIntDec
                         newColumn =
                             s0.col + (s1.offsetAndInt.offset - s0.offset)
 
-                        range : Gren.Syntax.Range.Range
+                        range : GrenSyntax.Range
                         range =
                             { start = { row = s0.row, column = s0.col }
                             , end = { row = s0.row, column = newColumn }
@@ -2330,7 +2330,7 @@ followedBySymbol str (Parser parsePrevious) =
         )
 
 
-symbolWithEndLocation : String -> (Gren.Syntax.Range.Location -> res) -> Parser res
+symbolWithEndLocation : String -> (GrenSyntax.Location -> res) -> Parser res
 symbolWithEndLocation str endLocationToRes =
     let
         strLength : Int
@@ -2364,7 +2364,7 @@ symbolWithEndLocation str endLocationToRes =
         )
 
 
-symbolWithRange : String -> (Gren.Syntax.Range.Range -> res) -> Parser res
+symbolWithRange : String -> (GrenSyntax.Range -> res) -> Parser res
 symbolWithRange str startAndEndLocationToRes =
     let
         strLength : Int
@@ -2619,7 +2619,7 @@ charStringIsUtf16HighSurrogate charString =
     charString |> String.any Char.Extra.isUtf16Surrogate
 
 
-whileMapWithRange : (Char -> Bool) -> (Gren.Syntax.Range.Range -> String -> res) -> Parser res
+whileMapWithRange : (Char -> Bool) -> (GrenSyntax.Range -> String -> res) -> Parser res
 whileMapWithRange isGood rangeAndConsumedStringToRes =
     Parser
         (\s0 ->
@@ -2765,7 +2765,7 @@ withIndentSetToColumn (Parser parse) =
 
 
 mapWithRange :
-    (Gren.Syntax.Range.Range -> a -> b)
+    (GrenSyntax.Range -> a -> b)
     -> Parser a
     -> Parser b
 mapWithRange combineStartAndResult (Parser parse) =
@@ -2883,7 +2883,7 @@ whileAtMost3WithoutLinebreakAnd2PartUtf16ToResultAndThen charAsStringIsOkay cons
         )
 
 
-whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollowedBySymbol : (Gren.Syntax.Range.Range -> String -> res) -> (String -> Bool) -> (String -> Bool) -> String -> Parser res
+whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollowedBySymbol : (GrenSyntax.Range -> String -> res) -> (String -> Bool) -> (String -> Bool) -> String -> Parser res
 whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollowedBySymbol whileRangeAndContentToRes whileCharIsOkay whileResultIsOkay mandatoryFinalSymbol =
     let
         mandatoryFinalSymbolLength : Int
@@ -2942,7 +2942,7 @@ whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollow
 
 
 ifFollowedByWhileValidateMapWithRangeWithoutLinebreak :
-    (Gren.Syntax.Range.Range -> String -> res)
+    (GrenSyntax.Range -> String -> res)
     -> (Char -> Bool)
     -> (Char -> Bool)
     -> (String -> Bool)
@@ -3002,7 +3002,7 @@ ifFollowedByWhileWithoutLinebreak firstIsOkay afterFirstIsOkay =
 
 
 ifFollowedByWhileMapWithRangeWithoutLinebreak :
-    (Gren.Syntax.Range.Range -> String -> res)
+    (GrenSyntax.Range -> String -> res)
     -> (Char -> Bool)
     -> (Char -> Bool)
     -> Parser res
@@ -3064,7 +3064,7 @@ ifFollowedByWhileMapWithoutLinebreak consumedStringToRes firstIsOkay afterFirstI
 
 {-| Parse multi-line comments that can itself contain other arbitrary multi-comments inside.
 -}
-nestableMultiCommentMapWithRange : (Gren.Syntax.Range.Range -> String -> res) -> ( Char, String ) -> ( Char, String ) -> Parser res
+nestableMultiCommentMapWithRange : (GrenSyntax.Range -> String -> res) -> ( Char, String ) -> ( Char, String ) -> Parser res
 nestableMultiCommentMapWithRange rangeContentToRes ( openChar, openTail ) ( closeChar, closeTail ) =
     let
         open : String

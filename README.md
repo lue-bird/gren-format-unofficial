@@ -42,6 +42,7 @@ run [this node script](https://github.com/lue-bird/gren-format-unofficial/tree/m
 ## TODO
   - support `when` `is`
   - support nested record patterns
+  - remove support for tuples
   - comments before/after parenthesized types will get eaten because type parens are not stored in the syntax tree
   - some floats in exponent representation are formatted to without it and the other way around
   - formatting documentation markdown
