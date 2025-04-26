@@ -4933,10 +4933,6 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionOperatorFunction _ ->
             False
 
-        GrenSyntax.Operator _ ->
-            -- invalid syntax
-            False
-
         GrenSyntax.ExpressionInteger _ ->
             False
 
@@ -5068,10 +5064,6 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionOperatorFunction operatorSymbol ->
             Print.exactly ("(" ++ operatorSymbol ++ ")")
-
-        GrenSyntax.Operator operatorSymbol ->
-            -- invalid syntax
-            Print.exactly operatorSymbol
 
         GrenSyntax.ExpressionInteger int ->
             Print.exactly (intLiteral int)

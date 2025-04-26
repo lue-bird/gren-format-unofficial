@@ -260,7 +260,6 @@ type Expression
     | ExpressionReference ModuleName String
     | ExpressionIfThenElse (Node Expression) (Node Expression) (Node Expression)
     | ExpressionOperatorFunction String
-    | Operator String
     | ExpressionInteger Int
     | ExpressionHex Int
     | ExpressionFloat Float
