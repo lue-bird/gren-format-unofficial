@@ -4160,8 +4160,8 @@ pattern =
         )
 
 
-parensPattern : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
-parensPattern =
+patternParenthesizedOrOldUnit : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
+patternParenthesizedOrOldUnit =
     ParserFast.symbolFollowedBy "("
         (ParserFast.map2WithRange
             (\range commentsBeforeHead contentResult ->
@@ -4174,68 +4174,21 @@ parensPattern =
                 }
             )
             whitespaceAndComments
-            -- yes, (  ) is a valid pattern but not a valid type or expression
+            -- yes, (  ) is a valid pattern in the old elm syntax but not a valid type or expression
             (ParserFast.oneOf2
                 (ParserFast.symbol ")" { comments = ropeEmpty, syntax = GrenSyntax.PatternUnit })
-                (ParserFast.map3
-                    (\headResult commentsAfterHead tailResult ->
+                (ParserFast.map2
+                    (\headResult commentsAfterHead ->
                         { comments =
                             headResult.comments
                                 |> ropePrependTo commentsAfterHead
-                                |> ropePrependTo tailResult.comments
                         , syntax =
-                            case tailResult.syntax of
-                                Nothing ->
-                                    GrenSyntax.PatternParenthesized headResult.syntax
-
-                                Just secondAndMaybeThirdPart ->
-                                    case secondAndMaybeThirdPart.maybeThirdPart of
-                                        Nothing ->
-                                            GrenSyntax.PatternTuple [ headResult.syntax, secondAndMaybeThirdPart.secondPart ]
-
-                                        Just thirdPart ->
-                                            GrenSyntax.PatternTuple [ headResult.syntax, secondAndMaybeThirdPart.secondPart, thirdPart ]
+                            GrenSyntax.PatternParenthesized headResult.syntax
                         }
                     )
                     pattern
-                    whitespaceAndComments
-                    (ParserFast.oneOf2
-                        (ParserFast.symbol ")" { comments = ropeEmpty, syntax = Nothing })
-                        (ParserFast.symbolFollowedBy ","
-                            (ParserFast.map4
-                                (\commentsBefore secondPart commentsAfter maybeThirdPart ->
-                                    { comments =
-                                        commentsBefore
-                                            |> ropePrependTo secondPart.comments
-                                            |> ropePrependTo commentsAfter
-                                            |> ropePrependTo maybeThirdPart.comments
-                                    , syntax = Just { maybeThirdPart = maybeThirdPart.syntax, secondPart = secondPart.syntax }
-                                    }
-                                )
-                                whitespaceAndComments
-                                pattern
-                                whitespaceAndComments
-                                (ParserFast.oneOf2
-                                    (ParserFast.symbol ")" { comments = ropeEmpty, syntax = Nothing })
-                                    (ParserFast.symbolFollowedBy ","
-                                        (ParserFast.map3
-                                            (\commentsBefore thirdPart commentsAfter ->
-                                                { comments =
-                                                    commentsBefore
-                                                        |> ropePrependTo thirdPart.comments
-                                                        |> ropePrependTo commentsAfter
-                                                , syntax = Just thirdPart.syntax
-                                                }
-                                            )
-                                            whitespaceAndComments
-                                            pattern
-                                            whitespaceAndComments
-                                            |> ParserFast.followedBySymbol ")"
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    (whitespaceAndComments
+                        |> ParserFast.followedBySymbol ")"
                     )
                 )
             )
@@ -4340,7 +4293,7 @@ composablePattern =
         varPattern
         qualifiedPatternWithConsumeArgs
         allPattern
-        parensPattern
+        patternParenthesizedOrOldUnit
         recordPattern
         stringPattern
         listPattern
@@ -4354,7 +4307,7 @@ patternNotSpaceSeparated =
         varPattern
         qualifiedPatternWithoutConsumeArgs
         allPattern
-        parensPattern
+        patternParenthesizedOrOldUnit
         recordPattern
         stringPattern
         listPattern

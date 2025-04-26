@@ -381,7 +381,6 @@ type Pattern
     | PatternString String
     | PatternInt Int
     | PatternHex Int
-    | PatternTuple (List (Node Pattern))
     | PatternRecord (List (Node String))
     | PatternListCons (Node Pattern) (Node Pattern)
     | PatternListExact (List (Node Pattern))

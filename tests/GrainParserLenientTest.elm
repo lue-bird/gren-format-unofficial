@@ -1925,7 +1925,7 @@ foo = bar"""
                 (\() ->
                     """foo =
  let
-  (b, c)=(1, 2)
+  (b   )=(1   )
  in
   b"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
@@ -1944,17 +1944,13 @@ foo = bar"""
                                                             [ GrenSyntax.Node { start = { row = 3, column = 3 }, end = { row = 3, column = 16 } }
                                                                 (GrenSyntax.LetDestructuring
                                                                     (GrenSyntax.Node { start = { row = 3, column = 3 }, end = { row = 3, column = 9 } }
-                                                                        (GrenSyntax.PatternTuple
-                                                                            [ GrenSyntax.Node { start = { row = 3, column = 4 }, end = { row = 3, column = 5 } } (GrenSyntax.PatternVariable "b")
-                                                                            , GrenSyntax.Node { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } } (GrenSyntax.PatternVariable "c")
-                                                                            ]
+                                                                        (GrenSyntax.PatternParenthesized
+                                                                            (GrenSyntax.Node { start = { row = 3, column = 4 }, end = { row = 3, column = 5 } } (GrenSyntax.PatternVariable "b"))
                                                                         )
                                                                     )
                                                                     (GrenSyntax.Node { start = { row = 3, column = 10 }, end = { row = 3, column = 16 } }
-                                                                        (GrenSyntax.TupledExpression
-                                                                            [ GrenSyntax.Node { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } } (GrenSyntax.Integer 1)
-                                                                            , GrenSyntax.Node { start = { row = 3, column = 14 }, end = { row = 3, column = 15 } } (GrenSyntax.Integer 2)
-                                                                            ]
+                                                                        (GrenSyntax.ParenthesizedExpression
+                                                                            (GrenSyntax.Node { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } } (GrenSyntax.Integer 1))
                                                                         )
                                                                     )
                                                                 )
@@ -4822,30 +4818,6 @@ Nothing"""
                                     )
                                 )
                     )
-                , Test.test "tuple lambda"
-                    (\() ->
-                        "\\(a,b) -> a + b"
-                            |> expectSyntaxWithoutComments GrenParserLenient.expression
-                                (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
-                                    (GrenSyntax.LambdaExpression
-                                        { args =
-                                            [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
-                                                (GrenSyntax.PatternTuple
-                                                    [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } } (GrenSyntax.PatternVariable "a")
-                                                    , GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } } (GrenSyntax.PatternVariable "b")
-                                                    ]
-                                                )
-                                            ]
-                                        , expression =
-                                            GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }
-                                                (GrenSyntax.OperatorApplication "+"
-                                                    (GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } } (GrenSyntax.FunctionOrValue [] "a"))
-                                                    (GrenSyntax.Node { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } } (GrenSyntax.FunctionOrValue [] "b"))
-                                                )
-                                        }
-                                    )
-                                )
-                    )
                 , Test.test "lambda with => instead of ->"
                     (\() ->
                         "\\() => foo"
@@ -5213,7 +5185,7 @@ Nothing"""
                         """let
     _ = b
     {a} = b
-    (c, d) = e
+    (c   ) = e
     (Node _ f) = g
  in
     1"""
@@ -5233,10 +5205,8 @@ Nothing"""
                                             , GrenSyntax.Node { start = { row = 4, column = 5 }, end = { row = 4, column = 15 } }
                                                 (GrenSyntax.LetDestructuring
                                                     (GrenSyntax.Node { start = { row = 4, column = 5 }, end = { row = 4, column = 11 } }
-                                                        (GrenSyntax.PatternTuple
-                                                            [ GrenSyntax.Node { start = { row = 4, column = 6 }, end = { row = 4, column = 7 } } (GrenSyntax.PatternVariable "c")
-                                                            , GrenSyntax.Node { start = { row = 4, column = 9 }, end = { row = 4, column = 10 } } (GrenSyntax.PatternVariable "d")
-                                                            ]
+                                                        (GrenSyntax.PatternParenthesized
+                                                            (GrenSyntax.Node { start = { row = 4, column = 6 }, end = { row = 4, column = 7 } } (GrenSyntax.PatternVariable "c"))
                                                         )
                                                     )
                                                     (GrenSyntax.Node { start = { row = 4, column = 14 }, end = { row = 4, column = 15 } } (GrenSyntax.FunctionOrValue [] "e"))
@@ -6200,36 +6170,6 @@ True -> 1"""
                                 )
                             )
                 )
-            , Test.test "Tuple"
-                (\() ->
-                    "(model, cmd)"
-                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
-                                (GrenSyntax.PatternTuple
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } (GrenSyntax.PatternVariable "model")
-                                    , GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } } (GrenSyntax.PatternVariable "cmd")
-                                    ]
-                                )
-                            )
-                )
-            , Test.test "4-tuple pattern is invalid"
-                (\() ->
-                    "(1,2,3,4)"
-                        |> expectFailsToParse GrenParserLenient.pattern
-                )
-            , Test.test "Nested tuple"
-                (\() ->
-                    "(a,{b,c},())"
-                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
-                                (GrenSyntax.PatternTuple
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } (GrenSyntax.PatternVariable "a")
-                                    , GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 9 } } (GrenSyntax.PatternRecord [ GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } } "b", GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } } "c" ])
-                                    , GrenSyntax.Node { start = { row = 1, column = 10 }, end = { row = 1, column = 12 } } GrenSyntax.PatternUnit
-                                    ]
-                                )
-                            )
-                )
             , Test.test "As pattern"
                 (\() ->
                     "x as y"
@@ -6288,27 +6228,7 @@ True -> 1"""
                                 )
                             )
                 )
-            , Test.test "Complex"
-                (\() ->
-                    "(Index irec as index, docVector)"
-                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
-                                (GrenSyntax.PatternTuple
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 21 } }
-                                        (GrenSyntax.PatternAs
-                                            (GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 12 } }
-                                                (GrenSyntax.PatternVariant { moduleName = [], name = "Index" }
-                                                    [ GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 12 } } (GrenSyntax.PatternVariable "irec") ]
-                                                )
-                                            )
-                                            (GrenSyntax.Node { start = { row = 1, column = 16 }, end = { row = 1, column = 21 } } "index")
-                                        )
-                                    , GrenSyntax.Node { start = { row = 1, column = 23 }, end = { row = 1, column = 32 } } (GrenSyntax.PatternVariable "docVector")
-                                    ]
-                                )
-                            )
-                )
-            , Test.test "Complex pattern 2"
+            , Test.test "Complex pattern"
                 (\() ->
                     "RBNode_gren_builtin col (RBNode_gren_builtin Red  (RBNode_gren_builtin Red xv))"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern

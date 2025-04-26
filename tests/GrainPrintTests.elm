@@ -4159,29 +4159,7 @@ a =
                 )
             ]
         , Test.describe "pattern"
-            [ Test.test "various patterns"
-                (\() ->
-                    """module A exposing (..)
-a x =
-    case x of
-        (({y,z}::tail), Maybe.Nothing as nothing, (Just[""],0)) ->
-            0
-        _ ->
-            1"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-a x =
-    case x of
-        ( { y, z } :: tail, Maybe.Nothing as nothing, ( Just [ "" ], 0 ) ) ->
-            0
-
-        _ ->
-            1
-"""
-                )
-            , Test.test "parenthesized with comments only before"
+            [ Test.test "parenthesized with comments only before"
                 (\() ->
                     """module A exposing (..)
 a ({--}_ as argument) =
@@ -4332,32 +4310,6 @@ a (_ as {- argument -}
 
 a (_ as {- argument -} argument) =
     0
-"""
-                )
-            , Test.test "tuple written as multi-line with comments collapsed before parts"
-                (\() ->
-                    """module A exposing (..)
-a ( {- 0 -} a0, {- 1 -} a1
-  ) = a0 + a1"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-a ( {- 0 -} a0, {- 1 -} a1 ) =
-    a0 + a1
-"""
-                )
-            , Test.test "triple written as multi-line with comments collapsed before parts"
-                (\() ->
-                    """module A exposing (..)
-a ( {- 0 -} a0, {- 1 -} a1, {- 2 -} a2
-  ) = a0 + a1 + a2"""
-                        |> expectPrintedAs
-                            """module A exposing (..)
-
-
-a ( {- 0 -} a0, {- 1 -} a1, {- 2 -} a2 ) =
-    a0 + a1 + a2
 """
                 )
             , Test.test "as with multi-line pattern"

@@ -1647,26 +1647,6 @@ patternIsSpaceSeparated syntaxPattern =
         GrenSyntax.PatternParenthesized (GrenSyntax.Node _ inParens) ->
             patternIsSpaceSeparated inParens
 
-        GrenSyntax.PatternTuple parts ->
-            case parts of
-                [ GrenSyntax.Node _ inParens ] ->
-                    -- should be covered by ParenthesizedPattern
-                    patternIsSpaceSeparated inParens
-
-                [] ->
-                    -- should be covered by UnitPattern
-                    False
-
-                [ _, _ ] ->
-                    False
-
-                [ _, _, _ ] ->
-                    False
-
-                _ :: _ :: _ :: _ :: _ ->
-                    -- invalid syntax
-                    False
-
         GrenSyntax.PatternRecord _ ->
             False
 
@@ -2110,26 +2090,6 @@ patternToNotParenthesized (GrenSyntax.Node fullRange syntaxPattern) =
         GrenSyntax.PatternParenthesized inParens ->
             inParens |> patternToNotParenthesized
 
-        GrenSyntax.PatternTuple parts ->
-            case parts of
-                [ inParens ] ->
-                    -- should be covered by ParenthesizedPattern
-                    inParens |> patternToNotParenthesized
-
-                [ part0, part1 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple [ part0, part1 ])
-
-                [ part0, part1, part2 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple [ part0, part1, part2 ])
-
-                [] ->
-                    -- should be covered by UnitPattern
-                    GrenSyntax.Node fullRange GrenSyntax.PatternUnit
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    GrenSyntax.Node fullRange (GrenSyntax.PatternTuple (part0 :: part1 :: part2 :: part3 :: part4Up))
-
         GrenSyntax.PatternIgnored ->
             GrenSyntax.Node fullRange GrenSyntax.PatternIgnored
 
@@ -2217,56 +2177,6 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                         , fullRange = fullRange
                         }
                         syntaxComments
-
-        GrenSyntax.PatternTuple parts ->
-            case parts of
-                [ part0, part1 ] ->
-                    { part0 = part0, part1 = part1, fullRange = fullRange }
-                        |> tuple
-                            { printPartNotParenthesized = patternNotParenthesized
-                            , lineSpreadMinimum = Print.SingleLine
-                            }
-                            syntaxComments
-
-                [ part0, part1, part2 ] ->
-                    { part0 = part0, part1 = part1, part2 = part2, fullRange = fullRange }
-                        |> triple
-                            { printPartNotParenthesized = patternNotParenthesized
-                            , lineSpreadMinimum = Print.SingleLine
-                            }
-                            syntaxComments
-
-                [] ->
-                    -- should be covered by UnitPattern
-                    printExactlyCurlyBraceOpeningCurlyBraceClosing
-
-                [ inParens ] ->
-                    -- should be covered by ParenthesizedPattern
-                    let
-                        commentsBeforeInParens : List String
-                        commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
-
-                        commentsAfterInParens : List String
-                        commentsAfterInParens =
-                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
-                    in
-                    case ( commentsBeforeInParens, commentsAfterInParens ) of
-                        ( [], [] ) ->
-                            patternNotParenthesized syntaxComments inParens
-
-                        _ ->
-                            parenthesized patternNotParenthesized
-                                { notParenthesized = inParens |> patternToNotParenthesized
-                                , fullRange = fullRange
-                                }
-                                syntaxComments
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    invalidNTuple patternNotParenthesized
-                        syntaxComments
-                        { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
         GrenSyntax.PatternRecord fields ->
             patternRecord syntaxComments
@@ -2558,26 +2468,6 @@ patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
 
         GrenSyntax.PatternHex int ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternHex int) ]
-
-        GrenSyntax.PatternTuple parts ->
-            case parts of
-                [ part0, part1 ] ->
-                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ part0, part1 ]) ]
-
-                [ part0, part1, part2 ] ->
-                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ part0, part1, part2 ]) ]
-
-                [] ->
-                    -- should be handled by UnitPattern
-                    [ GrenSyntax.Node fulRange GrenSyntax.PatternUnit ]
-
-                [ inParens ] ->
-                    -- should be handled by ParenthesizedPattern
-                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple [ inParens ]) ]
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- should be handled by ParenthesizedPattern
-                    [ GrenSyntax.Node fulRange (GrenSyntax.PatternTuple (part0 :: part1 :: part2 :: part3 :: part4Up)) ]
 
         GrenSyntax.PatternRecord fields ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternRecord fields) ]
