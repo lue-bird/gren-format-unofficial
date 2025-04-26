@@ -6380,7 +6380,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
             expressionNotParenthesized syntaxComments
                 syntaxCaseOf.expression
     in
-    printExactlyCase
+    printExactlyWhen
         |> Print.followedBy
             (Print.withIndentAtNextMultipleOf4
                 (Print.spaceOrLinebreakIndented casedExpressionLineSpread
@@ -6398,7 +6398,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
             )
         |> Print.followedBy
             (Print.spaceOrLinebreakIndented casedExpressionLineSpread)
-        |> Print.followedBy printExactlyOf
+        |> Print.followedBy printExactlyIs
         |> Print.followedBy
             (Print.withIndentAtNextMultipleOf4
                 (Print.linebreakIndented
@@ -6911,14 +6911,14 @@ printExactlyIn =
     Print.exactly "in"
 
 
-printExactlyCase : Print
-printExactlyCase =
-    Print.exactly "case"
+printExactlyWhen : Print
+printExactlyWhen =
+    Print.exactly "when"
 
 
-printExactlyOf : Print
-printExactlyOf =
-    Print.exactly "of"
+printExactlyIs : Print
+printExactlyIs =
+    Print.exactly "is"
 
 
 printExactlyIf : Print

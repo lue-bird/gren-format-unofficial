@@ -40,7 +40,6 @@ run [this node script](https://github.com/lue-bird/gren-format-unofficial/tree/m
 
 
 ## TODO
-  - support `when` `is`
   - support nested record patterns
   - support any expression in record update
   - some floats in exponent representation are formatted to without it and the other way around

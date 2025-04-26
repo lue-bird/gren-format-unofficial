@@ -2149,6 +2149,22 @@ a =
         2
 """
                 )
+            , Test.test "when-is with one case"
+                (\() ->
+                    """module A exposing (..)
+a =
+    when {} is
+        {} -> 0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a =
+    when {} is
+        {} ->
+            0
+"""
+                )
             , Test.test "case-of with one case"
                 (\() ->
                     """module A exposing (..)
@@ -2160,7 +2176,7 @@ a =
 
 
 a =
-    case {} of
+    when {} is
         {} ->
             0
 """
@@ -2178,11 +2194,11 @@ a =
 
 
 a =
-    case
+    when
         -- 0
         -- 1
         {}
-    of
+    is
         {} ->
             0
 """
@@ -2199,7 +2215,7 @@ a =
 
 
 a =
-    case {} of
+    when {} is
         -- 0
         -- 1
         {} ->
@@ -2219,7 +2235,7 @@ a =
 
 
 a =
-    case {} of
+    when {} is
         {} ->
             -- 0
             -- 1
@@ -2238,7 +2254,7 @@ a =
 
 
 a =
-    case 0 == 1 of
+    when 0 == 1 is
         True ->
             0
 
@@ -4241,7 +4257,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [-- 0
          -- 1
         ]
@@ -4266,7 +4282,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [{- 0 -} {- 1 -}] ->
             0
 
@@ -4288,7 +4304,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ -- 0
           -- 1
           0
@@ -4313,7 +4329,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0
         , -- zero
           0
@@ -4339,7 +4355,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0
         , -- 0
           -- 1
@@ -4366,7 +4382,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0, {- 0 -} {- 1 -} 0 ] ->
             0
 
@@ -4388,7 +4404,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ {--}
           0
         , {- 0 -} {- 1 -} 0
@@ -4412,7 +4428,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0
         , {- 0 -} {- 1 -}
           (0
@@ -4440,7 +4456,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0
         , 0
           -- zero
@@ -4467,7 +4483,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         [ 0
         , 0
           -- 0
@@ -4495,7 +4511,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         b
             :: (Just c)
             :: {- 0 -}
@@ -4523,7 +4539,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         b :: (Just c) :: {- 0 -} {- 1 -} d ->
             b
 
@@ -4547,7 +4563,7 @@ a =
 
 
 a =
-    case [] of
+    when [] is
         b
             :: (Just c)
             :: {- 0 -} {- 1 -}

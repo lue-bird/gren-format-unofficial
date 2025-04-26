@@ -2455,7 +2455,7 @@ expressionFollowedByWhitespaceAndComments =
             }
         )
         (ParserFast.orSucceed
-            (ParserFast.keywordFollowedBy "case"
+            (ParserFast.keywordFollowedBy "when"
                 (ParserFast.map2
                     (\commentsAfterCase casesResult ->
                         let
@@ -2482,7 +2482,7 @@ expressionFollowedByWhitespaceAndComments =
                     )
                     whitespaceAndComments
                     (ParserFast.withIndentSetToColumn
-                        (ParserFast.lazy (\() -> caseStatementsFollowedByWhitespaceAndComments))
+                        (ParserFast.lazy (\() -> casesFollowedByWhitespaceAndComments))
                     )
                 )
             )
@@ -2819,8 +2819,51 @@ expressionLambdaFollowedByWhitespaceAndComments =
         expressionFollowedByWhitespaceAndComments
 
 
-expressionCaseOfFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-expressionCaseOfFollowedByOptimisticLayout =
+expressionWhenIsFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+expressionWhenIsFollowedByOptimisticLayout =
+    ParserFast.map4WithStartLocation
+        (\start commentsAfterCase casedExpressionResult commentsAfterOf casesResult ->
+            let
+                ( firstCase, lastToSecondCase ) =
+                    casesResult.syntax
+            in
+            { comments =
+                commentsAfterCase
+                    |> ropePrependTo casedExpressionResult.comments
+                    |> ropePrependTo commentsAfterOf
+                    |> ropePrependTo casesResult.comments
+            , syntax =
+                GrenSyntax.Node
+                    { start = start
+                    , end =
+                        case lastToSecondCase of
+                            ( _, GrenSyntax.Node lastCaseExpressionRange _ ) :: _ ->
+                                lastCaseExpressionRange.end
+
+                            [] ->
+                                let
+                                    ( _, GrenSyntax.Node firstCaseExpressionRange _ ) =
+                                        firstCase
+                                in
+                                firstCaseExpressionRange.end
+                    }
+                    (GrenSyntax.ExpressionCaseOf
+                        { expression = casedExpressionResult.syntax
+                        , cases = firstCase :: List.reverse lastToSecondCase
+                        }
+                    )
+            }
+        )
+        (ParserFast.keywordFollowedBy "when" whitespaceAndComments)
+        expressionFollowedByWhitespaceAndComments
+        (ParserFast.keywordFollowedBy "is" whitespaceAndComments)
+        (ParserFast.withIndentSetToColumn
+            casesFollowedByWhitespaceAndComments
+        )
+
+
+expressionOldCaseOfFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+expressionOldCaseOfFollowedByOptimisticLayout =
     ParserFast.map4WithStartLocation
         (\start commentsAfterCase casedExpressionResult commentsAfterOf casesResult ->
             let
@@ -2858,12 +2901,12 @@ expressionCaseOfFollowedByOptimisticLayout =
         expressionFollowedByWhitespaceAndComments
         (ParserFast.keywordFollowedBy "of" whitespaceAndComments)
         (ParserFast.withIndentSetToColumn
-            caseStatementsFollowedByWhitespaceAndComments
+            casesFollowedByWhitespaceAndComments
         )
 
 
-caseStatementsFollowedByWhitespaceAndComments : Parser (WithComments ( GrenSyntax.Case, List GrenSyntax.Case ))
-caseStatementsFollowedByWhitespaceAndComments =
+casesFollowedByWhitespaceAndComments : Parser (WithComments ( GrenSyntax.Case, List GrenSyntax.Case ))
+casesFollowedByWhitespaceAndComments =
     ParserFast.map5
         (\firstCasePatternResult commentsAfterFirstCasePattern commentsAfterFirstCaseArrowRight firstCaseExpressionResult lastToSecondCase ->
             { comments =
@@ -3740,8 +3783,11 @@ subExpressionMaybeAppliedFollowedByWhitespaceAndComments =
                 "{" ->
                     recordExpressionFollowedByRecordAccessMaybeApplied
 
+                "w" ->
+                    whenOrUnqualifiedReferenceExpressionMaybeApplied
+
                 "c" ->
-                    caseOrUnqualifiedReferenceExpressionMaybeApplied
+                    oldCaseOrUnqualifiedReferenceExpressionMaybeApplied
 
                 "\\" ->
                     expressionLambdaFollowedByWhitespaceAndComments
@@ -3817,10 +3863,19 @@ tupledExpressionIfNecessaryFollowedByRecordAccessMaybeApplied =
         |> followedByMultiArgumentApplication
 
 
-caseOrUnqualifiedReferenceExpressionMaybeApplied : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-caseOrUnqualifiedReferenceExpressionMaybeApplied =
+whenOrUnqualifiedReferenceExpressionMaybeApplied : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+whenOrUnqualifiedReferenceExpressionMaybeApplied =
     ParserFast.oneOf2
-        expressionCaseOfFollowedByOptimisticLayout
+        expressionWhenIsFollowedByOptimisticLayout
+        (expressionUnqualifiedFunctionReferenceFollowedByRecordAccess
+            |> followedByMultiArgumentApplication
+        )
+
+
+oldCaseOrUnqualifiedReferenceExpressionMaybeApplied : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+oldCaseOrUnqualifiedReferenceExpressionMaybeApplied =
+    ParserFast.oneOf2
+        expressionOldCaseOfFollowedByOptimisticLayout
         (expressionUnqualifiedFunctionReferenceFollowedByRecordAccess
             |> followedByMultiArgumentApplication
         )
@@ -4401,6 +4456,12 @@ isNotReserved name =
         "in" ->
             False
 
+        "when" ->
+            False
+
+        "is" ->
+            False
+
         "case" ->
             False
 
@@ -4456,6 +4517,12 @@ ifKeywordUnderscoreSuffix name =
 
         "case" ->
             "case_"
+
+        "when" ->
+            "when_"
+
+        "is" ->
+            "is_"
 
         "of" ->
             "of_"

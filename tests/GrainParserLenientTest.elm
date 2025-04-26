@@ -5405,9 +5405,9 @@ True -> 1"""
                                     )
                                 )
                     )
-                , Test.test "case expression with `case` after simple cased expression"
+                , Test.test "when-is expression with `when` after simple cased expression"
                     (\() ->
-                        """f case
+                        """f when
   True -> 1
   False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -5432,9 +5432,9 @@ True -> 1"""
                                     )
                                 )
                     )
-                , Test.test "case expression with `case` after cased expression infix operation"
+                , Test.test "when-is expression with `when` after cased expression infix operation"
                     (\() ->
-                        """f |> g case
+                        """f |> g when
   True -> 1
   False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
