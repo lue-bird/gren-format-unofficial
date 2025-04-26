@@ -4,7 +4,7 @@ module GrenSyntax exposing
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), Type, ValueConstructor, TypeAlias, Infix, InfixDirection(..)
     , Pattern(..), QualifiedNameRef
-    , Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, CaseBlock, Cases, Case, Function, FunctionImplementation
+    , Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, Function, FunctionImplementation
     , TypeAnnotation(..), TypeAnnotationRecordField
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
     )
@@ -16,7 +16,7 @@ module GrenSyntax exposing
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, Type, ValueConstructor, TypeAlias, Infix, InfixDirection
 @docs Pattern, QualifiedNameRef
-@docs Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, CaseBlock, Cases, Case, Function, FunctionImplementation
+@docs Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, Function, FunctionImplementation
 @docs TypeAnnotation, TypeAnnotationRecordField
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
 
@@ -269,7 +269,10 @@ type Expression
     | ExpressionTupled (List (Node Expression))
     | ExpressionParenthesized (Node Expression)
     | ExpressionLetIn LetBlock
-    | ExpressionCaseOf CaseBlock
+    | ExpressionCaseOf
+        { expression : Node Expression
+        , cases : List Case
+        }
     | ExpressionLambda Lambda
     | ExpressionRecord (List (Node RecordSetter))
     | ExpressionArray (List (Node Expression))
@@ -307,24 +310,10 @@ type alias Lambda =
     }
 
 
-{-| Expression for a case block
--}
-type alias CaseBlock =
-    { expression : Node Expression
-    , cases : Cases
-    }
-
-
 {-| A case in a case block
 -}
 type alias Case =
     ( Node Pattern, Node Expression )
-
-
-{-| Type alias for a list of cases
--}
-type alias Cases =
-    List Case
 
 
 {-| Custom type for different type annotations. For example:

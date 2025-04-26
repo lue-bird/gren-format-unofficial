@@ -6427,7 +6427,7 @@ expressionCaseOf :
     ->
         { fullRange : GrenSyntax.Range
         , expression : GrenSyntax.Node GrenSyntax.Expression
-        , cases : GrenSyntax.Cases
+        , cases : List GrenSyntax.Case
         }
     -> Print
 expressionCaseOf syntaxComments syntaxCaseOf =
