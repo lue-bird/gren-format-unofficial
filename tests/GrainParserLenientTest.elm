@@ -3515,48 +3515,6 @@ Nothing"""
                     "'c'"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } } (GrenSyntax.ExpressionChar 'c'))
                 )
-            , Test.test "tuple expression"
-                (\() ->
-                    "(1,2)"
-                        |> expectSyntaxWithoutComments GrenParserLenient.expression
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                (GrenSyntax.ExpressionTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } (GrenSyntax.ExpressionInteger 1)
-                                    , GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } } (GrenSyntax.ExpressionInteger 2)
-                                    ]
-                                )
-                            )
-                )
-            , Test.test "triple expression"
-                (\() ->
-                    "(1,2,3)"
-                        |> expectSyntaxWithoutComments GrenParserLenient.expression
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                                (GrenSyntax.ExpressionTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } (GrenSyntax.ExpressionInteger 1)
-                                    , GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } } (GrenSyntax.ExpressionInteger 2)
-                                    , GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } (GrenSyntax.ExpressionInteger 3)
-                                    ]
-                                )
-                            )
-                )
-            , Test.test "tuple expression with spaces"
-                (\() ->
-                    "( 1  ,  2 )"
-                        |> expectSyntaxWithoutComments GrenParserLenient.expression
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
-                                (GrenSyntax.ExpressionTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } } (GrenSyntax.ExpressionInteger 1)
-                                    , GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } } (GrenSyntax.ExpressionInteger 2)
-                                    ]
-                                )
-                            )
-                )
-            , Test.test "4-tuple expression is invalid"
-                (\() ->
-                    "a = (1,2,3,4)"
-                        |> expectFailsToParse GrenParserLenient.declaration
-                )
             , Test.test "String literal multiline"
                 (\() ->
                     "\"\"\"Bar foo \n a\"\"\""
@@ -3708,12 +3666,11 @@ Nothing"""
                 )
             , Test.test "application expression 2"
                 (\() ->
-                    "(\"\", always (List.concat [ [ fileName ], [] ]))"
+                    "(    always (List.concat [ [ fileName ], [] ]))"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 48 } }
-                                (GrenSyntax.ExpressionTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 4 } } (GrenSyntax.ExpressionString "")
-                                    , GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 47 } }
+                                (GrenSyntax.ExpressionParenthesized
+                                    (GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 47 } }
                                         (GrenSyntax.ExpressionCall
                                             [ GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } } (GrenSyntax.ExpressionReference [] "always")
                                             , GrenSyntax.Node { start = { row = 1, column = 13 }, end = { row = 1, column = 47 } }
@@ -3737,7 +3694,7 @@ Nothing"""
                                                 )
                                             ]
                                         )
-                                    ]
+                                    )
                                 )
                             )
                 )
@@ -4279,7 +4236,7 @@ Nothing"""
                 )
             , Test.test "negated expression after comma"
                 (\() ->
-                    "a = (0,-x)"
+                    "a = [0,-x]"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
                                 (GrenSyntax.FunctionDeclaration
@@ -4291,7 +4248,7 @@ Nothing"""
                                             , arguments = []
                                             , expression =
                                                 GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 11 } }
-                                                    (GrenSyntax.ExpressionTupled
+                                                    (GrenSyntax.ExpressionArray
                                                         [ GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
                                                             (GrenSyntax.ExpressionInteger 0)
                                                         , GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 10 } }
@@ -5775,46 +5732,6 @@ True -> 1"""
         x =
             { a = 0, b
         =         1 }
-    in
-    x"""
-                        |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
-                )
-            , Test.test "allow tuple closing parens to be top indented"
-                (\() ->
-                    """a =
-    let
-        x =
-            ( 0, 1
-        )
-    in
-    x"""
-                        |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
-                )
-            , Test.test "allow first tuple part to be top indented"
-                (\() ->
-                    """a =
-    let
-        x =
-            (
-        0   , 1
-            )
-    in
-    x"""
-                        |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
-                )
-            , Test.test "allow second tuple part to be top indented"
-                (\() ->
-                    """a =
-    let
-        x =
-            ( 0,
-        1   )
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration

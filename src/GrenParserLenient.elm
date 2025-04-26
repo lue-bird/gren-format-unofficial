@@ -3436,72 +3436,22 @@ allowedPrefixOperatorFollowedByClosingParensOneOf =
 
 expressionParenthesizedOrTupleOrTripleAfterOpeningParens : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
 expressionParenthesizedOrTupleOrTripleAfterOpeningParens =
-    ParserFast.map3WithRange
-        (\rangeAfterOpeningParens commentsBeforeFirstPart firstPart tailParts ->
+    ParserFast.map2WithRange
+        (\rangeAfterOpeningParens commentsBeforeFirstPart firstPart ->
             { comments =
                 commentsBeforeFirstPart
                     |> ropePrependTo firstPart.comments
-                    |> ropePrependTo tailParts.comments
             , syntax =
-                case tailParts.syntax of
-                    TupledParenthesized () () ->
-                        GrenSyntax.Node
-                            { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
-                            , end = rangeAfterOpeningParens.end
-                            }
-                            (GrenSyntax.ExpressionParenthesized firstPart.syntax)
-
-                    TupledTwoOrThree secondPart maybeThirdPart ->
-                        GrenSyntax.Node
-                            { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
-                            , end = rangeAfterOpeningParens.end
-                            }
-                            (case maybeThirdPart of
-                                Nothing ->
-                                    GrenSyntax.ExpressionTupled [ firstPart.syntax, secondPart ]
-
-                                Just thirdPart ->
-                                    GrenSyntax.ExpressionTupled [ firstPart.syntax, secondPart, thirdPart ]
-                            )
+                GrenSyntax.Node
+                    { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
+                    , end = rangeAfterOpeningParens.end
+                    }
+                    (GrenSyntax.ExpressionParenthesized firstPart.syntax)
             }
         )
         whitespaceAndComments
-        expressionFollowedByWhitespaceAndComments
-        (ParserFast.oneOf2
-            (ParserFast.symbol ")"
-                { comments = ropeEmpty, syntax = TupledParenthesized () () }
-            )
-            (ParserFast.symbolFollowedBy ","
-                (ParserFast.map3
-                    (\commentsBefore partResult maybeThirdPart ->
-                        { comments =
-                            commentsBefore
-                                |> ropePrependTo partResult.comments
-                                |> ropePrependTo maybeThirdPart.comments
-                        , syntax = TupledTwoOrThree partResult.syntax maybeThirdPart.syntax
-                        }
-                    )
-                    whitespaceAndComments
-                    expressionFollowedByWhitespaceAndComments
-                    (ParserFast.oneOf2
-                        (ParserFast.symbol ")" { comments = ropeEmpty, syntax = Nothing })
-                        (ParserFast.symbolFollowedBy ","
-                            (ParserFast.map2
-                                (\commentsBefore partResult ->
-                                    { comments =
-                                        commentsBefore
-                                            |> ropePrependTo partResult.comments
-                                    , syntax = Just partResult.syntax
-                                    }
-                                )
-                                whitespaceAndComments
-                                expressionFollowedByWhitespaceAndComments
-                                |> ParserFast.followedBySymbol ")"
-                            )
-                        )
-                    )
-                )
-            )
+        (expressionFollowedByWhitespaceAndComments
+            |> ParserFast.followedBySymbol ")"
         )
         |> followedByMultiRecordAccess
 

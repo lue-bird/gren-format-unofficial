@@ -4951,26 +4951,6 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionChar _ ->
             False
 
-        GrenSyntax.ExpressionTupled parts ->
-            case parts of
-                [] ->
-                    -- should be handled by UnitExpr
-                    False
-
-                [ GrenSyntax.Node _ inParens ] ->
-                    -- should be handled by ParenthesizedExpression
-                    expressionIsSpaceSeparated inParens
-
-                [ _, _ ] ->
-                    False
-
-                [ _, _, _ ] ->
-                    False
-
-                _ :: _ :: _ :: _ :: _ ->
-                    -- invalid syntax
-                    False
-
         GrenSyntax.ExpressionParenthesized (GrenSyntax.Node _ inParens) ->
             expressionIsSpaceSeparated inParens
 
@@ -5082,60 +5062,6 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionChar char ->
             Print.exactly (charLiteral char)
-
-        GrenSyntax.ExpressionTupled parts ->
-            case parts of
-                [] ->
-                    -- should be handled by Unit
-                    printExactlyCurlyBraceOpeningCurlyBraceClosing
-
-                [ inParens ] ->
-                    -- should be handled by ParenthesizedExpression
-                    let
-                        commentsBeforeInParens : List String
-                        commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
-
-                        commentsAfterInParens : List String
-                        commentsAfterInParens =
-                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
-                    in
-                    case ( commentsBeforeInParens, commentsAfterInParens ) of
-                        ( [], [] ) ->
-                            expressionNotParenthesized syntaxComments inParens
-
-                        _ ->
-                            parenthesized expressionNotParenthesized
-                                { notParenthesized = inParens |> expressionToNotParenthesized
-                                , fullRange = fullRange
-                                }
-                                syntaxComments
-
-                [ part0, part1 ] ->
-                    tuple
-                        { printPartNotParenthesized = expressionNotParenthesized
-                        , lineSpreadMinimum = lineSpreadInRange fullRange
-                        }
-                        syntaxComments
-                        { fullRange = fullRange, part0 = part0, part1 = part1 }
-
-                [ part0, part1, part2 ] ->
-                    triple
-                        { printPartNotParenthesized = expressionNotParenthesized
-                        , lineSpreadMinimum = lineSpreadInRange fullRange
-                        }
-                        syntaxComments
-                        { fullRange = fullRange
-                        , part0 = part0
-                        , part1 = part1
-                        , part2 = part2
-                        }
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    invalidNTuple expressionNotParenthesized
-                        syntaxComments
-                        { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
         GrenSyntax.ExpressionParenthesized inParens ->
             let
@@ -6699,25 +6625,6 @@ expressionToNotParenthesized (GrenSyntax.Node fullRange syntaxExpression) =
     case syntaxExpression of
         GrenSyntax.ExpressionParenthesized inParens ->
             inParens |> expressionToNotParenthesized
-
-        GrenSyntax.ExpressionTupled parts ->
-            case parts of
-                [ inParens ] ->
-                    -- should be handled by ParenthesizedExpression
-                    inParens |> expressionToNotParenthesized
-
-                [] ->
-                    GrenSyntax.Node fullRange GrenSyntax.ExpressionUnit
-
-                [ part0, part1 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled [ part0, part1 ])
-
-                [ part0, part1, part2 ] ->
-                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled [ part0, part1, part2 ])
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    GrenSyntax.Node fullRange (GrenSyntax.ExpressionTupled (part0 :: part1 :: part2 :: part3 :: part4Up))
 
         syntaxExpressionNotParenthesized ->
             GrenSyntax.Node fullRange syntaxExpressionNotParenthesized

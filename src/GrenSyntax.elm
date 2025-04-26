@@ -266,7 +266,6 @@ type Expression
     | ExpressionNegation (Node Expression)
     | ExpressionString String
     | ExpressionChar Char
-    | ExpressionTupled (List (Node Expression))
     | ExpressionParenthesized (Node Expression)
     | ExpressionLetIn LetBlock
     | ExpressionCaseOf

@@ -1177,16 +1177,10 @@ type alias Model =
 This purposefully shows a function without a type signature although top level functions and values should have type signatures.
 -}
 init _ =
-    ( { count = Natural 0
-      , namedCount =
-            { name = "Natural", value = Natural 0 }
-      }
-    , Cmd.none
-    )
-
-
-
--- UPDATE
+    { count = Natural 0
+    , namedCount =
+        { name = "Natural", value = Natural 0 }
+    }
 
 
 {-| Shows how to give a new name to a more complex type
