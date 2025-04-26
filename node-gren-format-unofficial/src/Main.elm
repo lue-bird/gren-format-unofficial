@@ -6,14 +6,11 @@ import Ansi.Font
 import Bytes exposing (Bytes)
 import Bytes.Decode
 import Bytes.Encode
-import Gren.Project
-import GrenSyntax
-import GrenSyntax
-import GrenSyntax
-import GrenParserLenient
-import GrenPrint
 import FastDict
 import FastSet
+import GrenParserLenient
+import GrenPrint
+import GrenSyntax
 import Json.Decode
 import Json.Encode
 import Node
@@ -106,24 +103,19 @@ interface state =
             interfaceSingleFileStandardStreamRun singleFileStandardStreamRun
 
         WaitingForGrenJson waitingForGrenJson ->
-            nodeGrenJsonRequest
+            nodeGrenJsonSourceDirectoriesRequest
                 |> Node.interfaceFutureMap
                     (\grenJsonBytesOrError ->
                         case grenJsonBytesOrError of
                             Err grenJsonReadError ->
                                 GrenJsonReadFailed grenJsonReadError
 
-                            Ok grenJson ->
-                                let
-                                    computedGrenJsonSourceDirectories : List String
-                                    computedGrenJsonSourceDirectories =
-                                        grenJson |> grenJsonSourceDirectories
-                                in
+                            Ok grenJsonSourceDirectories ->
                                 case waitingForGrenJson.mode of
                                     ProjectModeSingleRun ->
                                         SingleProjectRun
                                             { sourceDirectoriesToRead =
-                                                computedGrenJsonSourceDirectories |> FastSet.fromList
+                                                grenJsonSourceDirectories |> FastSet.fromList
                                             , sourceFilesToRead = FastSet.empty
                                             , formattedModulesToWrite = FastDict.empty
                                             , sourceFileReadErrors = []
@@ -132,7 +124,7 @@ interface state =
 
                                     ProjectModeWatch ->
                                         Watching
-                                            { grenJsonSourceDirectories = computedGrenJsonSourceDirectories
+                                            { grenJsonSourceDirectories = grenJsonSourceDirectories
                                             , sourceFilesToRead = FastSet.empty
                                             , formattedModulesToWrite = FastDict.empty
                                             , sourceFileReadErrors = FastDict.empty
@@ -229,8 +221,8 @@ interfaceSingleFileStandardStreamRun singleFileStandardStreamRun =
                         )
 
 
-nodeGrenJsonRequest : Node.Interface (Result String Gren.Project.Project)
-nodeGrenJsonRequest =
+nodeGrenJsonSourceDirectoriesRequest : Node.Interface (Result String (List String))
+nodeGrenJsonSourceDirectoriesRequest =
     Node.fileRequest "gren.json"
         |> Node.interfaceFutureMap
             (\grenJsonBytesOrError ->
@@ -247,7 +239,15 @@ nodeGrenJsonRequest =
                                 Err "gren.json bytes could not be decoded into UTF-8 String"
 
                             Just grenJsonString ->
-                                case grenJsonString |> Json.Decode.decodeString Gren.Project.decoder of
+                                case
+                                    grenJsonString
+                                        |> Json.Decode.decodeString
+                                            (Json.Decode.oneOf
+                                                [ Json.Decode.field "source-directories" (Json.Decode.list Json.Decode.string)
+                                                , Json.Decode.succeed [ "src" ]
+                                                ]
+                                            )
+                                of
                                     Err jsonDecodeError ->
                                         Err
                                             ("gren.json failed to parse due to "
@@ -580,16 +580,6 @@ nodeHideCursor =
 nodeTestsChangeListen : Node.Interface Node.FileChange
 nodeTestsChangeListen =
     Node.fileChangeListen "tests"
-
-
-grenJsonSourceDirectories : Gren.Project.Project -> List String
-grenJsonSourceDirectories grenJson =
-    case grenJson of
-        Gren.Project.Application application ->
-            application.dirs
-
-        Gren.Project.Package _ ->
-            packageSourceDirectories
 
 
 packageSourceDirectories : List String

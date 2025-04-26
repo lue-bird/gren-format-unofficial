@@ -1,18 +1,18 @@
-import * as grenEsm from "gren-esm"
+import * as elmEsm from "elm-esm"
 import * as fs from "node:fs"
-import * as grenOptimizeLevel2 from "gren-optimize-level-2"
+import * as elmOptimizeLevel2 from "elm-optimize-level-2"
 
-const grenMainFilePath = "src/Main.gren"
-const compiledGrenMainJsFilePath = "src/grenMain.js"
+const elmMainFilePath = "src/Main.elm"
+const compiledElmMainJsFilePath = "src/elmMain.js"
 
-await grenOptimizeLevel2.run({
-    inputFilePath: [grenMainFilePath],
-    outputFilePath: compiledGrenMainJsFilePath,
+await elmOptimizeLevel2.run({
+    inputFilePath: [elmMainFilePath],
+    outputFilePath: compiledElmMainJsFilePath,
     optimizeSpeed: true,
     processOpts: null
 })
-const optimizedCompiledCode = await fs.promises.readFile(compiledGrenMainJsFilePath, { encoding: "utf-8" })
+const optimizedCompiledCode = await fs.promises.readFile(compiledElmMainJsFilePath, { encoding: "utf-8" })
 
-const optimizedCompiledCodeAsEsm = grenEsm.toESModule(optimizedCompiledCode)
+const optimizedCompiledCodeAsEsm = elmEsm.toESModule(optimizedCompiledCode)
 
-await fs.promises.writeFile(compiledGrenMainJsFilePath, optimizedCompiledCodeAsEsm, { encoding: "utf-8" })
+await fs.promises.writeFile(compiledElmMainJsFilePath, optimizedCompiledCodeAsEsm, { encoding: "utf-8" })
