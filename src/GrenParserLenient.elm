@@ -1912,12 +1912,8 @@ typeParenthesizedOrOldUnit =
                             { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
                             , end = rangeAfterOpeningParens.end
                             }
-                            (-- TODO `Tupled [ firstPart.syntax ]`
-                             let
-                                (GrenSyntax.Node _ firstPartType) =
-                                    inParens.syntax
-                             in
-                             firstPartType
+                            (GrenSyntax.TypeAnnotationParenthesized
+                                inParens.syntax
                             )
                     }
                 )
