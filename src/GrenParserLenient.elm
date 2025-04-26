@@ -1870,7 +1870,7 @@ type_ =
 typeNotSpaceSeparated : Parser (WithComments (GrenSyntax.Node GrenSyntax.TypeAnnotation))
 typeNotSpaceSeparated =
     ParserFast.oneOf4
-        typeParenthesizedOrTupleOrTriple
+        typeParenthesizedOrOldUnit
         typeConstructWithoutArguments
         typeVariable
         typeRecordOrRecordExtension
@@ -1879,14 +1879,14 @@ typeNotSpaceSeparated =
 typeNotFunction : Parser (WithComments (GrenSyntax.Node GrenSyntax.TypeAnnotation))
 typeNotFunction =
     ParserFast.oneOf4
-        typeParenthesizedOrTupleOrTriple
+        typeParenthesizedOrOldUnit
         typeConstructWithArgumentsFollowedByWhitespaceAndComments
         typeVariable
         typeRecordOrRecordExtension
 
 
-typeParenthesizedOrTupleOrTriple : Parser (WithComments (GrenSyntax.Node GrenSyntax.TypeAnnotation))
-typeParenthesizedOrTupleOrTriple =
+typeParenthesizedOrOldUnit : Parser (WithComments (GrenSyntax.Node GrenSyntax.TypeAnnotation))
+typeParenthesizedOrOldUnit =
     ParserFast.symbolFollowedBy "("
         (ParserFast.oneOf2
             (ParserFast.symbolWithEndLocation ")"
@@ -1901,83 +1901,30 @@ typeParenthesizedOrTupleOrTriple =
                     }
                 )
             )
-            (ParserFast.map4WithRange
-                (\rangeAfterOpeningParens commentsBeforeFirstPart firstPart commentsAfterFirstPart lastToSecondPart ->
+            (ParserFast.map3WithRange
+                (\rangeAfterOpeningParens commentsBeforeFirstPart inParens commentsAfterFirstPart ->
                     { comments =
                         commentsBeforeFirstPart
-                            |> ropePrependTo firstPart.comments
+                            |> ropePrependTo inParens.comments
                             |> ropePrependTo commentsAfterFirstPart
-                            |> ropePrependTo lastToSecondPart.comments
                     , syntax =
                         GrenSyntax.Node
                             { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
                             , end = rangeAfterOpeningParens.end
                             }
-                            (case lastToSecondPart.syntax of
-                                Nothing ->
-                                    -- parenthesized types are not a `Tupled [ firstPart.syntax ]`
-                                    -- but their Range still extends to both parens.
-                                    -- This is done to not break behavior of v7.
-                                    -- This will likely change in v8 after discussion in issues like https://github.com/stil4m/gren-syntax/issues/204
-                                    let
-                                        (GrenSyntax.Node _ firstPartType) =
-                                            firstPart.syntax
-                                    in
-                                    firstPartType
-
-                                Just firstAndMaybeThirdPart ->
-                                    case firstAndMaybeThirdPart.maybeThirdPart of
-                                        Nothing ->
-                                            GrenSyntax.TypeAnnotationTupled [ firstPart.syntax, firstAndMaybeThirdPart.secondPart ]
-
-                                        Just thirdPart ->
-                                            GrenSyntax.TypeAnnotationTupled [ firstPart.syntax, firstAndMaybeThirdPart.secondPart, thirdPart ]
+                            (-- TODO `Tupled [ firstPart.syntax ]`
+                             let
+                                (GrenSyntax.Node _ firstPartType) =
+                                    inParens.syntax
+                             in
+                             firstPartType
                             )
                     }
                 )
                 whitespaceAndComments
                 type_
-                whitespaceAndComments
-                (ParserFast.oneOf2
-                    (ParserFast.symbol ")"
-                        { comments = ropeEmpty, syntax = Nothing }
-                    )
-                    (ParserFast.symbolFollowedBy ","
-                        (ParserFast.map4
-                            (\commentsBefore secondPartResult commentsAfter maybeThirdPartResult ->
-                                { comments =
-                                    commentsBefore
-                                        |> ropePrependTo secondPartResult.comments
-                                        |> ropePrependTo commentsAfter
-                                , syntax = Just { maybeThirdPart = maybeThirdPartResult.syntax, secondPart = secondPartResult.syntax }
-                                }
-                            )
-                            whitespaceAndComments
-                            type_
-                            whitespaceAndComments
-                            (ParserFast.oneOf2
-                                (ParserFast.symbol ")"
-                                    { comments = ropeEmpty, syntax = Nothing }
-                                )
-                                (ParserFast.symbolFollowedBy ","
-                                    (ParserFast.map3
-                                        (\commentsBefore thirdPartResult commentsAfter ->
-                                            { comments =
-                                                commentsBefore
-                                                    |> ropePrependTo thirdPartResult.comments
-                                                    |> ropePrependTo commentsAfter
-                                            , syntax = Just thirdPartResult.syntax
-                                            }
-                                        )
-                                        whitespaceAndComments
-                                        type_
-                                        whitespaceAndComments
-                                        |> ParserFast.followedBySymbol ")"
-                                    )
-                                )
-                            )
-                        )
-                    )
+                (whitespaceAndComments
+                    |> ParserFast.followedBySymbol ")"
                 )
             )
         )

@@ -2057,7 +2057,7 @@ foo = bar"""
                 )
             , Test.test "port declaration for command"
                 (\() ->
-                    "port parseResponse : ( String, String ) -> Cmd msg"
+                    "port parseResponse : ( String         ) -> Cmd msg"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 51 } }
                                 (GrenSyntax.PortDeclaration
@@ -2066,15 +2066,7 @@ foo = bar"""
                                         GrenSyntax.Node { start = { row = 1, column = 22 }, end = { row = 1, column = 51 } }
                                             (GrenSyntax.TypeAnnotationFunction
                                                 (GrenSyntax.Node { start = { row = 1, column = 22 }, end = { row = 1, column = 40 } }
-                                                    (GrenSyntax.TypeAnnotationTupled
-                                                        [ GrenSyntax.Node { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } } (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } } ( [], "String" )) [])
-                                                        , GrenSyntax.Node { start = { row = 1, column = 32 }, end = { row = 1, column = 38 } }
-                                                            (GrenSyntax.TypeAnnotationConstruct
-                                                                (GrenSyntax.Node { start = { row = 1, column = 32 }, end = { row = 1, column = 38 } } ( [], "String" ))
-                                                                []
-                                                            )
-                                                        ]
-                                                    )
+                                                    (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } } ( [], "String" )) [])
                                                 )
                                                 (GrenSyntax.Node { start = { row = 1, column = 44 }, end = { row = 1, column = 51 } }
                                                     (GrenSyntax.TypeAnnotationConstruct
@@ -2769,18 +2761,6 @@ Nothing"""
                     "( )"
                         |> expectFailsToParse GrenParserLenient.type_
                 )
-            , Test.test "tupledTypeReference"
-                (\() ->
-                    "( (), ())"
-                        |> expectSyntaxWithoutComments GrenParserLenient.type_
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                (GrenSyntax.TypeAnnotationTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 5 } } GrenSyntax.TypeAnnotationUnit
-                                    , GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 9 } } GrenSyntax.TypeAnnotationUnit
-                                    ]
-                                )
-                            )
-                )
             , Test.test "4-tuple type annotation is invalid"
                 (\() ->
                     "(Int,String,(),a)"
@@ -2791,22 +2771,6 @@ Nothing"""
                     "( () )"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } } GrenSyntax.TypeAnnotationUnit)
-                )
-            , Test.test "tupledTypeReference 3"
-                (\() ->
-                    "( () , Maybe m )"
-                        |> expectSyntaxWithoutComments GrenParserLenient.type_
-                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
-                                (GrenSyntax.TypeAnnotationTupled
-                                    [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 5 } } GrenSyntax.TypeAnnotationUnit
-                                    , GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 15 } }
-                                        (GrenSyntax.TypeAnnotationConstruct
-                                            (GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 13 } } ( [], "Maybe" ))
-                                            [ GrenSyntax.Node { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } } (GrenSyntax.TypeAnnotationVariable "m") ]
-                                        )
-                                    ]
-                                )
-                            )
                 )
             , Test.test "qualified type reference"
                 (\() ->
@@ -3205,7 +3169,7 @@ Nothing"""
                 )
             , Test.test "annotation with parens"
                 (\() ->
-                    "Msg -> Model -> (Model, Cmd Msg)"
+                    "Msg -> Model -> (Model->Cmd Msg)"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
                                 (GrenSyntax.TypeAnnotationFunction
@@ -3218,16 +3182,17 @@ Nothing"""
                                                 (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 13 } } ( [], "Model" )) [])
                                             )
                                             (GrenSyntax.Node { start = { row = 1, column = 17 }, end = { row = 1, column = 33 } }
-                                                (GrenSyntax.TypeAnnotationTupled
-                                                    [ GrenSyntax.Node { start = { row = 1, column = 18 }, end = { row = 1, column = 23 } }
+                                                (GrenSyntax.TypeAnnotationFunction
+                                                    (GrenSyntax.Node { start = { row = 1, column = 18 }, end = { row = 1, column = 23 } }
                                                         (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 18 }, end = { row = 1, column = 23 } } ( [], "Model" )) [])
-                                                    , GrenSyntax.Node { start = { row = 1, column = 25 }, end = { row = 1, column = 32 } }
+                                                    )
+                                                    (GrenSyntax.Node { start = { row = 1, column = 25 }, end = { row = 1, column = 32 } }
                                                         (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 25 }, end = { row = 1, column = 28 } } ( [], "Cmd" ))
                                                             [ GrenSyntax.Node { start = { row = 1, column = 29 }, end = { row = 1, column = 32 } }
                                                                 (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 1, column = 29 }, end = { row = 1, column = 32 } } ( [], "Msg" )) [])
                                                             ]
                                                         )
-                                                    ]
+                                                    )
                                                 )
                                             )
                                         )

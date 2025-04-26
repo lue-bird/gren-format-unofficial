@@ -334,7 +334,7 @@ type alias Cases =
   - `TypeAnnotationVariable`: `a`
   - `TypeAnnotationConstruct`: `Maybe (Int -> String)`
   - `TypeAnnotationUnit`: `()`
-  - `TypeAnnotationTupled`: `(a, b, c)`
+  - `TypeAnnotationParenthesized`: `(a -> b)`
   - `TypeAnnotationRecord`: `{ name : String}`
   - `TypeAnnotationRecordExtension`: `{ a | name : String}`
   - `TypeAnnotationFunction`: `Int -> String`
@@ -344,7 +344,7 @@ type TypeAnnotation
     = TypeAnnotationVariable String
     | TypeAnnotationConstruct (Node ( ModuleName, String )) (List (Node TypeAnnotation))
     | TypeAnnotationUnit
-    | TypeAnnotationTupled (List (Node TypeAnnotation))
+    | TypeAnnotationParenthesized (Node TypeAnnotation)
     | TypeAnnotationRecord (List (Node TypeAnnotationRecordField))
     | TypeAnnotationRecordExtension (Node String) (Node (List (Node TypeAnnotationRecordField)))
     | TypeAnnotationFunction (Node TypeAnnotation) (Node TypeAnnotation)

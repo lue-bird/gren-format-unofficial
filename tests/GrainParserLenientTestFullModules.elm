@@ -589,11 +589,11 @@ sample5 =
 {-| Given an update function and an outgoing port to send your Gren model into JavaScript, returns a new update function which automatically sends the new model to JavaScript after running the update.
 -}
 
-updateState : (msg -> model -> (model, Cmd msg)) -> SendPort msg model -> msg -> model -> (model, Cmd msg)
+updateState : (msg -> model -> model) -> SendPort msg model -> msg -> model -> model
 updateState update sendPort = curry <| (uncurry update) >> batchStateCmds sendPort
 
 
-batchStateCmds : SendPort msg model -> (model, Cmd msg) -> (model, Cmd msg)
+batchStateCmds : SendPort msg model -> model -> model
 batchStateCmds sendPort nextStateAndCmd =
     1
 """
@@ -631,14 +631,14 @@ sample9 : String
 sample9 =
     """port module Store exposing (..)
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ({model:Model, cmd:Cmd Msg})
 update msg model =
     case msg of
         NoOp ->
-            (model, [])
+            ({model=model, cmd=[]})
 
         Increment ->
-            ({ model | value = model}, [])
+            ({model={ model | value = model}, cmd=[]})
 
 
 
@@ -1229,88 +1229,6 @@ type Msg
     | OnSubscription (Result String Naturals)
 
 
-{-| Shows how to unpack a record parameter while still keeping the full parameter.
-You can use a subset of the fields in the record if you only need certain fields.
-This function type signature has been purpusefully spread over multiple lines to show that complex signatures need not be single line.
--}
-update :
-    Msg
-    -> Model
-    -> ( Model, Cmd msg )
-update msg ({ count } as model) =
-    case msg of
-        Increment ->
-            ( { model | count = addInt count 1 }, Cmd.none )
-
-        Decrement ->
-            -- Shows how to create a new scope with a let..in expression
-            let
-                -- values and function defined inside let..in can have type signatures although they usually don't
-                newValue : Natural
-                newValue =
-                    addInt count -1
-
-                -- this is how to use the Debug.log to check for a value
-                _ =
-                    Debug.log "newValue" newValue
-
-                -- this shows that you can declare multiple _ values without the compiler complaining.
-                -- attempting to use a named declaration multiple times will result in a compiler error
-                _ =
-                    newValue
-                        -- adding the next line at the end of a declaration with result in it being logged to the JS console
-                        |> Debug.log "newValue"
-            in
-            if newValue == count then
-                -- Shows how to call a port
-                ( model, reportError "There are no negative Natural numbers" )
-
-            else
-                ( { model | count = newValue }, Cmd.none )
-
-        AddNextTen ->
-            let
-                addIntToCount =
-                    -- Shows how to partially apply a function.
-                    -- This is very useful in scopes where the first arguments stay the same
-                    addInt count
-
-                intCount =
-                    toInt count
-
-                addTen =
-                    -- Shows how to use an infix operator as a prefix function.
-                    -- This is useful when you want to partially apply the operator and use
-                    -- the resulting function in a higher order function.
-                    (+) 10
-
-                nextTen =
-                    -- Shows how to use an infix operator as an argument in a higher order function.
-                    List.foldl (+) 0 (List.range intCount (addTen intCount))
-            in
-            ( { model | count = addIntToCount nextTen }, Cmd.none )
-
-        -- Shows how to unpack a variant by matching against the contained variants
-        OnSubscription (Ok naturals) ->
-            case naturals of
-                -- Shows how to pattern match on a List
-                [] ->
-                    -- Shows how to recursively call update in order to avoid duplicating code.
-                    update (OnSubscription (Err "Received an empty list")) model
-
-                -- Shows how to pattern match on a list with a fixed number of elements
-                [ first ] ->
-                    ( { model | count = first }, Cmd.none )
-
-                -- Shows how to pattern match on a list with at least two elements.
-                first :: second :: _ ->
-                    ( { model | count = first }, Cmd.none )
-
-        OnSubscription (Err error) ->
-            ( model, reportError error )
-
-
-
 -- VIEW
 
 
@@ -1324,24 +1242,12 @@ multiline =
 \"\"\"
 
 
-{-| Shows how to define a tuple.
--}
-initials : ( Char, Char )
-initials =
-    -- Show how to declare a Char type.
-    ( 'J', 'D' )
-
-
 view : Model -> Html Msg
 view model =
     let
         namedCount =
             -- Shows how to access a field from a record by using a field accessor function
             .namedCount model
-
-        -- Shows how to pattern match a tuple
-        ( first, last ) =
-            initials
 
         -- a helper function
         named value =

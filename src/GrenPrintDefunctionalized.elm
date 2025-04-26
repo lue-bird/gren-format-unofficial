@@ -707,7 +707,7 @@ moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
         GrenSyntax.Explicit exposingSet ->
             case exposingSet |> exposeListToNormal of
                 [] ->
-                    printExactlyParensOpeningParensClosed
+                    printExactlyCurlyBraceOpeningCurlyBraceClosing
 
                 [ GrenSyntax.Node _ onlySyntaxExpose ] ->
                     let
@@ -1313,9 +1313,9 @@ importExposing syntaxComments (GrenSyntax.Node exposingRange syntaxExposing) =
 
         GrenSyntax.Explicit exposingSet ->
             case exposingSet of
+                -- invalid syntax
                 [] ->
-                    -- invalid syntax
-                    printExactlyParensOpeningParensClosed
+                    printExactlyParensOpeningDotDotParensClosing
 
                 expose0 :: expose1Up ->
                     exposingMulti syntaxComments
@@ -2180,7 +2180,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
             printExactlyUnderscore
 
         GrenSyntax.PatternUnit ->
-            printExactlyParensOpeningParensClosed
+            printExactlyCurlyBraceOpeningCurlyBraceClosing
 
         GrenSyntax.PatternVariable name ->
             Print.exactly name
@@ -2238,7 +2238,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
 
                 [] ->
                     -- should be covered by UnitPattern
-                    printExactlyParensOpeningParensClosed
+                    printExactlyCurlyBraceOpeningCurlyBraceClosing
 
                 [ inParens ] ->
                     -- should be covered by ParenthesizedPattern
@@ -3859,7 +3859,7 @@ typeParenthesizedIfParenthesizedFunction :
     -> Print
 typeParenthesizedIfParenthesizedFunction syntaxComments typeNode =
     case typeNode |> GrenSyntax.nodeValue of
-        GrenSyntax.TypeAnnotationTupled [ inParens ] ->
+        GrenSyntax.TypeAnnotationParenthesized inParens ->
             inParens |> typeParenthesizedIfFunction syntaxComments
 
         _ ->
@@ -3900,7 +3900,7 @@ typeToFunction typeNode =
         GrenSyntax.TypeAnnotationUnit ->
             Nothing
 
-        GrenSyntax.TypeAnnotationTupled _ ->
+        GrenSyntax.TypeAnnotationParenthesized _ ->
             Nothing
 
         GrenSyntax.TypeAnnotationRecord _ ->
@@ -3926,24 +3926,8 @@ typeToNotParenthesized (GrenSyntax.Node typeRange syntaxType) =
         GrenSyntax.TypeAnnotationUnit ->
             GrenSyntax.Node typeRange GrenSyntax.TypeAnnotationUnit
 
-        GrenSyntax.TypeAnnotationTupled parts ->
-            case parts of
-                [ inParens ] ->
-                    typeToNotParenthesized inParens
-
-                [] ->
-                    -- should be handled by Unit
-                    GrenSyntax.Node typeRange GrenSyntax.TypeAnnotationUnit
-
-                [ part0, part1 ] ->
-                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled [ part0, part1 ])
-
-                [ part0, part1, part2 ] ->
-                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled [ part0, part1, part2 ])
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationTupled (part0 :: part1 :: part2 :: part3 :: part4Up))
+        GrenSyntax.TypeAnnotationParenthesized inParens ->
+            typeToNotParenthesized inParens
 
         GrenSyntax.TypeAnnotationRecord fields ->
             GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationRecord fields)
@@ -4099,23 +4083,8 @@ typeIsSpaceSeparated syntaxType =
         GrenSyntax.TypeAnnotationUnit ->
             False
 
-        GrenSyntax.TypeAnnotationTupled parts ->
-            case parts of
-                [] ->
-                    -- should be handled by Unit
-                    False
-
-                [ GrenSyntax.Node _ inParens ] ->
-                    typeIsSpaceSeparated inParens
-
-                [ _, _ ] ->
-                    False
-
-                [ _, _, _ ] ->
-                    False
-
-                _ :: _ :: _ :: _ :: _ ->
-                    False
+        GrenSyntax.TypeAnnotationParenthesized (GrenSyntax.Node _ inParens) ->
+            typeIsSpaceSeparated inParens
 
         GrenSyntax.TypeAnnotationRecord _ ->
             False
@@ -4137,7 +4106,7 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
     -- IGNORE TCO
     case syntaxType of
         GrenSyntax.TypeAnnotationUnit ->
-            printExactlyParensOpeningParensClosed
+            printExactlyCurlyBraceOpeningCurlyBraceClosing
 
         GrenSyntax.TypeAnnotationVariable name ->
             Print.exactly name
@@ -4158,61 +4127,26 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
                 , arguments = arguments
                 }
 
-        GrenSyntax.TypeAnnotationTupled parts ->
-            case parts of
-                [] ->
-                    -- should be handled by Unit
-                    printExactlyParensOpeningParensClosed
+        GrenSyntax.TypeAnnotationParenthesized inParens ->
+            let
+                commentsBeforeInParens : List String
+                commentsBeforeInParens =
+                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
 
-                [ inParens ] ->
-                    let
-                        commentsBeforeInParens : List String
-                        commentsBeforeInParens =
-                            commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
+                commentsAfterInParens : List String
+                commentsAfterInParens =
+                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
+            in
+            case ( commentsBeforeInParens, commentsAfterInParens ) of
+                ( [], [] ) ->
+                    typeNotParenthesized syntaxComments inParens
 
-                        commentsAfterInParens : List String
-                        commentsAfterInParens =
-                            commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
-                    in
-                    case ( commentsBeforeInParens, commentsAfterInParens ) of
-                        ( [], [] ) ->
-                            typeNotParenthesized syntaxComments inParens
-
-                        _ ->
-                            parenthesized typeNotParenthesized
-                                { notParenthesized = inParens |> typeToNotParenthesized
-                                , fullRange = fullRange
-                                }
-                                syntaxComments
-
-                [ part0, part1 ] ->
-                    tuple
-                        { printPartNotParenthesized = typeNotParenthesized
-                        , lineSpreadMinimum = lineSpreadInRange fullRange
-                        }
-                        syntaxComments
-                        { part0 = part0
-                        , part1 = part1
+                _ ->
+                    parenthesized typeNotParenthesized
+                        { notParenthesized = inParens |> typeToNotParenthesized
                         , fullRange = fullRange
                         }
-
-                [ part0, part1, part2 ] ->
-                    triple
-                        { printPartNotParenthesized = typeNotParenthesized
-                        , lineSpreadMinimum = lineSpreadInRange fullRange
-                        }
                         syntaxComments
-                        { part0 = part0
-                        , part1 = part1
-                        , part2 = part2
-                        , fullRange = fullRange
-                        }
-
-                part0 :: part1 :: part2 :: part3 :: part4Up ->
-                    -- invalid syntax
-                    invalidNTuple typeNotParenthesized
-                        syntaxComments
-                        { fullRange = fullRange, part0 = part0, part1 = part1, part2 = part2, part3 = part3, part4Up = part4Up }
 
         GrenSyntax.TypeAnnotationRecord fields ->
             recordLiteral
@@ -5204,7 +5138,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
     -- IGNORE TCO
     case syntaxExpression of
         GrenSyntax.UnitExpr ->
-            printExactlyParensOpeningParensClosed
+            printExactlyCurlyBraceOpeningCurlyBraceClosing
 
         GrenSyntax.Application application ->
             case application of
@@ -5274,7 +5208,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
             case parts of
                 [] ->
                     -- should be handled by Unit
-                    printExactlyParensOpeningParensClosed
+                    printExactlyCurlyBraceOpeningCurlyBraceClosing
 
                 [ inParens ] ->
                     -- should be handled by ParenthesizedExpression
@@ -7027,9 +6961,9 @@ printEqualsLinebreakIndented =
         |> Print.followedBy Print.linebreakIndented
 
 
-printExactlyParensOpeningParensClosed : Print.Print
-printExactlyParensOpeningParensClosed =
-    Print.exactly "()"
+printExactlyCurlyBraceOpeningCurlyBraceClosing : Print.Print
+printExactlyCurlyBraceOpeningCurlyBraceClosing =
+    Print.exactly "{}"
 
 
 printExactlySpaceSpace : Print.Print
