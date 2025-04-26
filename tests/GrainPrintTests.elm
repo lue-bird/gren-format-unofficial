@@ -4771,6 +4771,262 @@ plus2 n =
 """
                             )
                 )
+            , Test.test "example flight booker"
+                (\() ->
+                    """module Main exposing (main)
+
+import Browser
+import Html exposing (Html, button, div, input, option, select, text)
+import Html.Attributes exposing (disabled, id, style, value)
+import Html.Events as Event exposing (onInput)
+import Task
+
+
+main : Program {} Model Msg
+main =
+    Browser.sandbox
+        { init = init
+        , update = update
+        , view = view
+        }
+
+
+type FlightType
+    = OneWay
+    | ReturnFlight
+
+
+flightTypeToString : FlightType -> String
+flightTypeToString flightType =
+    when flightType is
+        OneWay ->
+            "One-way flight"
+
+        ReturnFlight ->
+            "Return flight"
+
+
+flightTypeFromString : String -> FlightType
+flightTypeFromString str =
+    when str is
+        "Return flight" ->
+            ReturnFlight
+
+        _ ->
+            OneWay
+
+
+type alias Model =
+    { flightType : FlightType
+    , input1 : String
+    , input2 : String
+    , date1 : Maybe Date
+    , date2 : Maybe Date
+    }
+
+
+init : Model
+init =
+    let
+        date =
+            { year = 2022
+            , month = 6
+            , day = 14
+            }
+    in
+    { flightType = OneWay
+    , input1 = formatDate date
+    , input2 = formatDate date
+    , date1 = Just date
+    , date2 = Just date
+    }
+
+
+type Msg
+    = FlightTypeChanged String
+    | Input1Changed String
+    | Input2Changed String
+
+
+update : Msg -> Model -> Model
+update msg model =
+    when msg is
+        FlightTypeChanged asString ->
+            { model | flightType = flightTypeFromString asString }
+
+        Input1Changed str ->
+            { model
+                | input1 = str
+                , date1 = parseDate str
+            }
+
+        Input2Changed str ->
+            { model
+                | input2 = str
+                , date2 = parseDate str
+            }
+
+
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    div
+        [ style "display" "flex"
+        , style "flex-direction" "column"
+        , style "width" "100px"
+        , style "padding" "40px"
+        ]
+        [ flightTypeSelector
+        , dateInput
+            { id = "departure"
+            , value = model.input1
+            , date = model.date1
+            , changeMsg = Input1Changed
+            , isDisabled = False
+            }
+        , dateInput
+            { id = "arrival"
+            , value = model.input2
+            , date = model.date2
+            , changeMsg = Input2Changed
+            , isDisabled = model.flightType == OneWay
+            }
+        , bookButton
+            { isDisabled = checkIfDisabled model.flightType model.date1 model.date2 }
+        ]
+
+
+flightTypeSelector : Html Msg
+flightTypeSelector =
+    select
+        [ id "flight-type"
+        , onInput FlightTypeChanged
+        ]
+        [ option [] [ text (flightTypeToString OneWay) ]
+        , option [] [ text (flightTypeToString ReturnFlight) ]
+        ]
+
+
+type alias DateInputConfig =
+    { id : String
+    , value : String
+    , date : Maybe Date
+    , changeMsg : String -> Msg
+    , isDisabled : Bool
+    }
+
+
+dateInput : DateInputConfig -> Html Msg
+dateInput config =
+    input
+        [ id config.id
+        , value config.value
+        , onInput config.changeMsg
+        , disabled config.isDisabled
+        , style "background-color"
+            (if config.date == Nothing then
+                "red"
+
+             else
+                "white"
+            )
+        ]
+        []
+
+
+bookButton : { isDisabled : Bool } -> Html Msg
+bookButton { isDisabled } =
+    button
+        [ id "book"
+        , disabled isDisabled
+        ]
+        [ text "Book" ]
+
+
+
+-- Helper functions
+
+
+type alias Date =
+    { day : Int
+    , month : Int
+    , year : Int
+    }
+
+
+parseDate : String -> Maybe Date
+parseDate dateString =
+    if String.count dateString /= 10 then
+        Nothing
+
+    else
+        let
+            parts =
+                dateString
+                    |> String.split "."
+                    |> Array.mapAndKeepJust String.toInt
+        in
+        when parts is
+            [ day, month, year ] ->
+                Just
+                    { day = day
+                    , month = month
+                    , year = year
+                    }
+
+            _ ->
+                Nothing
+
+
+formatDate : Date -> String
+formatDate date =
+    String.fromInt date.day
+        ++ "."
+        ++ String.fromInt date.month
+        ++ "."
+        ++ String.fromInt date.year
+
+
+compareDate : Date -> Date -> Order
+compareDate date1 date2 =
+    when compare date1.year date2.year is
+        EQ ->
+            when compare date1.month date2.month is
+                EQ ->
+                    compare date1.day date2.day
+
+                monthComparison ->
+                    monthComparison
+
+        yearComparison ->
+            yearComparison
+
+
+checkIfDisabled : FlightType -> Maybe Date -> Maybe Date -> Bool
+checkIfDisabled flightType maybeDate1 maybeDate2 =
+    when flightType is
+        OneWay ->
+            maybeDate1 == Nothing
+
+        ReturnFlight ->
+            let
+                compare =
+                    Maybe.map2 compareDate
+                        maybeDate1
+                        maybeDate2
+            in
+            when compare is
+                Just GT ->
+                    True
+
+                _ ->
+                    False
+"""
+                        |> expectPrintedAsSame
+                )
             ]
         ]
 
