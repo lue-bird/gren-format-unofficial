@@ -3534,6 +3534,18 @@ a =
     "\\\\n"
 """
                 )
+            , Test.test "single double quote string with escaped carriage return"
+                (\() ->
+                    """module A exposing (..)
+a = "\\r" """
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a =
+    "\\u{000D}"
+"""
+                )
             , Test.test "single double quote string with escapes"
                 (\() ->
                     """module A exposing (..)

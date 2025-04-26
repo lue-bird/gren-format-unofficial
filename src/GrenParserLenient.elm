@@ -2747,11 +2747,11 @@ recordSetterNodeFollowedByWhitespaceAndComments =
 expressionString : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
 expressionString =
     singleOrTripleQuotedStringLiteralMapWithRange
-        (\range string ->
+        (\range stringAndLineSpread ->
             { comments = ropeEmpty
             , syntax =
                 GrenSyntax.Node range
-                    (GrenSyntax.ExpressionString string)
+                    (GrenSyntax.ExpressionString stringAndLineSpread)
             }
         )
 
@@ -4674,7 +4674,9 @@ characterLiteralMapWithRange rangeAndCharToRes =
         )
 
 
-singleOrTripleQuotedStringLiteralMapWithRange : (GrenSyntax.Range -> String -> res) -> Parser res
+singleOrTripleQuotedStringLiteralMapWithRange :
+    (GrenSyntax.Range -> { content : String, lineSpread : GrenSyntax.StringQuotingStyle } -> res)
+    -> Parser res
 singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
     ParserFast.symbolFollowedBy "\""
         (ParserFast.oneOf2MapWithStartRowColumnAndEndRowColumn
@@ -4683,7 +4685,7 @@ singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
                     { start = { row = startRow, column = startColumn - 1 }
                     , end = { row = endRow, column = endColumn }
                     }
-                    string
+                    { content = string, lineSpread = GrenSyntax.StringTripleQuoted }
             )
             (ParserFast.symbolFollowedBy "\"\""
                 tripleQuotedStringLiteralOfterTripleDoubleQuote
@@ -4693,7 +4695,7 @@ singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
                     { start = { row = startRow, column = startColumn - 1 }
                     , end = { row = endRow, column = endColumn }
                     }
-                    string
+                    { content = string, lineSpread = GrenSyntax.StringSingleQuoted }
             )
             singleQuotedStringLiteralAfterDoubleQuote
         )

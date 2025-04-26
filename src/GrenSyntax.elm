@@ -5,6 +5,7 @@ module GrenSyntax exposing
     , Declaration(..), Type, ValueConstructor, TypeAlias, Infix, InfixDirection(..)
     , Pattern(..), QualifiedNameRef
     , Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, Function, FunctionImplementation
+    , StringQuotingStyle(..)
     , TypeAnnotation(..), TypeAnnotationRecordField
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
     )
@@ -17,6 +18,7 @@ module GrenSyntax exposing
 @docs Declaration, Type, ValueConstructor, TypeAlias, Infix, InfixDirection
 @docs Pattern, QualifiedNameRef
 @docs Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, Function, FunctionImplementation
+@docs StringQuotingStyle
 @docs TypeAnnotation, TypeAnnotationRecordField
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
 
@@ -264,7 +266,7 @@ type Expression
     | ExpressionHex Int
     | ExpressionFloat Float
     | ExpressionNegation (Node Expression)
-    | ExpressionString String
+    | ExpressionString { content : String, lineSpread : StringQuotingStyle }
     | ExpressionChar Char
     | ExpressionParenthesized (Node Expression)
     | ExpressionLetIn LetBlock
@@ -278,6 +280,14 @@ type Expression
     | ExpressionRecordAccess (Node Expression) (Node String)
     | ExpressionRecordAccessFunction String
     | ExpressionRecordUpdate (Node String) (List (Node RecordSetter))
+
+
+{-| String literals can be single double-quoted (single line) and triple double-quoted (usually multi-line)?
+Used by [`ExpressionString`](#Expression) and [`PatternString`](#Pattern)
+-}
+type StringQuotingStyle
+    = StringSingleQuoted
+    | StringTripleQuoted
 
 
 {-| Expression for setting a record field
@@ -364,7 +374,7 @@ type Pattern
     = PatternIgnored
     | PatternUnit
     | PatternChar Char
-    | PatternString String
+    | PatternString { content : String, lineSpread : StringQuotingStyle }
     | PatternInt Int
     | PatternHex Int
     | PatternRecord (List (Node String))

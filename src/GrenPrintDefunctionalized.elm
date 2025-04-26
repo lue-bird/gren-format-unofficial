@@ -1668,45 +1668,38 @@ patternIsSpaceSeparated syntaxPattern =
             True
 
 
-stringLiteral : GrenSyntax.Node String -> Print
-stringLiteral (GrenSyntax.Node range stringContent) =
+stringLiteral : { content : String, lineSpread : GrenSyntax.StringQuotingStyle } -> Print
+stringLiteral string =
     let
         singleDoubleQuotedStringContentEscaped : String
         singleDoubleQuotedStringContentEscaped =
-            stringContent
+            string.content
                 |> String.foldl
                     (\contentChar soFar ->
                         soFar ++ singleDoubleQuotedStringCharToEscaped contentChar ++ ""
                     )
                     ""
-
-        wasProbablyTripleDoubleQuoteOriginally : Bool
-        wasProbablyTripleDoubleQuoteOriginally =
-            (range.start.row /= range.end.row)
-                || ((range.end.column - range.start.column)
-                        - (singleDoubleQuotedStringContentEscaped |> stringUnicodeLength)
-                        /= 2
-                   )
     in
-    if wasProbablyTripleDoubleQuoteOriginally then
-        printExactlyDoubleQuoteDoubleQuoteDoubleQuote
-            |> Print.followedBy
-                (stringContent
-                    |> String.foldl
-                        (\contentChar soFar ->
-                            soFar ++ tripleDoubleQuotedStringCharToEscaped contentChar ++ ""
-                        )
-                        ""
-                    |> tripleDoubleQuotedStringEscapeDoubleQuotes
-                    |> String.lines
-                    |> Print.listMapAndIntersperseAndFlatten
-                        Print.exactly
-                        Print.linebreak
-                )
-            |> Print.followedBy printExactlyDoubleQuoteDoubleQuoteDoubleQuote
+    case string.lineSpread of
+        GrenSyntax.StringTripleQuoted ->
+            printExactlyDoubleQuoteDoubleQuoteDoubleQuote
+                |> Print.followedBy
+                    (string.content
+                        |> String.foldl
+                            (\contentChar soFar ->
+                                soFar ++ tripleDoubleQuotedStringCharToEscaped contentChar ++ ""
+                            )
+                            ""
+                        |> tripleDoubleQuotedStringEscapeDoubleQuotes
+                        |> String.lines
+                        |> Print.listMapAndIntersperseAndFlatten
+                            Print.exactly
+                            Print.linebreak
+                    )
+                |> Print.followedBy printExactlyDoubleQuoteDoubleQuoteDoubleQuote
 
-    else
-        Print.exactly ("\"" ++ singleDoubleQuotedStringContentEscaped ++ "\"")
+        GrenSyntax.StringSingleQuoted ->
+            Print.exactly ("\"" ++ singleDoubleQuotedStringContentEscaped ++ "\"")
 
 
 stringUnicodeLength : String -> Int
@@ -2149,7 +2142,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
             Print.exactly (charLiteral char)
 
         GrenSyntax.PatternString string ->
-            stringLiteral (GrenSyntax.Node fullRange string)
+            stringLiteral string
 
         GrenSyntax.PatternInt int ->
             Print.exactly (intLiteral int)
@@ -5070,7 +5063,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
             printExpressionNegation syntaxComments negated
 
         GrenSyntax.ExpressionString string ->
-            stringLiteral (GrenSyntax.Node fullRange string)
+            stringLiteral string
 
         GrenSyntax.ExpressionChar char ->
             Print.exactly (charLiteral char)
