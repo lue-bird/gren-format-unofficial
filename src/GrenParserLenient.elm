@@ -4669,7 +4669,6 @@ escapedCharValueMap charToRes =
         (ParserFast.symbol "\"" (charToRes '"'))
         (ParserFast.symbol "n" (charToRes '\n'))
         (ParserFast.symbol "t" (charToRes '\t'))
-        -- even though gren-format will change \r to a unicode version. When you don't use gren-format, this will not happen.
         (ParserFast.symbol "r" (charToRes '\u{000D}'))
         (ParserFast.symbol "\\" (charToRes '\\'))
         (ParserFast.symbolFollowedBy "u{"

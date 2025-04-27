@@ -405,7 +405,7 @@ moduleLevelCommentsBeforeDeclaration syntaxComments =
         |> Print.followedBy
             (case listFilledLast syntaxComments.comment0 syntaxComments.comment1Up of
                 "{--}" ->
-                    -- don't ask me why gren-format formats it that way
+                    -- rudiment from elm-format
                     Print.empty
 
                 _ ->
@@ -2977,7 +2977,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                     |> Print.followedBy printExactlyCommaSpace
                                 )
                         )
-                    |> -- yes, gren-format indents trailing comments
+                    |> -- indenting trailing comments is a rudiment from elm-format
                        Print.followedBy
                         (case commentsAfterFields of
                             [] ->
@@ -5812,7 +5812,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                     |> Print.followedBy printExactlyCommaSpace
                                 )
                         )
-                    |> -- yes, gren-format indents trailing comments
+                    |> -- indenting trailing comments is a rudiment from elm-format
                        Print.followedBy
                         (case commentsAfterFields of
                             [] ->

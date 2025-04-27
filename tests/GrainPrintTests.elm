@@ -261,7 +261,7 @@ import C
                 )
             , Test.test "comments in imports (except in exposing list)"
                 (\() ->
-                    -- gren-format eats comments of earlier duplicate imports
+                    -- eating comments of earlier duplicate imports is a rudiment from elm-format
                     """module A exposing (..)
 import -- -1
     A
@@ -2070,7 +2070,7 @@ a =
         else
             2))"""
                         |> expectPrintedAs
-                            -- gren-format prints this really weirdly
+                            -- rudiment from elm-format
                             """module A exposing (..)
 
 
