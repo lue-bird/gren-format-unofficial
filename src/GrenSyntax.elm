@@ -10,7 +10,7 @@ module GrenSyntax exposing
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
     )
 
-{-| grain syntax tree
+{-| Gren syntax tree
 
 @docs File, ModuleName, Import
 @docs DefaultModuleData, EffectModuleData, Module
