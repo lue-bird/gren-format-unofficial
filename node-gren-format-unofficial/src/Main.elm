@@ -1,19 +1,16 @@
 port module Main exposing (main)
 
-import Ansi.Color
-import Ansi.Cursor
-import Ansi.Font
 import Bytes exposing (Bytes)
 import Bytes.Decode
 import Bytes.Encode
-import FastDict
-import FastSet
+import Dict
 import GrenParserLenient
 import GrenPrint
 import GrenSyntax
 import Json.Decode
 import Json.Encode
 import Node
+import Set
 
 
 type State
@@ -32,9 +29,9 @@ type SingleFileStandardStreamRunState
 
 
 type alias SingleProjectRunState =
-    { sourceDirectoriesToRead : FastSet.Set String
-    , sourceFilesToRead : FastSet.Set String
-    , formattedModulesToWrite : FastDict.Dict String Bytes
+    { sourceDirectoriesToRead : Set.Set String
+    , sourceFilesToRead : Set.Set String
+    , formattedModulesToWrite : Dict.Dict String Bytes
     , sourceDirectoryReadErrors : List { path : String, message : String }
     , sourceFileReadErrors : List { path : String, message : String }
     }
@@ -42,9 +39,9 @@ type alias SingleProjectRunState =
 
 type alias WatchState =
     { grenJsonSourceDirectories : List String
-    , sourceFilesToRead : FastSet.Set String
-    , formattedModulesToWrite : FastDict.Dict String Bytes
-    , sourceFileReadErrors : FastDict.Dict String String
+    , sourceFilesToRead : Set.Set String
+    , formattedModulesToWrite : Dict.Dict String Bytes
+    , sourceFileReadErrors : Dict.Dict String String
     }
 
 
@@ -115,9 +112,9 @@ interface state =
                                     ProjectModeSingleRun ->
                                         SingleProjectRun
                                             { sourceDirectoriesToRead =
-                                                grenJsonSourceDirectories |> FastSet.fromList
-                                            , sourceFilesToRead = FastSet.empty
-                                            , formattedModulesToWrite = FastDict.empty
+                                                grenJsonSourceDirectories |> Set.fromList
+                                            , sourceFilesToRead = Set.empty
+                                            , formattedModulesToWrite = Dict.empty
                                             , sourceFileReadErrors = []
                                             , sourceDirectoryReadErrors = []
                                             }
@@ -125,9 +122,9 @@ interface state =
                                     ProjectModeWatch ->
                                         Watching
                                             { grenJsonSourceDirectories = grenJsonSourceDirectories
-                                            , sourceFilesToRead = FastSet.empty
-                                            , formattedModulesToWrite = FastDict.empty
-                                            , sourceFileReadErrors = FastDict.empty
+                                            , sourceFilesToRead = Set.empty
+                                            , formattedModulesToWrite = Dict.empty
+                                            , sourceFileReadErrors = Dict.empty
                                             }
                     )
 
@@ -152,7 +149,7 @@ errorInterface message =
 nodeShowHelpText : Node.Interface future_
 nodeShowHelpText =
     Node.standardOutWrite
-        ("""Format gren 0.19 source directory and tests/ modules in the current project like gren-format (https://github.com/avh4/gren-format).
+        ("""Format gren 0.5.4 source directory and tests/ modules in the current project.
 
 """
             ++ ([ { command = "gren-format-unofficial"
@@ -162,14 +159,14 @@ nodeShowHelpText =
                   , description = "format edited and added modules on save"
                   }
                 , { command = "gren-format-unofficial --stdin"
-                  , description = "for editors and other tooling. Behaves exactly like gren-format --stdin so you can drop-in replace it"
+                  , description = "for editors and other tooling"
                   }
                 ]
                     |> List.map
                         (\commandAndDescription ->
                             "  - "
                                 ++ (commandAndDescription.command
-                                        |> Ansi.Color.fontColor Ansi.Color.cyan
+                                        |> ansiBold
                                    )
                                 ++ ": "
                                 ++ commandAndDescription.description
@@ -180,6 +177,11 @@ nodeShowHelpText =
 
 """
         )
+
+
+ansiBold : String -> String
+ansiBold text =
+    "\u{001B}[1m" ++ text ++ "\u{001B}[22m"
 
 
 interfaceSingleFileStandardStreamRun : SingleFileStandardStreamRunState -> Node.Interface State
@@ -244,7 +246,7 @@ nodeGrenJsonSourceDirectoriesRequest =
                                         |> Json.Decode.decodeString
                                             (Json.Decode.oneOf
                                                 [ Json.Decode.field "source-directories" (Json.Decode.list Json.Decode.string)
-                                                , Json.Decode.succeed [ "src" ]
+                                                , Json.Decode.succeed packageSourceDirectories
                                                 ]
                                             )
                                 of
@@ -272,7 +274,7 @@ singleRunInterface state =
                         (\_ ->
                             SingleProjectRun
                                 { formattedModulesToWrite =
-                                    state.formattedModulesToWrite |> FastDict.remove moduleToFormatPath
+                                    state.formattedModulesToWrite |> Dict.remove moduleToFormatPath
                                 , sourceDirectoriesToRead = state.sourceDirectoriesToRead
                                 , sourceFilesToRead = state.sourceFilesToRead
                                 , sourceDirectoryReadErrors = state.sourceDirectoryReadErrors
@@ -302,13 +304,13 @@ singleRunInterface state =
                                     SingleProjectRun
                                         { sourceDirectoriesToRead =
                                             state.sourceDirectoriesToRead
-                                                |> FastSet.remove sourceDirectoryPath
+                                                |> Set.remove sourceDirectoryPath
                                         , sourceFilesToRead =
                                             subPaths
                                                 |> List.foldl
                                                     (\subPath soFar ->
                                                         if subPath |> String.endsWith ".gren" then
-                                                            soFar |> FastSet.insert (sourceDirectoryPath ++ "/" ++ subPath)
+                                                            soFar |> Set.insert (sourceDirectoryPath ++ "/" ++ subPath)
 
                                                         else
                                                             soFar
@@ -336,7 +338,7 @@ singleRunInterface state =
                                     |> List.foldl
                                         (\subPath soFar ->
                                             if subPath |> String.endsWith ".gren" then
-                                                soFar |> FastSet.insert ("tests/" ++ subPath)
+                                                soFar |> Set.insert ("tests/" ++ subPath)
 
                                             else
                                                 soFar
@@ -382,10 +384,10 @@ singleRunInterface state =
                                         , sourceDirectoryReadErrors = state.sourceDirectoryReadErrors
                                         , sourceFilesToRead =
                                             state.sourceFilesToRead
-                                                |> FastSet.remove sourceFilePath
+                                                |> Set.remove sourceFilePath
                                         , formattedModulesToWrite =
                                             state.formattedModulesToWrite
-                                                |> FastDict.insert sourceFilePath
+                                                |> Dict.insert sourceFilePath
                                                     (syntax |> grenSyntaxModuleToBytes)
                                         }
                         )
@@ -394,7 +396,7 @@ singleRunInterface state =
     , state.sourceDirectoryReadErrors
         |> List.map
             (\directoryReadError ->
-                Node.standardOutWrite
+                Node.standardErrWrite
                     ("failed to read the source directory "
                         ++ directoryReadError.path
                         ++ ": "
@@ -406,7 +408,7 @@ singleRunInterface state =
     , state.sourceFileReadErrors
         |> List.map
             (\fileReadError ->
-                Node.standardOutWrite
+                Node.standardErrWrite
                     ("failed to read the source file "
                         ++ fileReadError.path
                         ++ ": "
@@ -460,7 +462,7 @@ watchInterface state =
                                         Watching
                                             { grenJsonSourceDirectories = state.grenJsonSourceDirectories
                                             , sourceFilesToRead =
-                                                state.sourceFilesToRead |> FastSet.insert addedOrChangedPath
+                                                state.sourceFilesToRead |> Set.insert addedOrChangedPath
                                             , formattedModulesToWrite = state.formattedModulesToWrite
                                             , sourceFileReadErrors = state.sourceFileReadErrors
                                             }
@@ -482,7 +484,7 @@ watchInterface state =
                             Watching
                                 { grenJsonSourceDirectories = state.grenJsonSourceDirectories
                                 , sourceFilesToRead =
-                                    state.sourceFilesToRead |> FastSet.insert addedOrChangedPath
+                                    state.sourceFilesToRead |> Set.insert addedOrChangedPath
                                 , formattedModulesToWrite = state.formattedModulesToWrite
                                 , sourceFileReadErrors = state.sourceFileReadErrors
                                 }
@@ -503,7 +505,7 @@ watchInterface state =
                                 { grenJsonSourceDirectories = state.grenJsonSourceDirectories
                                 , sourceFilesToRead = state.sourceFilesToRead
                                 , formattedModulesToWrite =
-                                    state.formattedModulesToWrite |> FastDict.remove moduleToFormatPath
+                                    state.formattedModulesToWrite |> Dict.remove moduleToFormatPath
                                 , sourceFileReadErrors = state.sourceFileReadErrors
                                 }
                         )
@@ -531,10 +533,10 @@ watchInterface state =
                                         { state
                                             | sourceFileReadErrors =
                                                 state.sourceFileReadErrors
-                                                    |> FastDict.insert sourceFilePath readError
+                                                    |> Dict.insert sourceFilePath readError
                                             , sourceFilesToRead =
                                                 state.sourceFilesToRead
-                                                    |> FastSet.remove sourceFilePath
+                                                    |> Set.remove sourceFilePath
                                         }
 
                                 Ok syntax ->
@@ -542,14 +544,14 @@ watchInterface state =
                                         { grenJsonSourceDirectories = state.grenJsonSourceDirectories
                                         , sourceFilesToRead =
                                             state.sourceFilesToRead
-                                                |> FastSet.remove sourceFilePath
+                                                |> Set.remove sourceFilePath
                                         , formattedModulesToWrite =
                                             state.formattedModulesToWrite
-                                                |> FastDict.insert sourceFilePath
+                                                |> Dict.insert sourceFilePath
                                                     (syntax |> grenSyntaxModuleToBytes)
                                         , sourceFileReadErrors =
                                             state.sourceFileReadErrors
-                                                |> FastDict.remove sourceFilePath
+                                                |> Dict.remove sourceFilePath
                                         }
                         )
             )
@@ -558,13 +560,12 @@ watchInterface state =
     , state.sourceFileReadErrors
         |> fastDictToListAndMap
             (\fileReadErrorPath fileReadError ->
-                Node.standardOutWrite
+                Node.standardErrWrite
                     ("failed to read the source file "
                         ++ fileReadErrorPath
                         ++ ": "
                         ++ fileReadError
                         ++ "\n"
-                        |> Ansi.Color.fontColor Ansi.Color.yellow
                     )
             )
         |> Node.interfaceBatch
@@ -574,7 +575,12 @@ watchInterface state =
 
 nodeHideCursor : Node.Interface future_
 nodeHideCursor =
-    Node.standardOutWrite Ansi.Cursor.hide
+    Node.standardOutWrite ansiHideCursor
+
+
+ansiHideCursor : String
+ansiHideCursor =
+    """\u{001B}[?25l"""
 
 
 nodeTestsChangeListen : Node.Interface Node.FileChange
@@ -587,20 +593,20 @@ packageSourceDirectories =
     [ "src" ]
 
 
-fastDictToListAndMap : (a -> b -> c) -> FastDict.Dict a b -> List c
+fastDictToListAndMap : (a -> b -> c) -> Dict.Dict a b -> List c
 fastDictToListAndMap keyValueToElement fastDict =
     fastDict
-        |> FastDict.foldr
+        |> Dict.foldr
             (\key value soFar ->
                 keyValueToElement key value :: soFar
             )
             []
 
 
-fastSetToListAndMap : (a -> b) -> FastSet.Set a -> List b
+fastSetToListAndMap : (a -> b) -> Set.Set a -> List b
 fastSetToListAndMap keyToElement fastDict =
     fastDict
-        |> FastSet.foldr
+        |> Set.foldr
             (\key soFar ->
                 keyToElement key :: soFar
             )
