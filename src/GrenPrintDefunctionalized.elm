@@ -18,7 +18,6 @@ module GrenPrintDefunctionalized exposing
 -}
 
 import Bitwise
-import Char.Extra
 import GrenSyntax
 import Print exposing (Print)
 import Unicode
@@ -1902,7 +1901,7 @@ characterIsNotPrint : Char -> Bool
 characterIsNotPrint character =
     if
         -- Unicode.getCategory is very expensive so we shortcut if at all possible
-        Char.Extra.isLatinAlphaNumOrUnderscoreFast character
+        Unicode.isLatinAlphaNumOrUnderscoreFast character
             || (case character of
                     ' ' ->
                         True

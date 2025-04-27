@@ -120,8 +120,8 @@ Once a path is chosen, it does not come back and try the others.
 
 -}
 
-import Char.Extra
 import GrenSyntax
+import Unicode
 
 
 {-| A `Parser` helps turn a `String` into nicely structured data. For example,
@@ -2518,7 +2518,7 @@ keyword kwd res =
 
 isSubCharAlphaNumOrUnderscore : Int -> String -> Bool
 isSubCharAlphaNumOrUnderscore offset string =
-    String.any Char.Extra.isLatinAlphaNumOrUnderscoreFast
+    String.any Unicode.isLatinAlphaNumOrUnderscoreFast
         (String.slice offset (offset + 1) string)
 
 
@@ -2616,7 +2616,7 @@ charOrEnd offset string =
 
 charStringIsUtf16HighSurrogate : String -> Bool
 charStringIsUtf16HighSurrogate charString =
-    charString |> String.any Char.Extra.isUtf16Surrogate
+    charString |> String.any Unicode.isUtf16Surrogate
 
 
 whileMapWithRange : (Char -> Bool) -> (GrenSyntax.Range -> String -> res) -> Parser res
@@ -3077,7 +3077,7 @@ nestableMultiCommentMapWithRange rangeContentToRes ( openChar, openTail ) ( clos
 
         isNotRelevant : Char -> Bool
         isNotRelevant char =
-            char /= openChar && char /= closeChar && not (Char.Extra.isUtf16Surrogate char)
+            char /= openChar && char /= closeChar && not (Unicode.isUtf16Surrogate char)
     in
     map2WithRange
         (\range afterOpen contentAfterAfterOpen ->

@@ -138,9 +138,9 @@ or reparse only the touched declarations on save.
 
 -}
 
-import Char.Extra
 import GrenSyntax
 import ParserFast
+import Unicode
 
 
 {-| Can turn a String into syntax or Nothing.
@@ -3335,7 +3335,7 @@ expressionNegation =
                             case String.slice (offset - 3) (offset - 2) source of
                                 "i" ->
                                     Basics.not
-                                        (String.all Char.Extra.isLatinAlphaNumOrUnderscoreFast
+                                        (String.all Unicode.isLatinAlphaNumOrUnderscoreFast
                                             (String.slice (offset - 4) (offset - 3) source)
                                         )
 
@@ -4763,7 +4763,7 @@ singleQuotedStringLiteralAfterDoubleQuote =
                             False
 
                         _ ->
-                            not (Char.Extra.isUtf16Surrogate c)
+                            not (Unicode.isUtf16Surrogate c)
                 )
             )
             (ParserFast.symbolFollowedBy "\\" (escapedCharValueMap String.fromChar))
@@ -4791,7 +4791,7 @@ tripleQuotedStringLiteralOfterTripleDoubleQuote =
                             False
 
                         _ ->
-                            not (Char.Extra.isUtf16Surrogate c)
+                            not (Unicode.isUtf16Surrogate c)
                 )
             )
         )
@@ -4808,8 +4808,8 @@ record field names and unqualified function/value references
 nameLowercase : Parser String
 nameLowercase =
     ParserFast.ifFollowedByWhileValidateWithoutLinebreak
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
         isNotReserved
 
 
@@ -4817,15 +4817,15 @@ nameLowercaseUnderscoreSuffixingKeywords : Parser String
 nameLowercaseUnderscoreSuffixingKeywords =
     ParserFast.ifFollowedByWhileMapWithoutLinebreak
         ifKeywordUnderscoreSuffix
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
 
 nameLowercaseNode : Parser (GrenSyntax.Node String)
 nameLowercaseNode =
     ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak GrenSyntax.Node
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
         isNotReserved
 
 
@@ -4836,24 +4836,24 @@ nameLowercaseNodeUnderscoreSuffixingKeywords =
             GrenSyntax.Node range
                 (name |> ifKeywordUnderscoreSuffix)
         )
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
 
 nameLowercaseMapWithRange : (GrenSyntax.Range -> String -> res) -> Parser res
 nameLowercaseMapWithRange rangeAndNameToResult =
     ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak
         rangeAndNameToResult
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
         isNotReserved
 
 
 functionNameNotInfixNode : Parser (GrenSyntax.Node String)
 functionNameNotInfixNode =
     ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak GrenSyntax.Node
-        Char.Extra.unicodeIsLowerFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsLowerFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
         (\name ->
             case name of
                 "infix" ->
@@ -4870,22 +4870,22 @@ type names, variant names, record type alias constructor function names and modu
 nameUppercase : Parser String
 nameUppercase =
     ParserFast.ifFollowedByWhileWithoutLinebreak
-        Char.Extra.unicodeIsUpperFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsUpperFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
 
 nameUppercaseMapWithRange : (GrenSyntax.Range -> String -> res) -> Parser res
 nameUppercaseMapWithRange rangeAndNameToRes =
     ParserFast.ifFollowedByWhileMapWithRangeWithoutLinebreak rangeAndNameToRes
-        Char.Extra.unicodeIsUpperFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsUpperFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
 
 nameUppercaseNode : Parser (GrenSyntax.Node String)
 nameUppercaseNode =
     ParserFast.ifFollowedByWhileMapWithRangeWithoutLinebreak GrenSyntax.Node
-        Char.Extra.unicodeIsUpperFast
-        Char.Extra.unicodeIsAlphaNumOrUnderscoreFast
+        Unicode.unicodeIsUpperFast
+        Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
 
 isAllowedOperatorToken : String -> Bool
@@ -5032,7 +5032,7 @@ singleLineComment =
                         False
 
                     _ ->
-                        not (Char.Extra.isUtf16Surrogate c)
+                        not (Unicode.isUtf16Surrogate c)
             )
             (\range content ->
                 GrenSyntax.Node
