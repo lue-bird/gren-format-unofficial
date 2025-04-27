@@ -407,9 +407,9 @@ type Node a
 {-| Combine two nodes, constructing a new node which will have the outer most range of the child nodes
 -}
 nodeCombine : (Node a -> Node b -> c) -> Node a -> Node b -> Node c
-nodeCombine f ((Node { start } _) as a) ((Node { end } _) as b) =
+nodeCombine f ((Node aRange _) as a) ((Node bRange _) as b) =
     Node
-        { start = start, end = end }
+        { start = aRange.start, end = bRange.end }
         (f a b)
 
 

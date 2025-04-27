@@ -352,19 +352,21 @@ moduleDocumentationParse moduleDocumentationContent =
                                     :: soFar.finishedBlocks
                             }
 
-                        else if line == "@docs" then
-                            { rawSinceAtDocs = ""
-                            , finishedBlocks =
-                                { rawBefore = soFar.rawSinceAtDocs
-                                , atDocsLine = []
-                                }
-                                    :: soFar.finishedBlocks
-                            }
-
                         else
-                            { rawSinceAtDocs = soFar.rawSinceAtDocs ++ line ++ "\n"
-                            , finishedBlocks = soFar.finishedBlocks
-                            }
+                            case line of
+                                "@docs" ->
+                                    { rawSinceAtDocs = ""
+                                    , finishedBlocks =
+                                        { rawBefore = soFar.rawSinceAtDocs
+                                        , atDocsLine = []
+                                        }
+                                            :: soFar.finishedBlocks
+                                    }
+
+                                _ ->
+                                    { rawSinceAtDocs = soFar.rawSinceAtDocs ++ line ++ "\n"
+                                    , finishedBlocks = soFar.finishedBlocks
+                                    }
                     )
                     rawSinceAtDocsEmptyFinishedBlocksEmpty
     in
@@ -1671,16 +1673,6 @@ patternIsSpaceSeparated syntaxPattern =
 
 stringLiteral : { content : String, lineSpread : GrenSyntax.StringQuotingStyle } -> Print
 stringLiteral string =
-    let
-        singleDoubleQuotedStringContentEscaped : String
-        singleDoubleQuotedStringContentEscaped =
-            string.content
-                |> String.foldl
-                    (\contentChar soFar ->
-                        soFar ++ singleDoubleQuotedStringCharToEscaped contentChar ++ ""
-                    )
-                    ""
-    in
     case string.lineSpread of
         GrenSyntax.StringTripleQuoted ->
             printExactlyDoubleQuoteDoubleQuoteDoubleQuote
@@ -1700,12 +1692,17 @@ stringLiteral string =
                 |> Print.followedBy printExactlyDoubleQuoteDoubleQuoteDoubleQuote
 
         GrenSyntax.StringSingleQuoted ->
+            let
+                singleDoubleQuotedStringContentEscaped : String
+                singleDoubleQuotedStringContentEscaped =
+                    string.content
+                        |> String.foldl
+                            (\contentChar soFar ->
+                                soFar ++ singleDoubleQuotedStringCharToEscaped contentChar ++ ""
+                            )
+                            ""
+            in
             Print.exactly ("\"" ++ singleDoubleQuotedStringContentEscaped ++ "\"")
-
-
-stringUnicodeLength : String -> Int
-stringUnicodeLength string =
-    string |> String.foldl (\_ soFar -> soFar + 1) 0
 
 
 tripleDoubleQuotedStringEscapeDoubleQuotes : String -> String
@@ -1906,12 +1903,28 @@ characterIsNotPrint character =
     if
         -- Unicode.getCategory is very expensive so we shortcut if at all possible
         Char.Extra.isLatinAlphaNumOrUnderscoreFast character
-            || (character == ' ')
-            || (character == '.')
-            || (character == '!')
-            || (character == '?')
-            || (character == '-')
-            || (character == ':')
+            || (case character of
+                    ' ' ->
+                        True
+
+                    '.' ->
+                        True
+
+                    '!' ->
+                        True
+
+                    '?' ->
+                        True
+
+                    '-' ->
+                        True
+
+                    ':' ->
+                        True
+
+                    _ ->
+                        False
+               )
     then
         False
 
@@ -1938,9 +1951,6 @@ characterIsNotPrint character =
                         True
 
                     Unicode.OtherPrivateUse ->
-                        True
-
-                    Unicode.OtherNotAssigned ->
                         True
 
                     Unicode.LetterUppercase ->
@@ -2639,7 +2649,7 @@ patternRecord syntaxComments syntaxRecord =
 
                                     Just fieldValueNode ->
                                         let
-                                            (GrenSyntax.Node fieldValueRange fieldValue) =
+                                            (GrenSyntax.Node fieldValueRange _) =
                                                 fieldValueNode
 
                                             fieldValuePrint : Print
@@ -3068,328 +3078,6 @@ construct specific syntaxComments syntaxConstruct =
                         )
                 )
             )
-
-
-tuple :
-    { printPartNotParenthesized :
-        List (GrenSyntax.Node String) -> GrenSyntax.Node part -> Print
-    , lineSpreadMinimum : Print.LineSpread
-    }
-    -> List (GrenSyntax.Node String)
-    ->
-        { fullRange : GrenSyntax.Range
-        , part0 : GrenSyntax.Node part
-        , part1 : GrenSyntax.Node part
-        }
-    -> Print
-tuple config syntaxComments syntaxTuple =
-    let
-        beforePart0Comments : List String
-        beforePart0Comments =
-            commentsInRange
-                { start = syntaxTuple.fullRange.start
-                , end = syntaxTuple.part0 |> GrenSyntax.nodeRange |> .start
-                }
-                syntaxComments
-
-        beforePart0CommentsCollapsible : { print : Print, lineSpread : Print.LineSpread }
-        beforePart0CommentsCollapsible =
-            collapsibleComments beforePart0Comments
-
-        beforePart1Comments : List String
-        beforePart1Comments =
-            commentsInRange
-                { start = syntaxTuple.part0 |> GrenSyntax.nodeRange |> .end
-                , end = syntaxTuple.part1 |> GrenSyntax.nodeRange |> .start
-                }
-                syntaxComments
-
-        beforePart1CommentsCollapsible : { print : Print, lineSpread : Print.LineSpread }
-        beforePart1CommentsCollapsible =
-            collapsibleComments beforePart1Comments
-
-        afterPart1Comments : List String
-        afterPart1Comments =
-            commentsInRange
-                { start = syntaxTuple.part1 |> GrenSyntax.nodeRange |> .end
-                , end = syntaxTuple.fullRange.end
-                }
-                syntaxComments
-
-        lineSpread : Print.LineSpread
-        lineSpread =
-            config.lineSpreadMinimum
-                |> Print.lineSpreadMergeWithStrict
-                    beforePart0CommentsCollapsible.lineSpread
-                |> Print.lineSpreadMergeWithStrict
-                    beforePart1CommentsCollapsible.lineSpread
-                |> Print.lineSpreadMergeWith
-                    (\() ->
-                        case afterPart1Comments of
-                            _ :: _ ->
-                                Print.MultipleLines
-
-                            [] ->
-                                Print.SingleLine
-                    )
-
-        part0Print : Print
-        part0Print =
-            config.printPartNotParenthesized syntaxComments syntaxTuple.part0
-
-        part1Print : Print
-        part1Print =
-            config.printPartNotParenthesized syntaxComments syntaxTuple.part1
-    in
-    printExactlyParensOpeningSpace
-        |> Print.followedBy
-            (Print.withIndentIncreasedBy 2
-                (case beforePart0Comments of
-                    [] ->
-                        part0Print
-
-                    _ :: _ ->
-                        beforePart0CommentsCollapsible.print
-                            |> Print.followedBy
-                                (Print.spaceOrLinebreakIndented
-                                    (beforePart0CommentsCollapsible.lineSpread
-                                        |> Print.lineSpreadMergeWith
-                                            (\() -> part0Print |> Print.lineSpread)
-                                    )
-                                )
-                            |> Print.followedBy part0Print
-                )
-            )
-        |> Print.followedBy (Print.emptyOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyCommaSpace
-        |> Print.followedBy
-            (Print.withIndentIncreasedBy 2
-                ((case beforePart1Comments of
-                    [] ->
-                        part1Print
-
-                    _ :: _ ->
-                        beforePart1CommentsCollapsible.print
-                            |> Print.followedBy
-                                (Print.spaceOrLinebreakIndented
-                                    (beforePart1CommentsCollapsible.lineSpread
-                                        |> Print.lineSpreadMergeWith
-                                            (\() -> part1Print |> Print.lineSpread)
-                                    )
-                                )
-                            |> Print.followedBy part1Print
-                 )
-                    |> Print.followedBy
-                        (case afterPart1Comments of
-                            [] ->
-                                Print.empty
-
-                            comment0 :: comment1Up ->
-                                Print.linebreakIndented
-                                    |> Print.followedBy (comments (comment0 :: comment1Up))
-                        )
-                )
-            )
-        |> Print.followedBy (Print.spaceOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyParensClosing
-
-
-triple :
-    { printPartNotParenthesized :
-        List (GrenSyntax.Node String) -> GrenSyntax.Node part -> Print
-    , lineSpreadMinimum : Print.LineSpread
-    }
-    -> List (GrenSyntax.Node String)
-    ->
-        { fullRange : GrenSyntax.Range
-        , part0 : GrenSyntax.Node part
-        , part1 : GrenSyntax.Node part
-        , part2 : GrenSyntax.Node part
-        }
-    -> Print
-triple config syntaxComments syntaxTriple =
-    let
-        beforePart0Comments : List String
-        beforePart0Comments =
-            commentsInRange
-                { start = syntaxTriple.fullRange.start
-                , end = syntaxTriple.part0 |> GrenSyntax.nodeRange |> .start
-                }
-                syntaxComments
-
-        beforePart0CommentsCollapsible : { print : Print, lineSpread : Print.LineSpread }
-        beforePart0CommentsCollapsible =
-            collapsibleComments beforePart0Comments
-
-        beforePart1Comments : List String
-        beforePart1Comments =
-            commentsInRange
-                { start = syntaxTriple.part0 |> GrenSyntax.nodeRange |> .end
-                , end = syntaxTriple.part1 |> GrenSyntax.nodeRange |> .start
-                }
-                syntaxComments
-
-        beforePart1CommentsCollapsible : { print : Print, lineSpread : Print.LineSpread }
-        beforePart1CommentsCollapsible =
-            collapsibleComments beforePart1Comments
-
-        beforePart2Comments : List String
-        beforePart2Comments =
-            commentsInRange
-                { start = syntaxTriple.part1 |> GrenSyntax.nodeRange |> .end
-                , end = syntaxTriple.part2 |> GrenSyntax.nodeRange |> .start
-                }
-                syntaxComments
-
-        beforePart2CommentsCollapsible : { print : Print, lineSpread : Print.LineSpread }
-        beforePart2CommentsCollapsible =
-            collapsibleComments beforePart2Comments
-
-        afterPart2Comments : List String
-        afterPart2Comments =
-            commentsInRange
-                { start = syntaxTriple.part2 |> GrenSyntax.nodeRange |> .end
-                , end = syntaxTriple.fullRange.end
-                }
-                syntaxComments
-
-        lineSpread : Print.LineSpread
-        lineSpread =
-            config.lineSpreadMinimum
-                |> Print.lineSpreadMergeWithStrict
-                    beforePart0CommentsCollapsible.lineSpread
-                |> Print.lineSpreadMergeWithStrict
-                    beforePart1CommentsCollapsible.lineSpread
-                |> Print.lineSpreadMergeWithStrict
-                    beforePart2CommentsCollapsible.lineSpread
-                |> Print.lineSpreadMergeWith
-                    (\() ->
-                        case afterPart2Comments of
-                            _ :: _ ->
-                                Print.MultipleLines
-
-                            [] ->
-                                Print.SingleLine
-                    )
-
-        part0Print : Print
-        part0Print =
-            config.printPartNotParenthesized syntaxComments syntaxTriple.part0
-
-        part1Print : Print
-        part1Print =
-            config.printPartNotParenthesized syntaxComments syntaxTriple.part1
-
-        part2Print : Print
-        part2Print =
-            config.printPartNotParenthesized syntaxComments syntaxTriple.part2
-    in
-    printExactlyParensOpeningSpace
-        |> Print.followedBy
-            (Print.withIndentIncreasedBy 2
-                (case beforePart0Comments of
-                    [] ->
-                        part0Print
-
-                    _ :: _ ->
-                        beforePart0CommentsCollapsible.print
-                            |> Print.followedBy
-                                (Print.spaceOrLinebreakIndented
-                                    (beforePart0CommentsCollapsible.lineSpread
-                                        |> Print.lineSpreadMergeWith
-                                            (\() -> part0Print |> Print.lineSpread)
-                                    )
-                                )
-                            |> Print.followedBy part0Print
-                )
-            )
-        |> Print.followedBy (Print.emptyOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyCommaSpace
-        |> Print.followedBy
-            (Print.withIndentIncreasedBy 2
-                (case beforePart1Comments of
-                    [] ->
-                        part1Print
-
-                    _ :: _ ->
-                        beforePart1CommentsCollapsible.print
-                            |> Print.followedBy
-                                (Print.spaceOrLinebreakIndented
-                                    (beforePart1CommentsCollapsible.lineSpread
-                                        |> Print.lineSpreadMergeWith
-                                            (\() -> part1Print |> Print.lineSpread)
-                                    )
-                                )
-                            |> Print.followedBy part1Print
-                )
-            )
-        |> Print.followedBy (Print.emptyOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyCommaSpace
-        |> Print.followedBy
-            (Print.withIndentIncreasedBy 2
-                ((case beforePart2Comments of
-                    [] ->
-                        part2Print
-
-                    _ :: _ ->
-                        beforePart2CommentsCollapsible.print
-                            |> Print.followedBy
-                                (Print.spaceOrLinebreakIndented
-                                    (beforePart2CommentsCollapsible.lineSpread
-                                        |> Print.lineSpreadMergeWith
-                                            (\() -> part2Print |> Print.lineSpread)
-                                    )
-                                )
-                            |> Print.followedBy part2Print
-                 )
-                    |> Print.followedBy
-                        (case afterPart2Comments of
-                            [] ->
-                                Print.empty
-
-                            comment0 :: comment1Up ->
-                                Print.linebreakIndented
-                                    |> Print.followedBy (comments (comment0 :: comment1Up))
-                        )
-                )
-            )
-        |> Print.followedBy (Print.spaceOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyParensClosing
-
-
-invalidNTuple :
-    (b -> a -> Print)
-    -> b
-    ->
-        { fullRange : GrenSyntax.Range
-        , part0 : a
-        , part1 : a
-        , part2 : a
-        , part3 : a
-        , part4Up : List a
-        }
-    -> Print
-invalidNTuple printPartNotParenthesized syntaxComments syntaxTuple =
-    -- low-effort (eating comments etc) bc this shouldn't parse in the first place
-    let
-        lineSpread : Print.LineSpread
-        lineSpread =
-            lineSpreadInRange syntaxTuple.fullRange
-    in
-    printExactlyParensOpeningSpace
-        |> Print.followedBy
-            ((syntaxTuple.part0 :: syntaxTuple.part1 :: syntaxTuple.part2 :: syntaxTuple.part3 :: syntaxTuple.part4Up)
-                |> Print.listMapAndIntersperseAndFlatten
-                    (\part ->
-                        Print.withIndentIncreasedBy 2
-                            (printPartNotParenthesized syntaxComments part)
-                    )
-                    (Print.emptyOrLinebreakIndented lineSpread
-                        |> Print.followedBy printExactlyCommaSpace
-                    )
-            )
-        |> Print.followedBy (Print.spaceOrLinebreakIndented lineSpread)
-        |> Print.followedBy printExactlyParensClosing
 
 
 recordLiteral :
@@ -4315,23 +4003,6 @@ listFilledLast head tail =
 
         tailHead :: tailTail ->
             listFilledLast tailHead tailTail
-
-
-declarationDestructuring :
-    List (GrenSyntax.Node String)
-    -> GrenSyntax.Node GrenSyntax.Pattern
-    -> GrenSyntax.Node GrenSyntax.Expression
-    -> Print
-declarationDestructuring syntaxComments destructuringPattern destructuringExpression =
-    -- invalid syntax
-    patternParenthesizedIfSpaceSeparated syntaxComments destructuringPattern
-        |> Print.followedBy (Print.exactly " =")
-        |> Print.followedBy
-            (Print.withIndentAtNextMultipleOf4
-                (Print.linebreakIndented
-                    |> Print.followedBy (expressionNotParenthesized [] destructuringExpression)
-                )
-            )
 
 
 {-| Print an [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)

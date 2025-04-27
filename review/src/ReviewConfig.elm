@@ -89,16 +89,9 @@ config =
         (Simplify.defaults |> Simplify.expectNaN)
     , Review.Action.rule
 
-    -- ## sort
-    , NoUnsortedTopLevelDeclarations.rule
-        (NoUnsortedTopLevelDeclarations.sortTopLevelDeclarations
-            |> NoUnsortedTopLevelDeclarations.glueHelpersAfter
-        )
-
     -- ## limit
     , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule
-    , Review.VariantValueCount.zeroOrOne
     , [ ReviewPipelineStyles.rightPizzaPipelines
             |> ReviewPipelineStyles.forbid
             |> ReviewPipelineStyles.that
@@ -158,7 +151,6 @@ config =
         )
     , NoPrimitiveTypeAlias.rule
     , Review.ImportSimple.rule
-    , OnlyAllSingleUseTypeVarsEndWith_.rule
     , NoRecordAliasConstructor.rule
     , NoExposingEverything.rule
     , NoForbiddenWords.rule [ "REPLACEME", "TODO", "- []" ]
@@ -170,7 +162,6 @@ config =
         |> Review.Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoDebug.TodoOrToString.rule
         |> Review.Rule.ignoreErrorsForDirectories [ "tests/" ]
-    , VariablesBetweenCaseOf.AccessInCases.forbid
     , EqualsCaseable.forbid EqualsCaseable.Everywhere
     , NoDeprecated.rule NoDeprecated.defaults
     , NoPrematureLetComputation.rule
@@ -184,7 +175,6 @@ config =
     , NoUnnecessaryTrailingUnderscore.rule
     , NoUnsafeDivision.rule
     , Review.Pattern.Record.forbid
-    , Review.Pattern.As.forbid
     , Review.PhantomType.forbid
     , Review.OpaqueType.forbid
     , NoCatchAllForSpecificRemainingPatterns.rule
