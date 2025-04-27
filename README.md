@@ -39,7 +39,7 @@ To try it out, you can
 run [this node script](https://github.com/lue-bird/gren-format-unofficial/tree/main/node-gren-format-unofficial).
 
 
-## TODO
+## future improvement ideas
   - convert codebase to gren
   - some floats in exponent representation are formatted to without it and the other way around
   - formatting documentation markdown
