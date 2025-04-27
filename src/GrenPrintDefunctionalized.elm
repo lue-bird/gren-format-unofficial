@@ -2572,7 +2572,11 @@ patternAs syntaxComments syntaxAs =
 patternRecord :
     List (GrenSyntax.Node String)
     ->
-        { fields : List (GrenSyntax.Node String)
+        { fields :
+            List
+                { name : GrenSyntax.Node String
+                , value : Maybe (GrenSyntax.Node GrenSyntax.Pattern)
+                }
         , fullRange : GrenSyntax.Range
         }
     -> Print
@@ -2609,26 +2613,77 @@ patternRecord syntaxComments syntaxRecord =
                 fieldPrintsWithCommentsBefore =
                     (field0 :: field1Up)
                         |> List.foldl
-                            (\(GrenSyntax.Node elementRange fieldName) soFar ->
-                                { endLocation = elementRange.end
-                                , reverse =
-                                    (case commentsInRange { start = soFar.endLocation, end = elementRange.start } syntaxComments of
-                                        [] ->
-                                            Print.exactly fieldName
+                            (\field soFar ->
+                                case field.value of
+                                    Nothing ->
+                                        { endLocation =
+                                            field.name |> GrenSyntax.nodeRange |> .end
+                                        , reverse =
+                                            (case commentsInRange { start = soFar.endLocation, end = field.name |> GrenSyntax.nodeRange |> .start } syntaxComments of
+                                                [] ->
+                                                    Print.exactly (field.name |> GrenSyntax.nodeValue)
 
-                                        comment0 :: comment1Up ->
-                                            let
-                                                commentsBefore : { print : Print, lineSpread : Print.LineSpread }
-                                                commentsBefore =
-                                                    collapsibleComments (comment0 :: comment1Up)
-                                            in
-                                            commentsBefore.print
-                                                |> Print.followedBy
-                                                    (Print.spaceOrLinebreakIndented commentsBefore.lineSpread)
-                                                |> Print.followedBy (Print.exactly fieldName)
-                                    )
-                                        :: soFar.reverse
-                                }
+                                                comment0 :: comment1Up ->
+                                                    let
+                                                        commentsBefore : { print : Print, lineSpread : Print.LineSpread }
+                                                        commentsBefore =
+                                                            collapsibleComments (comment0 :: comment1Up)
+                                                    in
+                                                    commentsBefore.print
+                                                        |> Print.followedBy
+                                                            (Print.spaceOrLinebreakIndented commentsBefore.lineSpread)
+                                                        |> Print.followedBy (Print.exactly (field.name |> GrenSyntax.nodeValue))
+                                            )
+                                                :: soFar.reverse
+                                        }
+
+                                    Just fieldValueNode ->
+                                        let
+                                            (GrenSyntax.Node fieldValueRange fieldValue) =
+                                                fieldValueNode
+
+                                            fieldValuePrint : Print
+                                            fieldValuePrint =
+                                                fieldValueNode
+                                                    |> patternNotParenthesized syntaxComments
+                                        in
+                                        { endLocation = fieldValueRange.end
+                                        , reverse =
+                                            (case commentsInRange { start = soFar.endLocation, end = fieldValueRange.start } syntaxComments of
+                                                [] ->
+                                                    Print.exactly ((field.name |> GrenSyntax.nodeValue) ++ " =")
+                                                        |> Print.followedBy
+                                                            (Print.withIndentAtNextMultipleOf4
+                                                                (Print.spaceOrLinebreakIndented (fieldValuePrint |> Print.lineSpread)
+                                                                    |> Print.followedBy fieldValuePrint
+                                                                )
+                                                            )
+
+                                                comment0 :: comment1Up ->
+                                                    let
+                                                        commentsBefore : { print : Print, lineSpread : Print.LineSpread }
+                                                        commentsBefore =
+                                                            collapsibleComments (comment0 :: comment1Up)
+
+                                                        fieldLineSpread : Print.LineSpread
+                                                        fieldLineSpread =
+                                                            commentsBefore.lineSpread
+                                                                |> Print.lineSpreadMergeWith
+                                                                    (\() -> fieldValuePrint |> Print.lineSpread)
+                                                    in
+                                                    Print.exactly ((field.name |> GrenSyntax.nodeValue) ++ " =")
+                                                        |> Print.followedBy
+                                                            (Print.withIndentAtNextMultipleOf4
+                                                                (Print.spaceOrLinebreakIndented fieldLineSpread
+                                                                    |> Print.followedBy commentsBefore.print
+                                                                    |> Print.followedBy
+                                                                        (Print.spaceOrLinebreakIndented fieldLineSpread)
+                                                                    |> Print.followedBy fieldValuePrint
+                                                                )
+                                                            )
+                                            )
+                                                :: soFar.reverse
+                                        }
                             )
                             { endLocation = syntaxRecord.fullRange.start
                             , reverse = []

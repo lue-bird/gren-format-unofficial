@@ -4716,7 +4716,13 @@ Nothing"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
                                     (GrenSyntax.ExpressionLambda
-                                        { args = [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } (GrenSyntax.PatternRecord [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 6 } } "foo" ]) ]
+                                        { args =
+                                            [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
+                                                (GrenSyntax.PatternRecord
+                                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 6 } } "foo" }
+                                                    ]
+                                                )
+                                            ]
                                         , expression = GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 14 } } (GrenSyntax.ExpressionReference [] "foo")
                                         }
                                     )
@@ -5135,7 +5141,10 @@ Nothing"""
                                             , GrenSyntax.Node { start = { row = 3, column = 5 }, end = { row = 3, column = 12 } }
                                                 (GrenSyntax.LetDestructuring
                                                     (GrenSyntax.Node { start = { row = 3, column = 5 }, end = { row = 3, column = 8 } }
-                                                        (GrenSyntax.PatternRecord [ GrenSyntax.Node { start = { row = 3, column = 6 }, end = { row = 3, column = 7 } } "a" ])
+                                                        (GrenSyntax.PatternRecord
+                                                            [ { value = Nothing, name = GrenSyntax.Node { start = { row = 3, column = 6 }, end = { row = 3, column = 7 } } "a" }
+                                                            ]
+                                                        )
                                                     )
                                                     (GrenSyntax.Node { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } } (GrenSyntax.ExpressionReference [] "b"))
                                                 )
@@ -5959,8 +5968,8 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a"
-                                    , GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } } "b"
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a" }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } } "b" }
                                     ]
                                 )
                             )
@@ -5971,8 +5980,44 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a"
-                                    , GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } "b"
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a" }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } "b" }
+                                    ]
+                                )
+                            )
+                )
+            , Test.test "Record pattern with renamed field"
+                (\() ->
+                    "{a=a_,b}"
+                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
+                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
+                                (GrenSyntax.PatternRecord
+                                    [ { value =
+                                            Just
+                                                (GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 6 } }
+                                                    (GrenSyntax.PatternVariable "a_")
+                                                )
+                                      , name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a"
+                                      }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } } "b" }
+                                    ]
+                                )
+                            )
+                )
+            , Test.test "Record pattern with field destructured to unit"
+                (\() ->
+                    "{a={},b}"
+                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
+                            (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
+                                (GrenSyntax.PatternRecord
+                                    [ { value =
+                                            Just
+                                                (GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 6 } }
+                                                    (GrenSyntax.PatternRecord [])
+                                                )
+                                      , name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a"
+                                      }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } } "b" }
                                     ]
                                 )
                             )
@@ -5983,8 +6028,8 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a"
-                                    , GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } "b"
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a" }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } "b" }
                                     ]
                                 )
                             )
@@ -5995,8 +6040,8 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } } "a"
-                                    , GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } } "b"
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } } "a" }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } } "b" }
                                     ]
                                 )
                             )
@@ -6007,8 +6052,8 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 6 } } "as_"
-                                    , GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } } "b"
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 6 } } "as_" }
+                                    , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } } "b" }
                                     ]
                                 )
                             )
@@ -6019,7 +6064,7 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a" ]
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 3 } } "a" } ]
                                 )
                             )
                 )
@@ -6029,7 +6074,7 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
                                 (GrenSyntax.PatternRecord
-                                    [ GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } } "a" ]
+                                    [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } } "a" } ]
                                 )
                             )
                 )
@@ -6137,8 +6182,8 @@ True -> 1"""
                                 (GrenSyntax.PatternAs
                                     (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
                                         (GrenSyntax.PatternRecord
-                                            [ GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } "model"
-                                            , GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 15 } } "context"
+                                            [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } "model" }
+                                            , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 15 } } "context" }
                                             ]
                                         )
                                     )

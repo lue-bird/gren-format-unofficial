@@ -4385,13 +4385,16 @@ recordPattern =
         (ParserFast.symbolFollowedBy "{" whitespaceAndComments)
         (ParserFast.oneOf2
             (ParserFast.symbol "}" { comments = ropeEmpty, syntax = [] })
-            (ParserFast.map4
-                (\commentsBeforeHead head commentsAfterHead tail ->
+            (ParserFast.map5
+                (\commentsBeforeHead headName commentsAfterHeadName headValue tail ->
                     { comments =
                         commentsBeforeHead
-                            |> ropePrependTo commentsAfterHead
+                            |> ropePrependTo commentsAfterHeadName
+                            |> ropePrependTo headValue.comments
                             |> ropePrependTo tail.comments
-                    , syntax = head :: tail.syntax
+                    , syntax =
+                        { name = headName, value = headValue.syntax }
+                            :: tail.syntax
                     }
                 )
                 (ParserFast.orSucceed
@@ -4400,15 +4403,34 @@ recordPattern =
                 )
                 nameLowercaseNodeUnderscoreSuffixingKeywords
                 whitespaceAndComments
+                (ParserFast.orSucceed
+                    (ParserFast.symbolFollowedBy "="
+                        (ParserFast.map3
+                            (\commentsBeforeValue fieldValue commentsAfterValue ->
+                                { comments =
+                                    commentsBeforeValue
+                                        |> ropePrependTo fieldValue.comments
+                                        |> ropePrependTo commentsAfterValue
+                                , syntax = Just fieldValue.syntax
+                                }
+                            )
+                            whitespaceAndComments
+                            pattern
+                            whitespaceAndComments
+                        )
+                    )
+                    { syntax = Nothing, comments = ropeEmpty }
+                )
                 (manyWithComments
                     (ParserFast.symbolFollowedBy ","
-                        (ParserFast.map4
-                            (\commentsBeforeName commentsWithExtraComma name afterName ->
+                        (ParserFast.map5
+                            (\commentsBeforeName commentsWithExtraComma name commentsAfterName fieldValueResult ->
                                 { comments =
                                     commentsBeforeName
                                         |> ropePrependTo commentsWithExtraComma
-                                        |> ropePrependTo afterName
-                                , syntax = name
+                                        |> ropePrependTo commentsAfterName
+                                        |> ropePrependTo fieldValueResult.comments
+                                , syntax = { name = name, value = fieldValueResult.syntax }
                                 }
                             )
                             whitespaceAndComments
@@ -4418,6 +4440,24 @@ recordPattern =
                             )
                             nameLowercaseNodeUnderscoreSuffixingKeywords
                             whitespaceAndComments
+                            (ParserFast.orSucceed
+                                (ParserFast.symbolFollowedBy "="
+                                    (ParserFast.map3
+                                        (\commentsBeforeValue fieldValue commentsAfterValue ->
+                                            { comments =
+                                                commentsBeforeValue
+                                                    |> ropePrependTo fieldValue.comments
+                                                    |> ropePrependTo commentsAfterValue
+                                            , syntax = Just fieldValue.syntax
+                                            }
+                                        )
+                                        whitespaceAndComments
+                                        pattern
+                                        whitespaceAndComments
+                                    )
+                                )
+                                { syntax = Nothing, comments = ropeEmpty }
+                            )
                         )
                     )
                 )

@@ -377,7 +377,7 @@ type Pattern
     | PatternString { content : String, lineSpread : StringQuotingStyle }
     | PatternInt Int
     | PatternHex Int
-    | PatternRecord (List (Node String))
+    | PatternRecord (List { name : Node String, value : Maybe (Node Pattern) })
     | PatternListCons (Node Pattern) (Node Pattern)
     | PatternListExact (List (Node Pattern))
     | PatternVariable String

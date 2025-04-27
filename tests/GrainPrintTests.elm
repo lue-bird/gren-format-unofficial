@@ -4207,6 +4207,68 @@ a
     0
 """
                 )
+            , Test.test "record with collapsible comments between renamed fields"
+                (\() ->
+                    """module A exposing (..)
+a { zero = n0, {- 0 -}
+  {- 1 -}
+  one = n1 } =
+    0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a { zero = n0, one = {- 0 -} {- 1 -} n1 } =
+    0
+"""
+                )
+            , Test.test "record with comments after renamed fields"
+                (\() ->
+                    """module A exposing (..)
+a { zero = n0,
+  one = n1 -- 0
+  -- 1
+  } =
+    0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a
+    { zero = n0
+    , one = n1
+      -- 0
+      -- 1
+    }
+    =
+    0
+"""
+                )
+            , Test.test "record with field destructured to multi-line pattern"
+                (\() ->
+                    """module A exposing (..)
+a { zero = n0,
+  one = (n1 -- 0
+  -- 1
+  )
+  } =
+    0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a
+    { zero = n0
+    , one =
+        (n1
+         -- 0
+         -- 1
+        )
+    }
+    =
+    0
+"""
+                )
             , Test.test "consecutive comments in empty list"
                 (\() ->
                     """module A exposing (..)
