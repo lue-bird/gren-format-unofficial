@@ -26,8 +26,6 @@ with the compiler or [`Gren.Parser`](https://gren-lang.org/packages/stil4m/gren-
 
 Some additional lenient parsing:
 
-  - `f | g` → `f |> g`
-
   - `a != b` or `a !== b` → `a /= b`
 
   - `a === b` → `a == b`
@@ -36,7 +34,7 @@ Some additional lenient parsing:
 
   - `\a => b` or `\a. b` → `\a -> b`
 
-  - `case ... of a. b` or `case ... of a b` → `case ... of a -> b`
+  - `case ... of a -> b` or `when ... is a. b` → `when ... is a -> b`
 
   - merges consecutive `,` in record, list or explicit exposing
 
@@ -2257,7 +2255,7 @@ subExpression =
                     expressionArray
 
                 "{" ->
-                    expressionRecordFollowedByRecordAccess
+                    expressionRecordOrRecordUpdateFollowedByRecordAccess
 
                 "." ->
                     expressionRecordAccessFunction
@@ -2557,8 +2555,8 @@ expressionArray =
         )
 
 
-expressionRecordFollowedByRecordAccess : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
-expressionRecordFollowedByRecordAccess =
+expressionRecordOrRecordUpdateFollowedByRecordAccess : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
+expressionRecordOrRecordUpdateFollowedByRecordAccess =
     ParserFast.symbolFollowedBy "{"
         (ParserFast.map2WithRange
             (\range commentsBefore afterCurly ->
@@ -2569,96 +2567,171 @@ expressionRecordFollowedByRecordAccess =
                 }
             )
             whitespaceAndComments
-            recordContentsFollowedByCurlyEnd
+            recordOrRecordUpdateContentsFollowedByCurlyEnd
             |> followedByMultiRecordAccess
         )
 
 
-recordContentsFollowedByCurlyEnd : Parser (WithComments GrenSyntax.Expression)
-recordContentsFollowedByCurlyEnd =
+recordOrRecordUpdateContentsFollowedByCurlyEnd : Parser (WithComments GrenSyntax.Expression)
+recordOrRecordUpdateContentsFollowedByCurlyEnd =
+    -- crimes were committed here
     ParserFast.oneOf3
-        (ParserFast.map5
-            (\nameNode commentsAfterName afterNameBeforeFields tailFields commentsBeforeClosingCurly ->
-                { comments =
-                    commentsAfterName
-                        |> ropePrependTo afterNameBeforeFields.comments
-                        |> ropePrependTo tailFields.comments
-                        |> ropePrependTo commentsBeforeClosingCurly
-                , syntax =
-                    case afterNameBeforeFields.syntax of
-                        RecordUpdateFirstSetter firstField ->
-                            GrenSyntax.ExpressionRecordUpdate nameNode (firstField :: tailFields.syntax)
-
-                        FieldsFirstValue firstFieldValue ->
-                            GrenSyntax.ExpressionRecord
-                                (GrenSyntax.nodeCombine Tuple.pair
-                                    nameNode
-                                    firstFieldValue
-                                    :: tailFields.syntax
-                                )
-
-                        FieldsFirstValuePunned () ->
-                            GrenSyntax.ExpressionRecord
-                                (GrenSyntax.Node (nameNode |> GrenSyntax.nodeRange)
-                                    ( nameNode
-                                    , -- dummy
-                                      GrenSyntax.Node
-                                        { start = nameNode |> GrenSyntax.nodeRange |> .end
-                                        , end = nameNode |> GrenSyntax.nodeRange |> .end
-                                        }
-                                        (GrenSyntax.ExpressionReference []
-                                            (nameNode |> GrenSyntax.nodeValue)
-                                        )
-                                    )
-                                    :: tailFields.syntax
-                                )
-                }
-            )
-            nameLowercaseNodeUnderscoreSuffixingKeywords
-            whitespaceAndComments
-            (ParserFast.oneOf2
-                (ParserFast.symbolFollowedBy "|"
-                    (ParserFast.map2
-                        (\commentsBefore setterResult ->
-                            { comments = commentsBefore |> ropePrependTo setterResult.comments
-                            , syntax = RecordUpdateFirstSetter setterResult.syntax
-                            }
-                        )
-                        whitespaceAndComments
-                        recordSetterNodeFollowedByWhitespaceAndComments
-                    )
-                )
-                (ParserFast.map2
-                    (\commentsBefore maybeValueResult ->
-                        case maybeValueResult of
-                            Nothing ->
-                                { comments = commentsBefore
-                                , syntax = FieldsFirstValuePunned ()
-                                }
-
-                            Just expressionResult ->
-                                { comments =
-                                    commentsBefore
-                                        |> ropePrependTo expressionResult.comments
-                                , syntax = FieldsFirstValue expressionResult.syntax
-                                }
-                    )
-                    (ParserFast.oneOf2OrSucceed
-                        (ParserFast.symbolFollowedBy ":" whitespaceAndComments)
-                        (ParserFast.symbolFollowedBy "=" whitespaceAndComments)
-                        ropeEmpty
-                    )
-                    (ParserFast.mapOrSucceed
-                        Just
-                        expressionFollowedByWhitespaceAndComments
-                        Nothing
-                    )
-                )
-            )
-            recordFields
-            (whitespaceAndComments |> ParserFast.followedBySymbol "}")
-        )
         (ParserFast.symbol "}" { comments = ropeEmpty, syntax = GrenSyntax.ExpressionRecord [] })
+        (ParserFast.mapOrFail identity
+            (ParserFast.map5
+                (\firstFieldNameOrExpression commentsAfterName afterNameBeforeFields tailFields commentsBeforeClosingCurly ->
+                    let
+                        comments : Comments
+                        comments =
+                            firstFieldNameOrExpression.comments
+                                |> ropePrependTo commentsAfterName
+                                |> ropePrependTo afterNameBeforeFields.comments
+                                |> ropePrependTo tailFields.comments
+                                |> ropePrependTo commentsBeforeClosingCurly
+                    in
+                    case firstFieldNameOrExpression.syntax |> GrenSyntax.nodeValue of
+                        GrenSyntax.ExpressionReference [] potentialFirstFieldName ->
+                            let
+                                firstFieldNameOrExpressionRange : GrenSyntax.Range
+                                firstFieldNameOrExpressionRange =
+                                    firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange
+
+                                nameNode : GrenSyntax.Node String
+                                nameNode =
+                                    GrenSyntax.Node firstFieldNameOrExpressionRange potentialFirstFieldName
+                            in
+                            Just
+                                { comments = comments
+                                , syntax =
+                                    case afterNameBeforeFields.syntax of
+                                        RecordUpdateFirstSetter firstField ->
+                                            GrenSyntax.ExpressionRecordUpdate
+                                                firstFieldNameOrExpression.syntax
+                                                (firstField :: tailFields.syntax)
+
+                                        FieldsFirstValue firstFieldValue ->
+                                            GrenSyntax.ExpressionRecord
+                                                (GrenSyntax.nodeCombine Tuple.pair
+                                                    nameNode
+                                                    firstFieldValue
+                                                    :: tailFields.syntax
+                                                )
+
+                                        FieldsFirstValuePunned () ->
+                                            GrenSyntax.ExpressionRecord
+                                                (GrenSyntax.Node firstFieldNameOrExpressionRange
+                                                    ( nameNode
+                                                    , -- dummy
+                                                      GrenSyntax.Node
+                                                        { start = firstFieldNameOrExpressionRange.end
+                                                        , end = firstFieldNameOrExpressionRange.end
+                                                        }
+                                                        (GrenSyntax.ExpressionReference []
+                                                            potentialFirstFieldName
+                                                        )
+                                                    )
+                                                    :: tailFields.syntax
+                                                )
+                                }
+
+                        updatedRecordExpression ->
+                            case afterNameBeforeFields.syntax of
+                                RecordUpdateFirstSetter firstField ->
+                                    Just
+                                        { comments = comments
+                                        , syntax =
+                                            GrenSyntax.ExpressionRecordUpdate
+                                                firstFieldNameOrExpression.syntax
+                                                (firstField :: tailFields.syntax)
+                                        }
+
+                                FieldsFirstValue _ ->
+                                    Nothing
+
+                                FieldsFirstValuePunned () ->
+                                    case updatedRecordExpression of
+                                        GrenSyntax.ExpressionCall ((GrenSyntax.Node firstFieldNameRange (GrenSyntax.ExpressionReference [] potentialFirstFieldName)) :: argument0 :: argument1Up) ->
+                                            let
+                                                nameNode : GrenSyntax.Node String
+                                                nameNode =
+                                                    GrenSyntax.Node firstFieldNameRange potentialFirstFieldName
+
+                                                firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
+                                                firstFieldValueNode =
+                                                    case argument1Up of
+                                                        [] ->
+                                                            argument0
+
+                                                        argument1 :: argument2Up ->
+                                                            GrenSyntax.Node
+                                                                { start = argument0 |> GrenSyntax.nodeRange |> .start
+                                                                , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
+                                                                }
+                                                                (GrenSyntax.ExpressionCall
+                                                                    (argument0 :: argument1 :: argument2Up)
+                                                                )
+                                            in
+                                            Just
+                                                { comments = comments
+                                                , syntax =
+                                                    GrenSyntax.ExpressionRecord
+                                                        (GrenSyntax.Node
+                                                            (firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange)
+                                                            ( nameNode
+                                                            , firstFieldValueNode
+                                                            )
+                                                            :: tailFields.syntax
+                                                        )
+                                                }
+
+                                        _ ->
+                                            Nothing
+                )
+                expression
+                whitespaceAndComments
+                (ParserFast.oneOf2
+                    (ParserFast.symbolFollowedBy "|"
+                        (ParserFast.map2
+                            (\commentsBefore setterResult ->
+                                { comments = commentsBefore |> ropePrependTo setterResult.comments
+                                , syntax = RecordUpdateFirstSetter setterResult.syntax
+                                }
+                            )
+                            whitespaceAndComments
+                            recordSetterNodeFollowedByWhitespaceAndComments
+                        )
+                    )
+                    (ParserFast.map2
+                        (\commentsBefore maybeValueResult ->
+                            case maybeValueResult of
+                                Nothing ->
+                                    { comments = commentsBefore
+                                    , syntax = FieldsFirstValuePunned ()
+                                    }
+
+                                Just expressionResult ->
+                                    { comments =
+                                        commentsBefore
+                                            |> ropePrependTo expressionResult.comments
+                                    , syntax = FieldsFirstValue expressionResult.syntax
+                                    }
+                        )
+                        (ParserFast.oneOf2OrSucceed
+                            (ParserFast.symbolFollowedBy ":" whitespaceAndComments)
+                            (ParserFast.symbolFollowedBy "=" whitespaceAndComments)
+                            ropeEmpty
+                        )
+                        (ParserFast.mapOrSucceed
+                            Just
+                            expressionFollowedByWhitespaceAndComments
+                            Nothing
+                        )
+                    )
+                )
+                recordFields
+                (whitespaceAndComments |> ParserFast.followedBySymbol "}")
+            )
+        )
         -- prefixed comma
         (ParserFast.map2
             (\recordFieldsResult commentsAfterFields ->
@@ -3682,9 +3755,6 @@ infixOperatorAndThen extensionRightConstraints =
                 "|>" ->
                     apRResult
 
-                "|" ->
-                    apRResult
-
                 "++" ->
                     appendResult
 
@@ -3861,7 +3931,7 @@ recordAccessFunctionExpressionMaybeApplied =
 recordExpressionFollowedByRecordAccessMaybeApplied : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
 recordExpressionFollowedByRecordAccessMaybeApplied =
     -- TODO don't check for applied if record access
-    expressionRecordFollowedByRecordAccess
+    expressionRecordOrRecordUpdateFollowedByRecordAccess
         |> followedByMultiArgumentApplication
 
 

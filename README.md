@@ -40,9 +40,8 @@ run [this node script](https://github.com/lue-bird/gren-format-unofficial/tree/m
 
 
 ## TODO
-  - support any expression in record update
+  - convert codebase to gren
   - some floats in exponent representation are formatted to without it and the other way around
   - formatting documentation markdown
-  - convert codebase to gren
 
 Please [report](https://github.com/lue-bird/gren-format-unofficial/issues/new) others issues you notice <3

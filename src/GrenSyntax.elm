@@ -279,7 +279,7 @@ type Expression
     | ExpressionArray (List (Node Expression))
     | ExpressionRecordAccess (Node Expression) (Node String)
     | ExpressionRecordAccessFunction String
-    | ExpressionRecordUpdate (Node String) (List (Node RecordSetter))
+    | ExpressionRecordUpdate (Node Expression) (List (Node RecordSetter))
 
 
 {-| String literals can be single double-quoted (single line) and triple double-quoted (usually multi-line)?

@@ -5,7 +5,7 @@ module ParserFast exposing
     , anyChar, while, whileAtLeast1WithoutLinebreak, whileMapWithRange, ifFollowedByWhileWithoutLinebreak, ifFollowedByWhileMapWithoutLinebreak, ifFollowedByWhileMapWithRangeWithoutLinebreak, ifFollowedByWhileValidateWithoutLinebreak, ifFollowedByWhileValidateMapWithRangeWithoutLinebreak, whileAtMost3WithoutLinebreakAnd2PartUtf16ToResultAndThen, whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollowedBySymbol
     , integerDecimalMapWithRange, integerDecimalOrHexadecimalMapWithRange, floatOrIntegerDecimalOrHexadecimalMapWithRange
     , skipWhileWhitespaceBacktrackableFollowedBy, followedBySkipWhileWhitespace, nestableMultiCommentMapWithRange
-    , map, validate, lazy
+    , map, validate, mapOrFail, lazy
     , map2, map2WithStartLocation, map2WithRange, map3, map3WithStartLocation, map3WithRange, map4, map4WithStartLocation, map4WithRange, map5, map5WithStartLocation, map5WithRange, map6, map6WithStartLocation, map7, map7WithRange, map8WithStartLocation, map9WithRange
     , loopWhileSucceeds, loopWhileSucceedsOntoResultFromParser, loopWhileSucceedsOntoResultFromParserRightToLeftStackUnsafe, loopWhileSucceedsRightToLeftStackUnsafe, loopUntil
     , orSucceed, mapOrSucceed, map2OrSucceed, map2WithRangeOrSucceed, map3OrSucceed, map4OrSucceed, oneOf2, oneOf2Map, oneOf2MapWithStartRowColumnAndEndRowColumn, oneOf2OrSucceed, oneOf3, oneOf4, oneOf5, oneOf7, oneOf9
@@ -77,7 +77,7 @@ With `ParserFast`, you need to either
 
 # Flow
 
-@docs map, validate, lazy
+@docs map, validate, mapOrFail, lazy
 
 
 ## sequence
@@ -263,6 +263,24 @@ validate isOkay (Parser parseA) =
 
                     else
                         pStepBadCommitting
+        )
+
+
+mapOrFail : (a -> Maybe b) -> Parser a -> Parser b
+mapOrFail isOkay (Parser parseA) =
+    Parser
+        (\s0 ->
+            case parseA s0 of
+                Bad committed x ->
+                    Bad committed x
+
+                Good a state ->
+                    case isOkay a of
+                        Just b ->
+                            Good b state
+
+                        Nothing ->
+                            pStepBadCommitting
         )
 
 
@@ -1130,6 +1148,31 @@ oneOf2MapWithStartRowColumnAndEndRowColumn firstToChoice (Parser attemptFirst) s
 
                                 else
                                     pStepBadBacktracking
+        )
+
+
+{-| Like [`oneOf2`](#oneOf2)
+but attempts to run the second parser even if the first already committed and failed
+-}
+oneOf2DisregardingCommit : Parser a -> Parser a -> Parser a
+oneOf2DisregardingCommit (Parser attemptFirst) (Parser attemptSecond) =
+    Parser
+        (\s ->
+            case attemptFirst s of
+                (Good _ _) as firstGood ->
+                    firstGood
+
+                Bad _ () ->
+                    case attemptSecond s of
+                        (Good _ _) as secondGood ->
+                            secondGood
+
+                        (Bad secondCommitted ()) as secondBad ->
+                            if secondCommitted then
+                                secondBad
+
+                            else
+                                pStepBadBacktracking
         )
 
 

@@ -4880,10 +4880,10 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
         GrenSyntax.ExpressionRecordAccessFunction dotFieldName ->
             Print.exactly ("." ++ (dotFieldName |> String.replace "." ""))
 
-        GrenSyntax.ExpressionRecordUpdate recordVariableNode fields ->
+        GrenSyntax.ExpressionRecordUpdate recordNode fields ->
             expressionRecordUpdate syntaxComments
                 { fullRange = fullRange
-                , recordVariable = recordVariableNode
+                , record = recordNode
                 , fields = fields
                 }
 
@@ -5632,7 +5632,7 @@ expressionRecordUpdate :
     List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
-        , recordVariable : GrenSyntax.Node String
+        , record : GrenSyntax.Node GrenSyntax.Expression
         , fields :
             List
                 (GrenSyntax.Node
@@ -5731,7 +5731,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                         }
                     )
                     { endLocation =
-                        syntaxRecordUpdate.recordVariable
+                        syntaxRecordUpdate.record
                             |> GrenSyntax.nodeRange
                             |> .end
                     , reverse = []
@@ -5750,7 +5750,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
             case
                 commentsInRange
                     { start = syntaxRecordUpdate.fullRange.start
-                    , end = syntaxRecordUpdate.recordVariable |> GrenSyntax.nodeRange |> .start
+                    , end = syntaxRecordUpdate.record |> GrenSyntax.nodeRange |> .start
                     }
                     syntaxComments
             of
@@ -5766,6 +5766,8 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                 |> Print.lineSpreadMergeWith
                     (\() -> maybeCommentsBeforeRecordVariable |> maybeLineSpread .lineSpread)
                 |> Print.lineSpreadMergeWith
+                    (\() -> recordPrint |> Print.lineSpread)
+                |> Print.lineSpreadMergeWith
                     (\() ->
                         case commentsAfterFields of
                             [] ->
@@ -5780,23 +5782,23 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                             |> Print.lineSpreadListMapAndCombine Print.lineSpread
                     )
 
-        recordVariablePrint : Print
-        recordVariablePrint =
-            Print.exactly
-                (syntaxRecordUpdate.recordVariable |> GrenSyntax.nodeValue)
+        recordPrint : Print
+        recordPrint =
+            expressionNotParenthesized syntaxComments
+                syntaxRecordUpdate.record
     in
     printExactlyCurlyOpeningSpace
         |> Print.followedBy
             (Print.withIndentIncreasedBy 2
                 (case maybeCommentsBeforeRecordVariable of
                     Nothing ->
-                        recordVariablePrint
+                        recordPrint
 
                     Just commentsCollapsibleBeforeRecordVariable ->
                         commentsCollapsibleBeforeRecordVariable.print
                             |> Print.followedBy
                                 (Print.spaceOrLinebreakIndented commentsCollapsibleBeforeRecordVariable.lineSpread)
-                            |> Print.followedBy recordVariablePrint
+                            |> Print.followedBy recordPrint
                 )
             )
         |> Print.followedBy

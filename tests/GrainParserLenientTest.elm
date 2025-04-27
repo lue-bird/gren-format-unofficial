@@ -4029,7 +4029,9 @@ Nothing"""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                                 (GrenSyntax.ExpressionRecordUpdate
-                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } } "model")
+                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        (GrenSyntax.ExpressionReference [] "model")
+                                    )
                                     [ GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
                                         ( GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } } "count"
                                         , GrenSyntax.Node { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } } (GrenSyntax.ExpressionInteger 1)
@@ -4042,13 +4044,38 @@ Nothing"""
                                 )
                             )
                 )
+            , Test.test "record update, qualified updated reference"
+                (\() ->
+                    "{ Shared.model | count = 1, loading = True }"
+                        |> expectSyntaxWithoutComments GrenParserLenient.expression
+                            (GrenSyntax.Node { end = { column = 45, row = 1 }, start = { column = 1, row = 1 } }
+                                (GrenSyntax.ExpressionRecordUpdate
+                                    (GrenSyntax.Node { end = { column = 15, row = 1 }, start = { column = 3, row = 1 } }
+                                        (GrenSyntax.ExpressionReference [ "Shared" ] "model")
+                                    )
+                                    [ GrenSyntax.Node { end = { column = 27, row = 1 }, start = { column = 18, row = 1 } }
+                                        ( GrenSyntax.Node { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } } "count"
+                                        , GrenSyntax.Node { end = { column = 27, row = 1 }, start = { column = 26, row = 1 } }
+                                            (GrenSyntax.ExpressionInteger 1)
+                                        )
+                                    , GrenSyntax.Node { end = { column = 44, row = 1 }, start = { column = 29, row = 1 } }
+                                        ( GrenSyntax.Node { end = { column = 36, row = 1 }, start = { column = 29, row = 1 } } "loading"
+                                        , GrenSyntax.Node { end = { column = 43, row = 1 }, start = { column = 39, row = 1 } }
+                                            (GrenSyntax.ExpressionReference [] "True")
+                                        )
+                                    ]
+                                )
+                            )
+                )
             , Test.test "record update with extra comma between fields"
                 (\() ->
                     "{ model | count = 1,,loading = True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                                 (GrenSyntax.ExpressionRecordUpdate
-                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } } "model")
+                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        (GrenSyntax.ExpressionReference [] "model")
+                                    )
                                     [ GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
                                         ( GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } } "count"
                                         , GrenSyntax.Node { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } } (GrenSyntax.ExpressionInteger 1)
@@ -4067,7 +4094,9 @@ Nothing"""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                                 (GrenSyntax.ExpressionRecordUpdate
-                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } } "model")
+                                    (GrenSyntax.Node { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        (GrenSyntax.ExpressionReference [] "model")
+                                    )
                                     [ GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
                                         ( GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } } "count"
                                         , GrenSyntax.Node { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } } (GrenSyntax.ExpressionInteger 1)
@@ -4086,7 +4115,9 @@ Nothing"""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 36 } }
                                 (GrenSyntax.ExpressionRecordUpdate
-                                    (GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } "model")
+                                    (GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
+                                        (GrenSyntax.ExpressionReference [] "model")
+                                    )
                                     [ GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 18 } }
                                         ( GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 14 } } "count"
                                         , GrenSyntax.Node { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } } (GrenSyntax.ExpressionInteger 1)
@@ -4631,7 +4662,10 @@ Nothing"""
                                     , GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 24 } }
                                         (GrenSyntax.ExpressionRecordAccess
                                             (GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 22 } }
-                                                (GrenSyntax.ExpressionRecordUpdate (GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } } "d")
+                                                (GrenSyntax.ExpressionRecordUpdate
+                                                    (GrenSyntax.Node { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
+                                                        (GrenSyntax.ExpressionReference [] "d")
+                                                    )
                                                     [ GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 21 } }
                                                         ( GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } } "b"
                                                         , GrenSyntax.Node { start = { row = 1, column = 15 }, end = { row = 1, column = 20 } }
@@ -7040,79 +7074,6 @@ pipeline1 = 1 |> 2 |> 3
                                                                     )
                                                                 )
                                                                 (GrenSyntax.Node { start = { row = 3, column = 20 }, end = { row = 3, column = 21 } } (GrenSyntax.ExpressionInteger 3))
-                                                            )
-                                                    }
-                                            }
-                                        )
-                                    , GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 24 } }
-                                        (GrenSyntax.FunctionDeclaration
-                                            { documentation = Nothing
-                                            , signature = Nothing
-                                            , declaration =
-                                                GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 24 } }
-                                                    { name = GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 10 } } "pipeline1"
-                                                    , arguments = []
-                                                    , expression =
-                                                        GrenSyntax.Node { start = { row = 5, column = 13 }, end = { row = 5, column = 24 } }
-                                                            (GrenSyntax.ExpressionInfixOperation "|>"
-                                                                (GrenSyntax.Node { start = { row = 5, column = 13 }, end = { row = 5, column = 19 } }
-                                                                    (GrenSyntax.ExpressionInfixOperation "|>"
-                                                                        (GrenSyntax.Node { start = { row = 5, column = 13 }, end = { row = 5, column = 14 } } (GrenSyntax.ExpressionInteger 1))
-                                                                        (GrenSyntax.Node { start = { row = 5, column = 18 }, end = { row = 5, column = 19 } } (GrenSyntax.ExpressionInteger 2))
-                                                                    )
-                                                                )
-                                                                (GrenSyntax.Node { start = { row = 5, column = 23 }, end = { row = 5, column = 24 } } (GrenSyntax.ExpressionInteger 3))
-                                                            )
-                                                    }
-                                            }
-                                        )
-                                    ]
-                                , comments = []
-                                }
-                            )
-                )
-            , Test.test "| is equivalent to |>"
-                (\() ->
-                    """
-module A exposing (..)
-
-pipeline0 = 1 | 2 | 3
-
-pipeline1 = 1 |> 2 |> 3
-"""
-                        |> String.trim
-                        |> GrenParserLenient.run GrenParserLenient.module_
-                        |> Expect.equal
-                            (Just
-                                { moduleDefinition =
-                                    GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 23 } }
-                                        (GrenSyntax.NormalModule
-                                            { moduleName = GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } } [ "A" ]
-                                            , exposingList =
-                                                GrenSyntax.Node { start = { row = 1, column = 10 }, end = { row = 1, column = 23 } }
-                                                    (GrenSyntax.All { start = { row = 1, column = 20 }, end = { row = 1, column = 22 } })
-                                            }
-                                        )
-                                , imports = []
-                                , declarations =
-                                    [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 22 } }
-                                        (GrenSyntax.FunctionDeclaration
-                                            { documentation = Nothing
-                                            , signature = Nothing
-                                            , declaration =
-                                                GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 22 } }
-                                                    { name = GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 10 } } "pipeline0"
-                                                    , arguments = []
-                                                    , expression =
-                                                        GrenSyntax.Node { start = { row = 3, column = 13 }, end = { row = 3, column = 22 } }
-                                                            (GrenSyntax.ExpressionInfixOperation "|>"
-                                                                (GrenSyntax.Node { start = { row = 3, column = 13 }, end = { row = 3, column = 18 } }
-                                                                    (GrenSyntax.ExpressionInfixOperation "|>"
-                                                                        (GrenSyntax.Node { start = { row = 3, column = 13 }, end = { row = 3, column = 14 } } (GrenSyntax.ExpressionInteger 1))
-                                                                        (GrenSyntax.Node { start = { row = 3, column = 17 }, end = { row = 3, column = 18 } } (GrenSyntax.ExpressionInteger 2))
-                                                                    )
-                                                                )
-                                                                (GrenSyntax.Node { start = { row = 3, column = 21 }, end = { row = 3, column = 22 } } (GrenSyntax.ExpressionInteger 3))
                                                             )
                                                     }
                                             }
