@@ -3,8 +3,7 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), Type, ValueConstructor, TypeAlias, Infix, InfixDirection(..)
-    , Pattern(..), QualifiedNameRef
-    , Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, Function, FunctionImplementation
+    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, Function, FunctionImplementation
     , StringQuotingStyle(..)
     , TypeAnnotation(..), TypeAnnotationRecordField
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
@@ -16,8 +15,7 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, Type, ValueConstructor, TypeAlias, Infix, InfixDirection
-@docs Pattern, QualifiedNameRef
-@docs Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, Function, FunctionImplementation
+@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, Function, FunctionImplementation
 @docs StringQuotingStyle
 @docs TypeAnnotation, TypeAnnotationRecordField
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -381,17 +379,13 @@ type Pattern
     | PatternListCons (Node Pattern) (Node Pattern)
     | PatternListExact (List (Node Pattern))
     | PatternVariable String
-    | PatternVariant QualifiedNameRef (Maybe (Node Pattern))
+    | PatternVariant
+        { qualification : List String
+        , name : String
+        , value : Maybe (Node Pattern)
+        }
     | PatternAs { pattern : Node Pattern, variable : Node String }
     | PatternParenthesized (Node Pattern)
-
-
-{-| Qualified name reference such as `Maybe.Just`.
--}
-type alias QualifiedNameRef =
-    { moduleName : List String
-    , name : String
-    }
 
 
 {-|  An element of the AST (Abstract Syntax Tree).

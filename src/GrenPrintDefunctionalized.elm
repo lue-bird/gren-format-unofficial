@@ -1658,8 +1658,8 @@ patternIsSpaceSeparated syntaxPattern =
         GrenSyntax.PatternListExact _ ->
             False
 
-        GrenSyntax.PatternVariant _ argumentPatterns ->
-            case argumentPatterns of
+        GrenSyntax.PatternVariant syntaxPatternVariant ->
+            case syntaxPatternVariant.value of
                 Nothing ->
                     False
 
@@ -2146,8 +2146,8 @@ patternToNotParenthesized (GrenSyntax.Node fullRange syntaxPattern) =
         GrenSyntax.PatternListExact elementPatterns ->
             GrenSyntax.Node fullRange (GrenSyntax.PatternListExact elementPatterns)
 
-        GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns)
+        GrenSyntax.PatternVariant syntaxPatternVariant ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternVariant syntaxPatternVariant)
 
         GrenSyntax.PatternAs syntaxPatternAs ->
             GrenSyntax.Node fullRange (GrenSyntax.PatternAs syntaxPatternAs)
@@ -2216,7 +2216,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
             patternList syntaxComments
                 { fullRange = fullRange, elements = elementPatterns }
 
-        GrenSyntax.PatternVariant syntaxQualifiedNameRef maybeValue ->
+        GrenSyntax.PatternVariant syntaxPatternVariant ->
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     patternParenthesizedIfSpaceSeparated
@@ -2226,11 +2226,11 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                 { fullRange = fullRange
                 , start =
                     qualifiedReference
-                        { qualification = syntaxQualifiedNameRef.moduleName
-                        , unqualified = syntaxQualifiedNameRef.name
+                        { qualification = syntaxPatternVariant.qualification
+                        , name = syntaxPatternVariant.name
                         }
                 , arguments =
-                    case maybeValue of
+                    case syntaxPatternVariant.value of
                         Nothing ->
                             []
 
@@ -2509,8 +2509,8 @@ patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
         GrenSyntax.PatternVariable variableName ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariable variableName) ]
 
-        GrenSyntax.PatternVariant reference parameters ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariant reference parameters) ]
+        GrenSyntax.PatternVariant syntaxPatternVariant ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariant syntaxPatternVariant) ]
 
         GrenSyntax.PatternAs syntaxPatternAs ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternAs syntaxPatternAs) ]
@@ -3308,11 +3308,11 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
 
 {-| Print a name with its qualification (`[]` for no qualification)
 -}
-qualifiedReference : { qualification : List String, unqualified : String } -> String
+qualifiedReference : { qualification : List String, name : String } -> String
 qualifiedReference syntaxReference =
     case syntaxReference.qualification of
         [] ->
-            syntaxReference.unqualified
+            syntaxReference.name
 
         modulePartHead :: modulePartTail ->
             modulePartHead
@@ -3321,7 +3321,7 @@ qualifiedReference syntaxReference =
                             (\modulePart -> "." ++ modulePart)
                    )
                 ++ "."
-                ++ syntaxReference.unqualified
+                ++ syntaxReference.name
 
 
 lineSpreadBetweenRanges : GrenSyntax.Range -> GrenSyntax.Range -> Print.LineSpread
@@ -3776,7 +3776,7 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
                 , start =
                     qualifiedReference
                         { qualification = referenceQualification
-                        , unqualified = referenceUnqualified
+                        , name = referenceUnqualified
                         }
                 , arguments = arguments
                 }
@@ -4784,7 +4784,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionReference qualification unqualified ->
             Print.exactly
-                (qualifiedReference { qualification = qualification, unqualified = unqualified })
+                (qualifiedReference { qualification = qualification, name = unqualified })
 
         GrenSyntax.ExpressionIfThenElse condition onTrue onFalse ->
             expressionIfThenElse syntaxComments

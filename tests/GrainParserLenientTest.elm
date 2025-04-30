@@ -1345,14 +1345,20 @@ caseWhitespace f = case f   of
                                                             { expression = GrenSyntax.Node { start = { row = 4, column = 25 }, end = { row = 4, column = 26 } } (GrenSyntax.ExpressionReference [] "f")
                                                             , cases =
                                                                 [ ( GrenSyntax.Node { start = { row = 5, column = 3 }, end = { row = 5, column = 7 } }
-                                                                        (GrenSyntax.PatternVariant { moduleName = [], name = "True" }
-                                                                            Nothing
+                                                                        (GrenSyntax.PatternVariant
+                                                                            { qualification = []
+                                                                            , name = "True"
+                                                                            , value = Nothing
+                                                                            }
                                                                         )
                                                                   , GrenSyntax.Node { start = { row = 6, column = 5 }, end = { row = 6, column = 6 } } (GrenSyntax.ExpressionInteger 1)
                                                                   )
                                                                 , ( GrenSyntax.Node { start = { row = 7, column = 3 }, end = { row = 7, column = 8 } }
-                                                                        (GrenSyntax.PatternVariant { moduleName = [], name = "False" }
-                                                                            Nothing
+                                                                        (GrenSyntax.PatternVariant
+                                                                            { qualification = []
+                                                                            , name = "False"
+                                                                            , value = Nothing
+                                                                            }
                                                                         )
                                                                   , GrenSyntax.Node { start = { row = 11, column = 10 }, end = { row = 11, column = 11 } } (GrenSyntax.ExpressionInteger 2)
                                                                   )
@@ -1831,9 +1837,7 @@ foo = bar"""
                                                                                         { expression = GrenSyntax.Node { start = { row = 4, column = 12 }, end = { row = 4, column = 13 } } (GrenSyntax.ExpressionReference [] "x")
                                                                                         , cases =
                                                                                             [ ( GrenSyntax.Node { start = { row = 5, column = 9 }, end = { row = 5, column = 13 } }
-                                                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "True" }
-                                                                                                        Nothing
-                                                                                                    )
+                                                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                                                                                               , GrenSyntax.Node { start = { row = 5, column = 17 }, end = { row = 5, column = 18 } } (GrenSyntax.ExpressionReference [] "z")
                                                                                               )
                                                                                             ]
@@ -2046,9 +2050,7 @@ foo = bar"""
                                                         { expression = GrenSyntax.Node { start = { row = 2, column = 8 }, end = { row = 2, column = 11 } } (GrenSyntax.ExpressionReference [] "msg")
                                                         , cases =
                                                             [ ( GrenSyntax.Node { start = { row = 3, column = 5 }, end = { row = 3, column = 14 } }
-                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Increment" }
-                                                                        Nothing
-                                                                    )
+                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Increment", value = Nothing })
                                                               , GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 16 } }
                                                                     (GrenSyntax.ExpressionInfixOperation "+"
                                                                         (GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } } (GrenSyntax.ExpressionReference [] "model"))
@@ -2056,9 +2058,7 @@ foo = bar"""
                                                                     )
                                                               )
                                                             , ( GrenSyntax.Node { start = { row = 6, column = 5 }, end = { row = 6, column = 14 } }
-                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Decrement" }
-                                                                        Nothing
-                                                                    )
+                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Decrement", value = Nothing })
                                                               , GrenSyntax.Node { start = { row = 7, column = 7 }, end = { row = 7, column = 16 } }
                                                                     (GrenSyntax.ExpressionInfixOperation "-"
                                                                         (GrenSyntax.Node { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } } (GrenSyntax.ExpressionReference [] "model"))
@@ -2351,7 +2351,7 @@ main =
                                                         { expression = GrenSyntax.Node { start = { row = 2, column = 8 }, end = { row = 2, column = 11 } } (GrenSyntax.ExpressionReference [] "msg")
                                                         , cases =
                                                             [ ( GrenSyntax.Node { start = { row = 3, column = 5 }, end = { row = 3, column = 14 } }
-                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Increment" } Nothing)
+                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Increment", value = Nothing })
                                                               , GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 16 } }
                                                                     (GrenSyntax.ExpressionInfixOperation "+"
                                                                         (GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } } (GrenSyntax.ExpressionReference [] "model"))
@@ -2359,7 +2359,7 @@ main =
                                                                     )
                                                               )
                                                             , ( GrenSyntax.Node { start = { row = 6, column = 5 }, end = { row = 6, column = 14 } }
-                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Decrement" } Nothing)
+                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Decrement", value = Nothing })
                                                               , GrenSyntax.Node { start = { row = 7, column = 7 }, end = { row = 7, column = 16 } }
                                                                     (GrenSyntax.ExpressionInfixOperation "-"
                                                                         (GrenSyntax.Node { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } } (GrenSyntax.ExpressionReference [] "model"))
@@ -5096,7 +5096,7 @@ Nothing"""
                                                             { name = GrenSyntax.Node { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } } "bar"
                                                             , arguments =
                                                                 [ GrenSyntax.Node { start = { row = 2, column = 15 }, end = { row = 2, column = 18 } }
-                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Bar" } Nothing)
+                                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Bar", value = Nothing })
                                                                 , GrenSyntax.Node { start = { row = 2, column = 19 }, end = { row = 2, column = 20 } } (GrenSyntax.PatternVariable "m")
                                                                 ]
                                                             , expression = GrenSyntax.Node { start = { row = 2, column = 23 }, end = { row = 2, column = 24 } } (GrenSyntax.ExpressionInteger 1)
@@ -5203,12 +5203,15 @@ Nothing"""
                                                     (GrenSyntax.Node { start = { row = 5, column = 5 }, end = { row = 5, column = 15 } }
                                                         (GrenSyntax.PatternParenthesized
                                                             (GrenSyntax.Node { start = { row = 5, column = 6 }, end = { row = 5, column = 12 } }
-                                                                (GrenSyntax.PatternVariant { moduleName = [], name = "Node" }
-                                                                    (Just
-                                                                        (GrenSyntax.Node { start = { row = 5, column = 11 }, end = { row = 5, column = 12 } }
-                                                                            GrenSyntax.PatternIgnored
-                                                                        )
-                                                                    )
+                                                                (GrenSyntax.PatternVariant
+                                                                    { qualification = []
+                                                                    , name = "Node"
+                                                                    , value =
+                                                                        Just
+                                                                            (GrenSyntax.Node { start = { row = 5, column = 11 }, end = { row = 5, column = 12 } }
+                                                                                GrenSyntax.PatternIgnored
+                                                                            )
+                                                                    }
                                                                 )
                                                             )
                                                         )
@@ -5391,11 +5394,11 @@ True -> 1"""
                                             GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } (GrenSyntax.ExpressionReference [] "f")
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 2, column = 3 }, end = { row = 2, column = 7 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "True" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 2, column = 11 }, end = { row = 2, column = 12 } } (GrenSyntax.ExpressionInteger 1)
                                               )
                                             , ( GrenSyntax.Node { start = { row = 3, column = 3 }, end = { row = 3, column = 8 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "False" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "False", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } } (GrenSyntax.ExpressionInteger 2)
                                               )
                                             ]
@@ -5458,12 +5461,12 @@ True -> 1"""
                                                 (GrenSyntax.ExpressionReference [] "f")
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 2, column = 3 }, end = { row = 2, column = 7 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "True" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 2, column = 11 }, end = { row = 2, column = 12 } }
                                                     (GrenSyntax.ExpressionInteger 1)
                                               )
                                             , ( GrenSyntax.Node { start = { row = 3, column = 3 }, end = { row = 3, column = 8 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "False" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "False", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
                                                     (GrenSyntax.ExpressionInteger 2)
                                               )
@@ -5492,12 +5495,12 @@ True -> 1"""
                                                 )
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 2, column = 3 }, end = { row = 2, column = 7 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "True" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 2, column = 11 }, end = { row = 2, column = 12 } }
                                                     (GrenSyntax.ExpressionInteger 1)
                                               )
                                             , ( GrenSyntax.Node { start = { row = 3, column = 3 }, end = { row = 3, column = 8 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "False" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "False", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
                                                     (GrenSyntax.ExpressionInteger 2)
                                               )
@@ -5517,7 +5520,7 @@ True -> 1"""
                                             GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } (GrenSyntax.ExpressionReference [] "f")
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 2, column = 3 }, end = { row = 2, column = 10 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [ "Foo" ], name = "Bar" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [ "Foo" ], name = "Bar", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 2, column = 14 }, end = { row = 2, column = 15 } } (GrenSyntax.ExpressionInteger 1)
                                               )
                                             ]
@@ -5553,11 +5556,11 @@ True -> 1"""
                                         { expression = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } (GrenSyntax.ExpressionReference [] "x")
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 1, column = 11 }, end = { row = 1, column = 15 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "True" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } } (GrenSyntax.ExpressionInteger 1)
                                               )
                                             , ( GrenSyntax.Node { start = { row = 2, column = 11 }, end = { row = 2, column = 16 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "False" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "False", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 2, column = 20 }, end = { row = 2, column = 21 } } (GrenSyntax.ExpressionInteger 2)
                                               )
                                             ]
@@ -5627,11 +5630,11 @@ True -> 1"""
                                         { expression = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 9 } } (GrenSyntax.ExpressionReference [] "msg")
                                         , cases =
                                             [ ( GrenSyntax.Node { start = { row = 2, column = 3 }, end = { row = 2, column = 12 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Increment" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Increment", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 3, column = 5 }, end = { row = 3, column = 6 } } (GrenSyntax.ExpressionInteger 1)
                                               )
                                             , ( GrenSyntax.Node { start = { row = 5, column = 3 }, end = { row = 5, column = 12 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Decrement" } Nothing)
+                                                    (GrenSyntax.PatternVariant { qualification = [], name = "Decrement", value = Nothing })
                                               , GrenSyntax.Node { start = { row = 6, column = 5 }, end = { row = 6, column = 6 } } (GrenSyntax.ExpressionInteger 2)
                                               )
                                             ]
@@ -5928,12 +5931,15 @@ True -> 1"""
                                     (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
                                         (GrenSyntax.PatternParenthesized
                                             (GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 5 } }
-                                                (GrenSyntax.PatternVariant { moduleName = [], name = "X" }
-                                                    (Just
-                                                        (GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } }
-                                                            (GrenSyntax.PatternVariable "x")
-                                                        )
-                                                    )
+                                                (GrenSyntax.PatternVariant
+                                                    { qualification = []
+                                                    , name = "X"
+                                                    , value =
+                                                        Just
+                                                            (GrenSyntax.Node { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } }
+                                                                (GrenSyntax.PatternVariable "x")
+                                                            )
+                                                    }
                                                 )
                                             )
                                         )
@@ -6124,7 +6130,7 @@ True -> 1"""
                     "True"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
-                                (GrenSyntax.PatternVariant { moduleName = [], name = "True" } Nothing)
+                                (GrenSyntax.PatternVariant { qualification = [], name = "True", value = Nothing })
                             )
                 )
             , Test.test "Named pattern without and with spacing should parse to the same"
@@ -6141,7 +6147,7 @@ True -> 1"""
                     "Basics.True"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
-                                (GrenSyntax.PatternVariant { moduleName = [ "Basics" ], name = "True" } Nothing)
+                                (GrenSyntax.PatternVariant { qualification = [ "Basics" ], name = "True", value = Nothing })
                             )
                 )
             , Test.test "Named pattern with data"
@@ -6150,12 +6156,14 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
                                 (GrenSyntax.PatternVariant
-                                    { moduleName = [], name = "Set" }
-                                    (Just
-                                        (GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } }
-                                            (GrenSyntax.PatternVariable "x")
-                                        )
-                                    )
+                                    { qualification = []
+                                    , name = "Set"
+                                    , value =
+                                        Just
+                                            (GrenSyntax.Node { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } }
+                                                (GrenSyntax.PatternVariable "x")
+                                            )
+                                    }
                                 )
                             )
                 )
@@ -6165,12 +6173,14 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
                                 (GrenSyntax.PatternVariant
-                                    { moduleName = [ "Set" ], name = "Set" }
-                                    (Just
-                                        (GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                            (GrenSyntax.PatternVariable "x")
-                                        )
-                                    )
+                                    { qualification = [ "Set" ]
+                                    , name = "Set"
+                                    , value =
+                                        Just
+                                            (GrenSyntax.Node { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                (GrenSyntax.PatternVariable "x")
+                                            )
+                                    }
                                 )
                             )
                 )
@@ -6253,32 +6263,41 @@ True -> 1"""
                     "RBNode_gren_builtin     (RBNode_gren_builtin      (RBNode_gren_builtin Red   ))"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { end = { column = 80, row = 1 }, start = { column = 1, row = 1 } }
-                                (GrenSyntax.PatternVariant { moduleName = [], name = "RBNode_gren_builtin" }
-                                    (Just
-                                        (GrenSyntax.Node { end = { column = 80, row = 1 }, start = { column = 25, row = 1 } }
-                                            (GrenSyntax.PatternParenthesized
-                                                (GrenSyntax.Node { end = { column = 79, row = 1 }, start = { column = 26, row = 1 } }
-                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "RBNode_gren_builtin" }
-                                                        (Just
-                                                            (GrenSyntax.Node { end = { column = 79, row = 1 }, start = { column = 51, row = 1 } }
-                                                                (GrenSyntax.PatternParenthesized
-                                                                    (GrenSyntax.Node { end = { column = 75, row = 1 }, start = { column = 52, row = 1 } }
-                                                                        (GrenSyntax.PatternVariant { moduleName = [], name = "RBNode_gren_builtin" }
-                                                                            (Just
-                                                                                (GrenSyntax.Node { end = { column = 75, row = 1 }, start = { column = 72, row = 1 } }
-                                                                                    (GrenSyntax.PatternVariant { moduleName = [], name = "Red" } Nothing)
+                                (GrenSyntax.PatternVariant
+                                    { qualification = []
+                                    , name = "RBNode_gren_builtin"
+                                    , value =
+                                        Just
+                                            (GrenSyntax.Node { end = { column = 80, row = 1 }, start = { column = 25, row = 1 } }
+                                                (GrenSyntax.PatternParenthesized
+                                                    (GrenSyntax.Node { end = { column = 79, row = 1 }, start = { column = 26, row = 1 } }
+                                                        (GrenSyntax.PatternVariant
+                                                            { qualification = []
+                                                            , name = "RBNode_gren_builtin"
+                                                            , value =
+                                                                Just
+                                                                    (GrenSyntax.Node { end = { column = 79, row = 1 }, start = { column = 51, row = 1 } }
+                                                                        (GrenSyntax.PatternParenthesized
+                                                                            (GrenSyntax.Node { end = { column = 75, row = 1 }, start = { column = 52, row = 1 } }
+                                                                                (GrenSyntax.PatternVariant
+                                                                                    { qualification = []
+                                                                                    , name = "RBNode_gren_builtin"
+                                                                                    , value =
+                                                                                        Just
+                                                                                            (GrenSyntax.Node { end = { column = 75, row = 1 }, start = { column = 72, row = 1 } }
+                                                                                                (GrenSyntax.PatternVariant { qualification = [], name = "Red", value = Nothing })
+                                                                                            )
+                                                                                    }
                                                                                 )
                                                                             )
                                                                         )
                                                                     )
-                                                                )
-                                                            )
+                                                            }
                                                         )
                                                     )
                                                 )
                                             )
-                                        )
-                                    )
+                                    }
                                 )
                             )
                 )

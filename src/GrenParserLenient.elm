@@ -4383,27 +4383,42 @@ stringPattern =
 qualifiedPatternWithConsumeArgs : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 qualifiedPatternWithConsumeArgs =
     ParserFast.map3
-        (\(GrenSyntax.Node nameRange name) afterStartName argsReverse ->
+        (\(GrenSyntax.Node referenceRange reference) afterStartName argsReverse ->
             let
                 range : GrenSyntax.Range
                 range =
                     case argsReverse.syntax of
                         Nothing ->
-                            nameRange
+                            referenceRange
 
                         Just (GrenSyntax.Node lastArgRange _) ->
-                            { start = nameRange.start, end = lastArgRange.end }
+                            { start = referenceRange.start, end = lastArgRange.end }
             in
             { comments = afterStartName |> ropePrependTo argsReverse.comments
             , syntax =
                 GrenSyntax.Node range
                     (GrenSyntax.PatternVariant
-                        name
-                        argsReverse.syntax
+                        { qualification = reference.qualification
+                        , name = reference.name
+                        , value = argsReverse.syntax
+                        }
                     )
             }
         )
-        qualifiedNameRefNode
+        (ParserFast.map2WithRange
+            (\range firstName after ->
+                GrenSyntax.Node range
+                    (case after of
+                        Nothing ->
+                            { qualification = [], name = firstName }
+
+                        Just ( qualificationAfter, unqualified ) ->
+                            { qualification = firstName :: qualificationAfter, name = unqualified }
+                    )
+            )
+            nameUppercase
+            maybeDotNamesUppercaseTuple
+        )
         whitespaceAndComments
         (ParserFast.map2OrSucceed
             (\arg commentsAfterArg ->
@@ -4417,23 +4432,6 @@ qualifiedPatternWithConsumeArgs =
         )
 
 
-qualifiedNameRefNode : Parser (GrenSyntax.Node GrenSyntax.QualifiedNameRef)
-qualifiedNameRefNode =
-    ParserFast.map2WithRange
-        (\range firstName after ->
-            GrenSyntax.Node range
-                (case after of
-                    Nothing ->
-                        { moduleName = [], name = firstName }
-
-                    Just ( qualificationAfter, unqualified ) ->
-                        { moduleName = firstName :: qualificationAfter, name = unqualified }
-                )
-        )
-        nameUppercase
-        maybeDotNamesUppercaseTuple
-
-
 qualifiedPatternWithoutConsumeArgs : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 qualifiedPatternWithoutConsumeArgs =
     ParserFast.map2WithRange
@@ -4444,12 +4442,17 @@ qualifiedPatternWithoutConsumeArgs =
                     (GrenSyntax.PatternVariant
                         (case after of
                             Nothing ->
-                                { moduleName = [], name = firstName }
+                                { qualification = []
+                                , name = firstName
+                                , value = Nothing
+                                }
 
                             Just ( qualificationAfter, unqualified ) ->
-                                { moduleName = firstName :: qualificationAfter, name = unqualified }
+                                { qualification = firstName :: qualificationAfter
+                                , name = unqualified
+                                , value = Nothing
+                                }
                         )
-                        Nothing
                     )
             }
         )

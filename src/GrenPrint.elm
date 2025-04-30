@@ -180,7 +180,7 @@ patternNotParenthesized syntaxComments patternNode =
 
 {-| Print a name with its qualification (`[]` for no qualification)
 -}
-qualifiedReference : { qualification : List String, unqualified : String } -> Print
+qualifiedReference : { qualification : List String, name : String } -> Print
 qualifiedReference syntaxReference =
     \_ ->
         GrenPrintDefunctionalized.qualifiedReference syntaxReference
