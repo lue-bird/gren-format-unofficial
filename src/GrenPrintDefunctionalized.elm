@@ -1666,7 +1666,7 @@ patternIsSpaceSeparated syntaxPattern =
                 Just _ ->
                     True
 
-        GrenSyntax.PatternAs _ _ ->
+        GrenSyntax.PatternAs _ ->
             True
 
 
@@ -2149,8 +2149,8 @@ patternToNotParenthesized (GrenSyntax.Node fullRange syntaxPattern) =
         GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns ->
             GrenSyntax.Node fullRange (GrenSyntax.PatternVariant syntaxQualifiedNameRef argumentPatterns)
 
-        GrenSyntax.PatternAs aliasedPattern aliasNameNode ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternAs aliasedPattern aliasNameNode)
+        GrenSyntax.PatternAs syntaxPatternAs ->
+            GrenSyntax.Node fullRange (GrenSyntax.PatternAs syntaxPatternAs)
 
 
 {-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
@@ -2238,9 +2238,8 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                             [ value ]
                 }
 
-        GrenSyntax.PatternAs aliasedPattern aliasNameNode ->
-            patternAs syntaxComments
-                { aliasedPattern = aliasedPattern, aliasNameNode = aliasNameNode }
+        GrenSyntax.PatternAs syntaxPatternAs ->
+            patternAs syntaxComments syntaxPatternAs
 
 
 patternList :
@@ -2513,8 +2512,8 @@ patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
         GrenSyntax.PatternVariant reference parameters ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariant reference parameters) ]
 
-        GrenSyntax.PatternAs aliasedPattern aliasName ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternAs aliasedPattern aliasName) ]
+        GrenSyntax.PatternAs syntaxPatternAs ->
+            [ GrenSyntax.Node fulRange (GrenSyntax.PatternAs syntaxPatternAs) ]
 
         GrenSyntax.PatternParenthesized inParens ->
             [ GrenSyntax.Node fulRange (GrenSyntax.PatternParenthesized inParens) ]
@@ -2523,21 +2522,21 @@ patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
 patternAs :
     List (GrenSyntax.Node String)
     ->
-        { aliasNameNode : GrenSyntax.Node String
-        , aliasedPattern : GrenSyntax.Node GrenSyntax.Pattern
+        { variable : GrenSyntax.Node String
+        , pattern : GrenSyntax.Node GrenSyntax.Pattern
         }
     -> Print
 patternAs syntaxComments syntaxAs =
     let
         aliasedPatternPrint : Print
         aliasedPatternPrint =
-            patternParenthesizedIfSpaceSeparated syntaxComments syntaxAs.aliasedPattern
+            patternParenthesizedIfSpaceSeparated syntaxComments syntaxAs.pattern
 
         commentsBeforeAliasName : List String
         commentsBeforeAliasName =
             commentsInRange
-                { start = syntaxAs.aliasedPattern |> GrenSyntax.nodeRange |> .end
-                , end = syntaxAs.aliasNameNode |> GrenSyntax.nodeRange |> .start
+                { start = syntaxAs.pattern |> GrenSyntax.nodeRange |> .end
+                , end = syntaxAs.variable |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -2553,7 +2552,7 @@ patternAs syntaxComments syntaxAs =
 
         namePrint : Print
         namePrint =
-            Print.exactly (syntaxAs.aliasNameNode |> GrenSyntax.nodeValue)
+            Print.exactly (syntaxAs.variable |> GrenSyntax.nodeValue)
     in
     aliasedPatternPrint
         |> Print.followedBy (Print.spaceOrLinebreakIndented lineSpread)

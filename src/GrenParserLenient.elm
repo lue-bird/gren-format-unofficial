@@ -4143,9 +4143,15 @@ pattern =
                         leftMaybeConsed.comments
                             |> ropePrependTo asExtension.comments
                     , syntax =
-                        GrenSyntax.nodeCombine GrenSyntax.PatternAs
-                            leftMaybeConsed.syntax
-                            asExtension.syntax
+                        GrenSyntax.Node
+                            { start = leftMaybeConsed.syntax |> GrenSyntax.nodeRange |> .start
+                            , end = asExtension.syntax |> GrenSyntax.nodeRange |> .end
+                            }
+                            (GrenSyntax.PatternAs
+                                { pattern = leftMaybeConsed.syntax
+                                , variable = asExtension.syntax
+                                }
+                            )
                     }
         )
         (ParserFast.loopWhileSucceedsOntoResultFromParserRightToLeftStackUnsafe

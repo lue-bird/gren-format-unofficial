@@ -382,7 +382,7 @@ type Pattern
     | PatternListExact (List (Node Pattern))
     | PatternVariable String
     | PatternVariant QualifiedNameRef (Maybe (Node Pattern))
-    | PatternAs (Node Pattern) (Node String)
+    | PatternAs { pattern : Node Pattern, variable : Node String }
     | PatternParenthesized (Node Pattern)
 
 

@@ -103,9 +103,9 @@ all =
                     )
                 , Test.test "singleLineComment including 2-part utf-16 char range"
                     (\() ->
-                        GrenParserLenient.run GrenParserLenient.singleLineComment "--bar🔧"
+                        GrenParserLenient.run GrenParserLenient.singleLineComment """--bar\u{D83D}\u{DD27}"""
                             |> Expect.equal
-                                (Just (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } } "--bar🔧"))
+                                (Just (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } } """--bar\u{D83D}\u{DD27}"""))
                     )
                 , Test.test "singleLineComment does not include new line"
                     (\() ->
@@ -126,9 +126,16 @@ all =
                     )
                 , Test.test "multilineComment including 2-part utf-16 char range"
                     (\() ->
-                        GrenParserLenient.run GrenParserLenient.multiLineComment "{-foo\nbar🔧-}"
+                        GrenParserLenient.run GrenParserLenient.multiLineComment
+                            """{-foo
+bar\u{D83D}\u{DD27}-}"""
                             |> Expect.equal
-                                (Just (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } } "{-foo\nbar🔧-}"))
+                                (Just
+                                    (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } }
+                                        """{-foo
+bar\u{D83D}\u{DD27}-}"""
+                                    )
+                                )
                     )
                 , Test.test "nested multilineComment only open"
                     (\() ->
@@ -6173,8 +6180,13 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
                                 (GrenSyntax.PatternAs
-                                    (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } } (GrenSyntax.PatternVariable "x"))
-                                    (GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } } "y")
+                                    { pattern =
+                                        GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                            (GrenSyntax.PatternVariable "x")
+                                    , variable =
+                                        GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
+                                            "y"
+                                    }
                                 )
                             )
                 )
@@ -6214,14 +6226,25 @@ True -> 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
                                 (GrenSyntax.PatternAs
-                                    (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
-                                        (GrenSyntax.PatternRecord
-                                            [ { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } } "model" }
-                                            , { value = Nothing, name = GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 15 } } "context" }
-                                            ]
-                                        )
-                                    )
-                                    (GrenSyntax.Node { start = { row = 1, column = 20 }, end = { row = 1, column = 28 } } "appState")
+                                    { pattern =
+                                        GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
+                                            (GrenSyntax.PatternRecord
+                                                [ { value = Nothing
+                                                  , name =
+                                                        GrenSyntax.Node { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
+                                                            "model"
+                                                  }
+                                                , { value = Nothing
+                                                  , name =
+                                                        GrenSyntax.Node { start = { row = 1, column = 8 }, end = { row = 1, column = 15 } }
+                                                            "context"
+                                                  }
+                                                ]
+                                            )
+                                    , variable =
+                                        GrenSyntax.Node { start = { row = 1, column = 20 }, end = { row = 1, column = 28 } }
+                                            "appState"
+                                    }
                                 )
                             )
                 )
