@@ -4857,14 +4857,14 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
             case syntaxLetIn.declarations of
                 [] ->
                     -- invalid syntax
-                    expressionNotParenthesized syntaxComments syntaxLetIn.expression
+                    expressionNotParenthesized syntaxComments syntaxLetIn.result
 
                 letDeclaration0 :: letDeclaration1Up ->
                     expressionLetIn syntaxComments
                         { fullRange = fullRange
                         , letDeclaration0 = letDeclaration0
                         , letDeclaration1Up = letDeclaration1Up
-                        , result = syntaxLetIn.expression
+                        , result = syntaxLetIn.result
                         }
 
         GrenSyntax.ExpressionCaseOf syntaxCaseOf ->

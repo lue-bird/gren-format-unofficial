@@ -2,8 +2,8 @@ module GrenSyntax exposing
     ( File, ModuleName, Import
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
-    , Declaration(..), ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), LetBlock, LetDeclaration(..), ValueOrFunctionDeclarationInfo
+    , Declaration(..), ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
+    , Pattern(..), Expression(..), LetBlock, LetDeclaration(..)
     , StringQuotingStyle(..)
     , TypeAnnotation(..)
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
@@ -14,8 +14,8 @@ module GrenSyntax exposing
 @docs File, ModuleName, Import
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
-@docs Declaration, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, LetBlock, LetDeclaration, ValueOrFunctionDeclarationInfo
+@docs Declaration, ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
+@docs Pattern, Expression, LetBlock, LetDeclaration
 @docs StringQuotingStyle
 @docs TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -308,7 +308,7 @@ type StringQuotingStyle
 -}
 type alias LetBlock =
     { declarations : List (Node LetDeclaration)
-    , expression : Node Expression
+    , result : Node Expression
     }
 
 

@@ -3159,7 +3159,7 @@ letExpressionFollowedByOptimisticLayout =
                     }
                     (GrenSyntax.ExpressionLetIn
                         { declarations = letDeclarationsResult.declarations
-                        , expression = expressionResult.syntax
+                        , result = expressionResult.syntax
                         }
                     )
             }
