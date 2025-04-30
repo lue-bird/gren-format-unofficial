@@ -5846,7 +5846,11 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
 
 expressionLambda :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Node GrenSyntax.Lambda
+    ->
+        GrenSyntax.Node
+            { parameters : List (GrenSyntax.Node GrenSyntax.Pattern)
+            , result : GrenSyntax.Node GrenSyntax.Expression
+            }
     -> Print
 expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
     let

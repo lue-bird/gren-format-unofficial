@@ -3,7 +3,7 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), ValueOrFunctionDeclarationInfo
+    , Pattern(..), Expression(..), LetBlock, LetDeclaration(..), ValueOrFunctionDeclarationInfo
     , StringQuotingStyle(..)
     , TypeAnnotation(..)
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
@@ -15,7 +15,7 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, ValueOrFunctionDeclarationInfo
+@docs Pattern, Expression, LetBlock, LetDeclaration, ValueOrFunctionDeclarationInfo
 @docs StringQuotingStyle
 @docs TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -272,7 +272,10 @@ type Expression
                 , result : Node Expression
                 }
         }
-    | ExpressionLambda Lambda
+    | ExpressionLambda
+        { parameters : List (Node Pattern)
+        , result : Node Expression
+        }
     | ExpressionRecord
         (List
             (Node
@@ -316,14 +319,6 @@ type alias LetBlock =
 type LetDeclaration
     = LetFunction ValueOrFunctionDeclarationInfo
     | LetDestructuring (Node Pattern) (Node Expression)
-
-
-{-| Expression for a lambda
--}
-type alias Lambda =
-    { parameters : List (Node Pattern)
-    , result : Node Expression
-    }
 
 
 {-| Custom type for different type annotations. For example:
