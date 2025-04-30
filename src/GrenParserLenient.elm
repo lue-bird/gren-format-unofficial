@@ -283,13 +283,13 @@ declarationIsPort syntaxDeclaration =
         GrenSyntax.PortDeclaration _ ->
             True
 
-        GrenSyntax.FunctionDeclaration _ ->
+        GrenSyntax.ValueOrFunctionDeclaration _ ->
             False
 
         GrenSyntax.AliasDeclaration _ ->
             False
 
-        GrenSyntax.CustomTypeDeclaration _ ->
+        GrenSyntax.ChoiceTypeDeclaration _ ->
             False
 
         GrenSyntax.InfixDeclaration _ ->
@@ -934,7 +934,7 @@ declarationWithDocumentation =
                             { comments = afterDocumentation.comments
                             , syntax =
                                 GrenSyntax.Node { start = start, end = expressionRange.end }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature =
                                             Just
@@ -967,7 +967,7 @@ declarationWithDocumentation =
                             { comments = afterDocumentation.comments
                             , syntax =
                                 GrenSyntax.Node { start = start, end = expressionRange.end }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature = Nothing
                                         , declaration =
@@ -998,7 +998,7 @@ declarationWithDocumentation =
                     { comments = afterDocumentation.comments
                     , syntax =
                         GrenSyntax.Node { start = start, end = end }
-                            (GrenSyntax.CustomTypeDeclaration
+                            (GrenSyntax.ChoiceTypeDeclaration
                                 { documentation = Just documentation
                                 , name = typeDeclarationAfterDocumentation.name
                                 , generics = typeDeclarationAfterDocumentation.parameters
@@ -1061,7 +1061,7 @@ declarationWithDocumentation =
                         result.syntax
                 in
                 case decl of
-                    GrenSyntax.FunctionDeclaration letFunctionDeclaration ->
+                    GrenSyntax.ValueOrFunctionDeclaration letFunctionDeclaration ->
                         case letFunctionDeclaration.signature of
                             Nothing ->
                                 True
@@ -1082,7 +1082,7 @@ declarationWithDocumentation =
                     GrenSyntax.AliasDeclaration _ ->
                         True
 
-                    GrenSyntax.CustomTypeDeclaration _ ->
+                    GrenSyntax.ChoiceTypeDeclaration _ ->
                         True
 
                     GrenSyntax.PortDeclaration _ ->
@@ -1240,7 +1240,7 @@ functionDeclarationWithoutDocumentation =
                                 |> ropePrependTo result.comments
                         , syntax =
                             GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1265,7 +1265,7 @@ functionDeclarationWithoutDocumentation =
                                 |> ropePrependTo result.comments
                         , syntax =
                             GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature =
                                         Just
@@ -1319,7 +1319,7 @@ functionDeclarationWithoutDocumentation =
                             result.syntax
                     in
                     case decl of
-                        GrenSyntax.FunctionDeclaration letFunctionDeclaration ->
+                        GrenSyntax.ValueOrFunctionDeclaration letFunctionDeclaration ->
                             case letFunctionDeclaration.signature of
                                 Nothing ->
                                     True
@@ -1340,7 +1340,7 @@ functionDeclarationWithoutDocumentation =
                         GrenSyntax.AliasDeclaration _ ->
                             True
 
-                        GrenSyntax.CustomTypeDeclaration _ ->
+                        GrenSyntax.ChoiceTypeDeclaration _ ->
                             True
 
                         GrenSyntax.PortDeclaration _ ->
@@ -1365,7 +1365,7 @@ functionDeclarationWithoutDocumentation =
                         { start = start
                         , end = result.syntax |> GrenSyntax.nodeRange |> .end
                         }
-                        (GrenSyntax.FunctionDeclaration
+                        (GrenSyntax.ValueOrFunctionDeclaration
                             { documentation = Nothing
                             , signature =
                                 Just
@@ -1655,7 +1655,7 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                     { comments = allComments
                     , syntax =
                         GrenSyntax.Node { start = start, end = end }
-                            (GrenSyntax.CustomTypeDeclaration
+                            (GrenSyntax.ChoiceTypeDeclaration
                                 { documentation = Nothing
                                 , name = typeDeclarationAfterDocumentation.name
                                 , generics = typeDeclarationAfterDocumentation.parameters

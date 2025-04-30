@@ -3846,13 +3846,13 @@ declarations context syntaxDeclarations =
                         GrenSyntax.PortDeclaration _ ->
                             firstCommentInRange { start = context.previousEnd, end = declaration0Range.start } context.portDocumentationComments
 
-                        GrenSyntax.FunctionDeclaration _ ->
+                        GrenSyntax.ValueOrFunctionDeclaration _ ->
                             Nothing
 
                         GrenSyntax.AliasDeclaration _ ->
                             Nothing
 
-                        GrenSyntax.CustomTypeDeclaration _ ->
+                        GrenSyntax.ChoiceTypeDeclaration _ ->
                             Nothing
 
                         GrenSyntax.InfixDeclaration _ ->
@@ -3870,13 +3870,13 @@ declarations context syntaxDeclarations =
                                             GrenSyntax.PortDeclaration _ ->
                                                 firstCommentInRange { start = soFar.previousRange.end, end = declarationRange.start } context.portDocumentationComments
 
-                                            GrenSyntax.FunctionDeclaration _ ->
+                                            GrenSyntax.ValueOrFunctionDeclaration _ ->
                                                 Nothing
 
                                             GrenSyntax.AliasDeclaration _ ->
                                                 Nothing
 
-                                            GrenSyntax.CustomTypeDeclaration _ ->
+                                            GrenSyntax.ChoiceTypeDeclaration _ ->
                                                 Nothing
 
                                             GrenSyntax.InfixDeclaration _ ->
@@ -3966,7 +3966,7 @@ linebreaksFollowedByDeclaration :
     -> Print
 linebreaksFollowedByDeclaration syntaxComments syntaxDeclaration =
     case syntaxDeclaration of
-        GrenSyntax.FunctionDeclaration syntaxExpressionDeclaration ->
+        GrenSyntax.ValueOrFunctionDeclaration syntaxExpressionDeclaration ->
             printLinebreakLinebreakLinebreak
                 |> Print.followedBy (declarationExpression syntaxComments.comments syntaxExpressionDeclaration)
 
@@ -3974,7 +3974,7 @@ linebreaksFollowedByDeclaration syntaxComments syntaxDeclaration =
             printLinebreakLinebreakLinebreak
                 |> Print.followedBy (declarationTypeAlias syntaxComments.comments syntaxTypeAliasDeclaration)
 
-        GrenSyntax.CustomTypeDeclaration syntaxChoiceTypeDeclaration ->
+        GrenSyntax.ChoiceTypeDeclaration syntaxChoiceTypeDeclaration ->
             printLinebreakLinebreakLinebreak
                 |> Print.followedBy (declarationChoiceType syntaxComments.comments syntaxChoiceTypeDeclaration)
 
@@ -4013,13 +4013,13 @@ declaration :
     -> Print
 declaration syntaxComments syntaxDeclaration =
     case syntaxDeclaration of
-        GrenSyntax.FunctionDeclaration syntaxExpressionDeclaration ->
+        GrenSyntax.ValueOrFunctionDeclaration syntaxExpressionDeclaration ->
             declarationExpression syntaxComments.comments syntaxExpressionDeclaration
 
         GrenSyntax.AliasDeclaration syntaxTypeAliasDeclaration ->
             declarationTypeAlias syntaxComments.comments syntaxTypeAliasDeclaration
 
-        GrenSyntax.CustomTypeDeclaration syntaxChoiceTypeDeclaration ->
+        GrenSyntax.ChoiceTypeDeclaration syntaxChoiceTypeDeclaration ->
             declarationChoiceType syntaxComments.comments syntaxChoiceTypeDeclaration
 
         GrenSyntax.PortDeclaration signature ->
@@ -4116,7 +4116,7 @@ declarationPort syntaxComments signature =
 -}
 declarationTypeAlias :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.TypeAlias
+    -> GrenSyntax.TypeAliasDeclarationInfo
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
     let
@@ -4255,7 +4255,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
 -}
 declarationChoiceType :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Type
+    -> GrenSyntax.ChoiceTypeDeclarationInfo
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
     let
@@ -4421,7 +4421,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
 
 {-| Print an [`GrenSyntax.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
 -}
-declarationInfix : GrenSyntax.Infix -> Print
+declarationInfix : GrenSyntax.InfixDeclarationInfo -> Print
 declarationInfix syntaxInfixDeclaration =
     Print.exactly
         ("infix "
@@ -4574,7 +4574,7 @@ commentsBetweenDocumentationAndDeclaration syntaxComments =
 -}
 declarationExpression :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Function
+    -> GrenSyntax.ValueOrFunctionDeclarationInfo
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
     let

@@ -2,11 +2,12 @@ module GrenSyntax exposing
     ( File, ModuleName, Import
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
-    , Declaration(..), Type, ValueConstructor, TypeAlias, Infix, InfixDirection(..)
-    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, Function, FunctionImplementation
+    , Declaration(..), ValueConstructor, InfixDirection(..)
+    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, FunctionImplementation
     , StringQuotingStyle(..)
     , TypeAnnotation(..), TypeAnnotationRecordField
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
+    , ChoiceTypeDeclarationInfo, InfixDeclarationInfo, TypeAliasDeclarationInfo, ValueOrFunctionDeclarationInfo
     )
 
 {-| Gren syntax tree
@@ -123,22 +124,22 @@ type alias Import =
 
 {-| A module-level declaration. Can be one of the following:
 
-  - Functions: `add x y = x + y`
-  - Custom types: `type Color = Blue | Red`
-  - Type aliases: `type alias Status = Int`
+  - Function/value declaration: `add x y = x + y`
+  - Custom type declaration: `type Color = Blue | Red`
+  - Type alias declaration: `type alias Status = Int`
   - Port declaration: `port sendMessage: String -> Cmd msg`
-  - Infix declarations. You will probably not need this, while only core packages can define these.
+  - Infix declaration. You will probably not need this, while only core packages can define these.
 
 -}
 type Declaration
-    = FunctionDeclaration Function
-    | AliasDeclaration TypeAlias
-    | CustomTypeDeclaration Type
+    = ValueOrFunctionDeclaration ValueOrFunctionDeclarationInfo
+    | AliasDeclaration TypeAliasDeclarationInfo
+    | ChoiceTypeDeclaration ChoiceTypeDeclarationInfo
     | PortDeclaration
         { name : Node String
         , typeAnnotation : Node TypeAnnotation
         }
-    | InfixDeclaration Infix
+    | InfixDeclaration InfixDeclarationInfo
 
 
 {-| custom type. For example:
@@ -149,7 +150,7 @@ type Declaration
         = Blue
         | Red
 -}
-type alias Type =
+type alias ChoiceTypeDeclarationInfo =
     { documentation : Maybe (Node String)
     , name : Node String
     , generics : List (Node String)
@@ -175,7 +176,7 @@ type alias ValueConstructor =
         }
 
 -}
-type alias TypeAlias =
+type alias TypeAliasDeclarationInfo =
     { documentation : Maybe (Node String)
     , name : Node String
     , generics : List (Node String)
@@ -185,7 +186,7 @@ type alias TypeAlias =
 
 {-| Type annotation for a infix definition
 -}
-type alias Infix =
+type alias InfixDeclarationInfo =
     { direction : Node InfixDirection
     , precedence : Node Int
     , operator : Node String
@@ -203,7 +204,7 @@ type InfixDirection
 
 {-| Type alias for a full function
 -}
-type alias Function =
+type alias ValueOrFunctionDeclarationInfo =
     { documentation : Maybe (Node String)
     , signature :
         Maybe
@@ -305,7 +306,7 @@ type alias LetBlock =
 {-| Union type for all possible declarations in a let block
 -}
 type LetDeclaration
-    = LetFunction Function
+    = LetFunction ValueOrFunctionDeclarationInfo
     | LetDestructuring (Node Pattern) (Node Expression)
 
 

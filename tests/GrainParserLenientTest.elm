@@ -641,7 +641,7 @@ b = 3
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 7, column = 10 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -669,7 +669,7 @@ b = 3
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 11, column = 1 }, end = { row = 13, column = 6 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Just (GrenSyntax.Node { start = { row = 11, column = 1 }, end = { row = 12, column = 3 } } "{-| doc\n-}")
                                             , signature = Nothing
                                             , declaration =
@@ -727,7 +727,7 @@ b = 3
                                         { start = { row = 3, column = 1 }
                                         , end = { row = 4, column = 6 }
                                         }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -747,7 +747,7 @@ b = 3
                                         { start = { row = 8, column = 1 }
                                         , end = { row = 10, column = 6 }
                                         }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Just (GrenSyntax.Node { start = { row = 8, column = 1 }, end = { row = 9, column = 3 } } "{-| doc\n-}")
                                             , signature = Nothing
                                             , declaration =
@@ -803,7 +803,7 @@ a = 1
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 6 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -842,7 +842,7 @@ b = 2
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 2, column = 1 }, end = { row = 2, column = 15 } }
-                                        (GrenSyntax.CustomTypeDeclaration
+                                        (GrenSyntax.ChoiceTypeDeclaration
                                             { documentation = Nothing
                                             , name = GrenSyntax.Node { start = { row = 2, column = 6 }, end = { row = 2, column = 7 } } "A"
                                             , generics = []
@@ -859,7 +859,7 @@ b = 2
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 6 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -881,7 +881,7 @@ b = 2
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 6, column = 6 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature =
                                                 Just
@@ -938,7 +938,7 @@ fun2 n =
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 5, column = 11 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -967,7 +967,7 @@ fun2 n =
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 7, column = 1 }, end = { row = 8, column = 9 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -1010,7 +1010,7 @@ fun2 n =
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 4, column = 9 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -1028,7 +1028,7 @@ fun2 n =
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 7, column = 1 }, end = { row = 8, column = 9 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -1073,7 +1073,7 @@ fun2 n =
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 4, column = 9 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -1091,7 +1091,7 @@ fun2 n =
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 7, column = 1 }, end = { row = 8, column = 9 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -1332,7 +1332,7 @@ caseWhitespace f = case f   of
                             , imports = []
                             , declarations =
                                 [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 11, column = 11 } }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Nothing
                                         , signature = Nothing
                                         , declaration =
@@ -1403,7 +1403,7 @@ lambdaWhitespace =   \\ a b ->    a
                             , imports = []
                             , declarations =
                                 [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 8, column = 6 } }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Nothing
                                         , signature = Nothing
                                         , declaration =
@@ -1463,7 +1463,7 @@ letWhitespace = let
                             , imports = []
                             , declarations =
                                 [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 8, column = 3 } }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Nothing
                                         , signature = Nothing
                                         , declaration =
@@ -1531,7 +1531,7 @@ type Configuration
                                 ]
                             , declarations =
                                 [ GrenSyntax.Node { start = { row = 6, column = 1 }, end = { row = 9, column = 20 } }
-                                    (GrenSyntax.CustomTypeDeclaration
+                                    (GrenSyntax.ChoiceTypeDeclaration
                                         { documentation = Just (GrenSyntax.Node { start = { row = 6, column = 1 }, end = { row = 7, column = 3 } } "{-| Config goes here\n-}")
                                         , name = GrenSyntax.Node { start = { row = 8, column = 6 }, end = { row = 8, column = 19 } } "Configuration"
                                         , generics = []
@@ -1573,7 +1573,7 @@ type Configuration
                             , imports = []
                             , declarations =
                                 [ GrenSyntax.Node { start = { row = 6, column = 1 }, end = { row = 7, column = 20 } }
-                                    (GrenSyntax.CustomTypeDeclaration
+                                    (GrenSyntax.ChoiceTypeDeclaration
                                         { documentation = Nothing
                                         , name = GrenSyntax.Node { start = { row = 6, column = 6 }, end = { row = 6, column = 19 } } "Configuration"
                                         , generics = []
@@ -1657,7 +1657,7 @@ sendResponse =
                             { comments = []
                             , declarations =
                                 [ GrenSyntax.Node { end = { column = 13, row = 5 }, start = { column = 1, row = 4 } }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { declaration =
                                             GrenSyntax.Node { end = { column = 13, row = 5 }, start = { column = 1, row = 4 } }
                                                 { arguments = []
@@ -1751,7 +1751,7 @@ a = 1
                     "foo = bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1770,7 +1770,7 @@ a = 1
 foo = bar"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 10 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Just (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 20 } } "{-| Foo does bar -}")
                                     , signature = Nothing
                                     , declaration =
@@ -1788,7 +1788,7 @@ foo = bar"""
                     "foo = {}"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1812,7 +1812,7 @@ foo = bar"""
   in a"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 7, column = 7 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1872,7 +1872,7 @@ foo = bar"""
                     "inc x = x + 1"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1899,7 +1899,7 @@ foo = bar"""
   b"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 5, column = 4 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1950,7 +1950,7 @@ foo = bar"""
   b"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 5, column = 4 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -1989,7 +1989,7 @@ foo = bar"""
   beginnerProgram { model = 0, view = view, update = update }"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 62 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2034,7 +2034,7 @@ foo = bar"""
       model - 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 7, column = 16 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2135,7 +2135,7 @@ foo = bar"""
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 23 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2161,7 +2161,7 @@ main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { end = { column = 23, row = 3 }, start = { column = 1, row = 1 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { declaration =
                                         GrenSyntax.Node { end = { column = 23, row = 3 }, start = { column = 1, row = 2 } }
                                             { arguments = []
@@ -2201,7 +2201,7 @@ main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { end = { column = 23, row = 3 }, start = { column = 1, row = 1 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { declaration =
                                         GrenSyntax.Node { end = { column = 23, row = 3 }, start = { column = 1, row = 2 } }
                                             { arguments = []
@@ -2240,7 +2240,7 @@ main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 23 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2266,7 +2266,7 @@ main =
                         |> expectSyntaxWithComments GrenParserLenient.declaration
                             { syntax =
                                 GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 12 } }
-                                    (GrenSyntax.FunctionDeclaration
+                                    (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Nothing
                                         , signature = Nothing
                                         , declaration =
@@ -2285,7 +2285,7 @@ main =
                     "updateState update sendPort = curry <| (uncurry update) >> batchStateCmds sendPort"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 83 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2335,7 +2335,7 @@ main =
       model - 1"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 7, column = 16 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -2381,7 +2381,7 @@ update msg model =
     msg"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 3, column = 8 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature =
                                         Just
@@ -2500,7 +2500,7 @@ type alias Foo = {color: String }"""
                     "type Color = Blue String | Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
-                                (GrenSyntax.CustomTypeDeclaration
+                                (GrenSyntax.ChoiceTypeDeclaration
                                     { documentation = Nothing
                                     , name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 11 } } "Color"
                                     , generics = []
@@ -2531,7 +2531,7 @@ type alias Foo = {color: String }"""
                     "type Color=| Blue String | Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
-                                (GrenSyntax.CustomTypeDeclaration
+                                (GrenSyntax.ChoiceTypeDeclaration
                                     { documentation = Nothing
                                     , name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 11 } } "Color"
                                     , generics = []
@@ -2562,7 +2562,7 @@ type alias Foo = {color: String }"""
                     "type Color = Blue String ||Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
-                                (GrenSyntax.CustomTypeDeclaration
+                                (GrenSyntax.ChoiceTypeDeclaration
                                     { documentation = Nothing
                                     , name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 11 } } "Color"
                                     , generics = []
@@ -2594,7 +2594,7 @@ type alias Foo = {color: String }"""
 type Color = Blue String | Red | Green"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 2, column = 39 } }
-                                (GrenSyntax.CustomTypeDeclaration
+                                (GrenSyntax.ChoiceTypeDeclaration
                                     { documentation = Just (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 19 } } "{-| Classic RGB -}")
                                     , name = GrenSyntax.Node { start = { row = 2, column = 6 }, end = { row = 2, column = 11 } } "Color"
                                     , generics = []
@@ -2634,7 +2634,7 @@ a"""
                     "type Maybe a = Just a | Nothing"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 32 } }
-                                (GrenSyntax.CustomTypeDeclaration
+                                (GrenSyntax.ChoiceTypeDeclaration
                                     { documentation = Nothing
                                     , name = GrenSyntax.Node { start = { row = 1, column = 6 }, end = { row = 1, column = 11 } } "Maybe"
                                     , generics = [ GrenSyntax.Node { start = { row = 1, column = 12 }, end = { row = 1, column = 13 } } "a" ]
@@ -4256,7 +4256,7 @@ Nothing"""
                     "a = [0,-x]"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { signature = Nothing
                                     , documentation = Nothing
                                     , declaration =
@@ -4426,7 +4426,7 @@ Nothing"""
                     "a = -x"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { signature = Nothing
                                     , documentation = Nothing
                                     , declaration =
@@ -4450,7 +4450,7 @@ Nothing"""
                     "foo=-1"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
@@ -4487,7 +4487,7 @@ Nothing"""
                     "a = -(x - y)"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { signature = Nothing
                                     , documentation = Nothing
                                     , declaration =
@@ -4522,7 +4522,7 @@ Nothing"""
                     "a = -1 + -10 * -100^2 == -100001"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             (GrenSyntax.Node { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
-                                (GrenSyntax.FunctionDeclaration
+                                (GrenSyntax.ValueOrFunctionDeclaration
                                     { signature = Nothing
                                     , documentation = Nothing
                                     , declaration =
@@ -6335,7 +6335,7 @@ bar = 1
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 7, column = 8 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Just (GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 6, column = 3 } } "{-| The docs\n-}")
                                             , signature = Nothing
                                             , declaration =
@@ -6383,7 +6383,7 @@ bar = 1
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 8, column = 8 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation =
                                                 Just (GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 6, column = 3 } } "{-| The docs\n-}")
                                             , signature =
@@ -6429,7 +6429,7 @@ bar = 1
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 4, column = 8 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6469,7 +6469,7 @@ bar = {- comment 3 -} 1 -- comment 4
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 24 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6514,7 +6514,7 @@ bar = 1
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 4, column = 8 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6608,7 +6608,7 @@ type Foo
                                     ]
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 8, column = 10 } }
-                                        (GrenSyntax.CustomTypeDeclaration
+                                        (GrenSyntax.ChoiceTypeDeclaration
                                             { documentation =
                                                 Just
                                                     (GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 15 } }
@@ -6661,7 +6661,7 @@ log a =
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 6, column = 21 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Just (GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 4, column = 17 } } { name = GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 4, column = 4 } } "log", typeAnnotation = GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 17 } } (GrenSyntax.TypeAnnotationFunction (GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } } (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } } ( [], "Int" )) [])) (GrenSyntax.Node { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } } (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } } ( [], "Int" )) []))) })
                                             , declaration =
@@ -6705,7 +6705,7 @@ bar = (x + 1) * (2 * y)
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 24 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6765,7 +6765,7 @@ bar = x + 1 * 2
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 16 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6813,7 +6813,7 @@ bar = x * 1 + 2
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 16 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6860,7 +6860,7 @@ bar = -(1 * 2)
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 15 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6911,7 +6911,7 @@ bar = (1 * 2).x
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 16 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6969,7 +6969,7 @@ numeric2 = 1 + 2 * 3 ^ 4
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 29 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -6991,7 +6991,7 @@ numeric2 = 1 + 2 * 3 ^ 4
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 4, column = 1 }, end = { row = 4, column = 29 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -7013,7 +7013,7 @@ numeric2 = 1 + 2 * 3 ^ 4
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 6, column = 1 }, end = { row = 6, column = 25 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -7043,7 +7043,7 @@ numeric2 = 1 + 2 * 3 ^ 4
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 7, column = 1 }, end = { row = 7, column = 25 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -7099,7 +7099,7 @@ pipeline1 = 1 |> 2 |> 3
                                 , imports = []
                                 , declarations =
                                     [ GrenSyntax.Node { start = { row = 3, column = 1 }, end = { row = 3, column = 21 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -7121,7 +7121,7 @@ pipeline1 = 1 |> 2 |> 3
                                             }
                                         )
                                     , GrenSyntax.Node { start = { row = 5, column = 1 }, end = { row = 5, column = 24 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { documentation = Nothing
                                             , signature = Nothing
                                             , declaration =
@@ -7163,7 +7163,7 @@ pipeline1 = 1 /= 2
                                 { comments = []
                                 , declarations =
                                     [ GrenSyntax.Node { end = { column = 19, row = 3 }, start = { column = 1, row = 3 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 19, row = 3 }, start = { column = 1, row = 3 } }
                                                     { arguments = []
@@ -7184,7 +7184,7 @@ pipeline1 = 1 /= 2
                                             }
                                         )
                                     , GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
                                                     { arguments = []
@@ -7234,7 +7234,7 @@ pipeline1 = 1 /= 2
                                 { comments = []
                                 , declarations =
                                     [ GrenSyntax.Node { end = { column = 20, row = 3 }, start = { column = 1, row = 3 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 20, row = 3 }, start = { column = 1, row = 3 } }
                                                     { arguments = []
@@ -7255,7 +7255,7 @@ pipeline1 = 1 /= 2
                                             }
                                         )
                                     , GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
                                                     { arguments = []
@@ -7305,7 +7305,7 @@ pipeline1 = 1 == 2
                                 { comments = []
                                 , declarations =
                                     [ GrenSyntax.Node { end = { column = 20, row = 3 }, start = { column = 1, row = 3 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 20, row = 3 }, start = { column = 1, row = 3 } }
                                                     { arguments = []
@@ -7326,7 +7326,7 @@ pipeline1 = 1 == 2
                                             }
                                         )
                                     , GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 19, row = 5 }, start = { column = 1, row = 5 } }
                                                     { arguments = []
@@ -7376,7 +7376,7 @@ pipeline1 = 1 ^ 2
                                 { comments = []
                                 , declarations =
                                     [ GrenSyntax.Node { end = { column = 19, row = 3 }, start = { column = 1, row = 3 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 19, row = 3 }, start = { column = 1, row = 3 } }
                                                     { arguments = []
@@ -7397,7 +7397,7 @@ pipeline1 = 1 ^ 2
                                             }
                                         )
                                     , GrenSyntax.Node { end = { column = 18, row = 5 }, start = { column = 1, row = 5 } }
-                                        (GrenSyntax.FunctionDeclaration
+                                        (GrenSyntax.ValueOrFunctionDeclaration
                                             { declaration =
                                                 GrenSyntax.Node { end = { column = 18, row = 5 }, start = { column = 1, row = 5 } }
                                                     { arguments = []

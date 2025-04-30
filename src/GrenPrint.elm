@@ -265,7 +265,7 @@ declarationPort syntaxComments signature =
 -}
 declarationTypeAlias :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.TypeAlias
+    -> GrenSyntax.TypeAliasDeclarationInfo
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
     \state ->
@@ -277,7 +277,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
 -}
 declarationChoiceType :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Type
+    -> GrenSyntax.ChoiceTypeDeclarationInfo
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
     \state ->
@@ -287,7 +287,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
 
 {-| Print an [`GrenSyntax.Infix`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Infix#Infix) declaration
 -}
-declarationInfix : GrenSyntax.Infix -> Print
+declarationInfix : GrenSyntax.InfixDeclarationInfo -> Print
 declarationInfix syntaxInfixDeclaration =
     \state ->
         GrenPrintDefunctionalized.declarationInfix syntaxInfixDeclaration
@@ -298,7 +298,7 @@ declarationInfix syntaxInfixDeclaration =
 -}
 declarationExpression :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Function
+    -> GrenSyntax.ValueOrFunctionDeclarationInfo
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
     \state ->
