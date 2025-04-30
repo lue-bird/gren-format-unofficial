@@ -2,7 +2,7 @@ module GrenSyntax exposing
     ( File, ModuleName, Import
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
-    , Declaration(..), ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
+    , Declaration(..), ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
     , Pattern(..), Expression(..), LetBlock, LetDeclaration(..), ValueOrFunctionDeclarationInfo
     , StringQuotingStyle(..)
     , TypeAnnotation(..)
@@ -14,7 +14,7 @@ module GrenSyntax exposing
 @docs File, ModuleName, Import
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
-@docs Declaration, ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
+@docs Declaration, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
 @docs Pattern, Expression, LetBlock, LetDeclaration, ValueOrFunctionDeclarationInfo
 @docs StringQuotingStyle
 @docs TypeAnnotation
@@ -153,15 +153,13 @@ type alias ChoiceTypeDeclarationInfo =
     { documentation : Maybe (Node String)
     , name : Node String
     , generics : List (Node String)
-    , constructors : List (Node ValueConstructor)
-    }
-
-
-{-| Syntax for a custom type value constructor.
--}
-type alias ValueConstructor =
-    { name : Node String
-    , value : Maybe (Node TypeAnnotation)
+    , constructors :
+        List
+            (Node
+                { name : Node String
+                , value : Maybe (Node TypeAnnotation)
+                }
+            )
     }
 
 

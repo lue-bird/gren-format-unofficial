@@ -1107,8 +1107,18 @@ type DeclarationAfterDocumentation
     | TypeDeclarationAfterDocumentation
         { name : GrenSyntax.Node String
         , parameters : List (GrenSyntax.Node String)
-        , headVariant : GrenSyntax.Node GrenSyntax.ValueConstructor
-        , tailVariantsReverse : List (GrenSyntax.Node GrenSyntax.ValueConstructor)
+        , headVariant :
+            GrenSyntax.Node
+                { name : GrenSyntax.Node String
+                , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                }
+        , tailVariantsReverse :
+            List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                    }
+                )
         }
     | TypeAliasDeclarationAfterDocumentation
         { name : GrenSyntax.Node String
@@ -1126,8 +1136,18 @@ type TypeOrTypeAliasDeclarationWithoutDocumentation
     = TypeDeclarationWithoutDocumentation
         { name : GrenSyntax.Node String
         , parameters : List (GrenSyntax.Node String)
-        , headVariant : GrenSyntax.Node GrenSyntax.ValueConstructor
-        , tailVariantsReverse : List (GrenSyntax.Node GrenSyntax.ValueConstructor)
+        , headVariant :
+            GrenSyntax.Node
+                { name : GrenSyntax.Node String
+                , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                }
+        , tailVariantsReverse :
+            List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                    }
+                )
         }
     | TypeAliasDeclarationWithoutDocumentation
         { name : GrenSyntax.Node String
@@ -1767,7 +1787,15 @@ choiceTypeDefinitionWithoutDocumentationAfterTypePrefix =
         )
 
 
-variantDeclarationFollowedByWhitespaceAndComments : Parser (WithComments (GrenSyntax.Node GrenSyntax.ValueConstructor))
+variantDeclarationFollowedByWhitespaceAndComments :
+    Parser
+        (WithComments
+            (GrenSyntax.Node
+                { name : GrenSyntax.Node String
+                , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                }
+            )
+        )
 variantDeclarationFollowedByWhitespaceAndComments =
     ParserFast.map3
         (\nameNode commentsAfterName maybeValue ->
