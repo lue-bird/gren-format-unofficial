@@ -1981,7 +1981,10 @@ typeRecordOrRecordExtension =
 
                                 FieldsAfterName fieldsAfterName ->
                                     GrenSyntax.TypeAnnotationRecord
-                                        (GrenSyntax.nodeCombine Tuple.pair
+                                        (GrenSyntax.nodeCombine
+                                            (\name value ->
+                                                { name = name, value = value }
+                                            )
                                             firstNameNode
                                             fieldsAfterName.firstFieldValue
                                             :: fieldsAfterName.tailFields
@@ -2122,7 +2125,7 @@ typeRecordFieldDefinitionFollowedByWhitespaceAndComments =
                     |> ropePrependTo commentsAfterColon
                     |> ropePrependTo value.comments
                     |> ropePrependTo commentsAfterValue
-            , syntax = GrenSyntax.Node range ( name, value.syntax )
+            , syntax = GrenSyntax.Node range { name = name, value = value.syntax }
             }
         )
         nameLowercaseNodeUnderscoreSuffixingKeywords
@@ -2611,7 +2614,10 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
 
                                         FieldsFirstValue firstFieldValue ->
                                             GrenSyntax.ExpressionRecord
-                                                (GrenSyntax.nodeCombine Tuple.pair
+                                                (GrenSyntax.nodeCombine
+                                                    (\name value ->
+                                                        { name = name, value = value }
+                                                    )
                                                     nameNode
                                                     firstFieldValue
                                                     :: tailFields.syntax
@@ -2620,16 +2626,17 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                         FieldsFirstValuePunned () ->
                                             GrenSyntax.ExpressionRecord
                                                 (GrenSyntax.Node firstFieldNameOrExpressionRange
-                                                    ( nameNode
-                                                    , -- dummy
-                                                      GrenSyntax.Node
-                                                        { start = firstFieldNameOrExpressionRange.end
-                                                        , end = firstFieldNameOrExpressionRange.end
-                                                        }
-                                                        (GrenSyntax.ExpressionReference []
-                                                            potentialFirstFieldName
-                                                        )
-                                                    )
+                                                    { name = nameNode
+                                                    , value =
+                                                        -- dummy
+                                                        GrenSyntax.Node
+                                                            { start = firstFieldNameOrExpressionRange.end
+                                                            , end = firstFieldNameOrExpressionRange.end
+                                                            }
+                                                            (GrenSyntax.ExpressionReference []
+                                                                potentialFirstFieldName
+                                                            )
+                                                    }
                                                     :: tailFields.syntax
                                                 )
                                 }
@@ -2677,9 +2684,9 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                     GrenSyntax.ExpressionRecord
                                                         (GrenSyntax.Node
                                                             (firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange)
-                                                            ( nameNode
-                                                            , firstFieldValueNode
-                                                            )
+                                                            { name = nameNode
+                                                            , value = firstFieldValueNode
+                                                            }
                                                             :: tailFields.syntax
                                                         )
                                                 }
@@ -2788,16 +2795,17 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                         commentsAfterName |> ropePrependTo commentsAfterEquals
                     , syntax =
                         GrenSyntax.Node range
-                            ( nameNode
-                            , -- dummy
-                              GrenSyntax.Node
-                                { start = nameNode |> GrenSyntax.nodeRange |> .end
-                                , end = nameNode |> GrenSyntax.nodeRange |> .end
-                                }
-                                (GrenSyntax.ExpressionReference []
-                                    (nameNode |> GrenSyntax.nodeValue)
-                                )
-                            )
+                            { name = nameNode
+                            , value =
+                                -- dummy
+                                GrenSyntax.Node
+                                    { start = nameNode |> GrenSyntax.nodeRange |> .end
+                                    , end = nameNode |> GrenSyntax.nodeRange |> .end
+                                    }
+                                    (GrenSyntax.ExpressionReference []
+                                        (nameNode |> GrenSyntax.nodeValue)
+                                    )
+                            }
                     }
 
                 Just expressionResult ->
@@ -2807,9 +2815,9 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                             |> ropePrependTo expressionResult.comments
                     , syntax =
                         GrenSyntax.Node range
-                            ( nameNode
-                            , expressionResult.syntax
-                            )
+                            { name = nameNode
+                            , value = expressionResult.syntax
+                            }
                     }
         )
         nameLowercaseNodeUnderscoreSuffixingKeywords

@@ -284,10 +284,10 @@ type StringQuotingStyle
     | StringTripleQuoted
 
 
-{-| Expression for setting a record field
+{-| Expression for a record field
 -}
 type alias RecordSetter =
-    ( Node String, Node Expression )
+    { name : Node String, value : Node Expression }
 
 
 {-| Expression for a let block
@@ -343,7 +343,7 @@ type TypeAnnotation
 {-| Single field of a record. A name and its type.
 -}
 type alias TypeAnnotationRecordField =
-    ( Node String, Node TypeAnnotation )
+    { name : Node String, value : Node TypeAnnotation }
 
 
 {-| Custom type for all patterns such as:

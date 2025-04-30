@@ -2758,9 +2758,9 @@ typeRecordExtension :
         , fields :
             List
                 (GrenSyntax.Node
-                    ( GrenSyntax.Node String
-                    , GrenSyntax.Node GrenSyntax.TypeAnnotation
-                    )
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                    }
                 )
         }
     -> Print
@@ -2783,9 +2783,9 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
             , reverse :
                 List
                     { syntax :
-                        ( GrenSyntax.Node String
-                        , GrenSyntax.Node GrenSyntax.TypeAnnotation
-                        )
+                        { name : GrenSyntax.Node String
+                        , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                        }
                     , valuePrint : Print
                     , maybeCommentsBeforeName : Maybe { print : Print, lineSpread : Print.LineSpread }
                     , maybeCommentsBetweenNameAndValue : Maybe { print : Print, lineSpread : Print.LineSpread }
@@ -2794,10 +2794,13 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         fieldPrintsAndComments =
             syntaxRecordExtension.fields
                 |> List.foldl
-                    (\(GrenSyntax.Node _ ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
+                    (\(GrenSyntax.Node _ field) soFar ->
                         let
+                            (GrenSyntax.Node fieldNameRange fieldName) =
+                                field.name
+
                             (GrenSyntax.Node fieldValueRange _) =
-                                fieldValueNode
+                                field.value
 
                             commentsBeforeName : List String
                             commentsBeforeName =
@@ -2813,8 +2816,8 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                         in
                         { endLocation = fieldValueRange.end
                         , reverse =
-                            { syntax = ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )
-                            , valuePrint = typeNotParenthesized syntaxComments fieldValueNode
+                            { syntax = field
+                            , valuePrint = typeNotParenthesized syntaxComments field.value
                             , maybeCommentsBeforeName =
                                 case commentsBeforeName of
                                     [] ->
@@ -2920,14 +2923,14 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                             |> Print.listReverseAndMapAndIntersperseAndFlatten
                                 (\field ->
                                     let
-                                        ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode ) =
-                                            field.syntax
+                                        (GrenSyntax.Node fieldNameRange fieldName) =
+                                            field.syntax.name
 
                                         lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                         lineSpreadBetweenNameAndValueNotConsideringComments () =
                                             lineSpreadInRange
                                                 { start = fieldNameRange.start
-                                                , end = fieldValueNode |> GrenSyntax.nodeRange |> .end
+                                                , end = field.syntax.value |> GrenSyntax.nodeRange |> .end
                                                 }
                                                 |> Print.lineSpreadMergeWith
                                                     (\() -> field.valuePrint |> Print.lineSpread)
@@ -3080,16 +3083,19 @@ construct specific syntaxComments syntaxConstruct =
 
 recordLiteral :
     { nameValueSeparator : String
-    , printValueNotParenthesized : List (GrenSyntax.Node String) -> GrenSyntax.Node fieldValue -> Print
+    , printValueNotParenthesized :
+        List (GrenSyntax.Node String)
+        -> GrenSyntax.Node fieldValue
+        -> Print
     }
     -> List (GrenSyntax.Node String)
     ->
         { fields :
             List
                 (GrenSyntax.Node
-                    ( GrenSyntax.Node String
-                    , GrenSyntax.Node fieldValue
-                    )
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node fieldValue
+                    }
                 )
         , fullRange : GrenSyntax.Range
         }
@@ -3125,9 +3131,9 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                     , reverse :
                         List
                             { syntax :
-                                ( GrenSyntax.Node String
-                                , GrenSyntax.Node fieldValue
-                                )
+                                { name : GrenSyntax.Node String
+                                , value : GrenSyntax.Node fieldValue
+                                }
                             , valuePrint : Print
                             , maybeCommentsBeforeName : Maybe { print : Print, lineSpread : Print.LineSpread }
                             , maybeCommentsBetweenNameAndValue : Maybe { print : Print, lineSpread : Print.LineSpread }
@@ -3136,10 +3142,13 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 fieldPrintsAndComments =
                     (field0 :: field1Up)
                         |> List.foldl
-                            (\(GrenSyntax.Node _ ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )) soFar ->
+                            (\(GrenSyntax.Node _ field) soFar ->
                                 let
+                                    (GrenSyntax.Node fieldNameRange fieldName) =
+                                        field.name
+
                                     (GrenSyntax.Node fieldValueRange _) =
-                                        fieldValueNode
+                                        field.value
 
                                     commentsBeforeName : List String
                                     commentsBeforeName =
@@ -3155,8 +3164,8 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                 in
                                 { endLocation = fieldValueRange.end
                                 , reverse =
-                                    { syntax = ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode )
-                                    , valuePrint = fieldSpecific.printValueNotParenthesized syntaxComments fieldValueNode
+                                    { syntax = field
+                                    , valuePrint = fieldSpecific.printValueNotParenthesized syntaxComments field.value
                                     , maybeCommentsBeforeName =
                                         case commentsBeforeName of
                                             [] ->
@@ -3231,26 +3240,29 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 |> Print.followedBy
                     (fieldPrintsAndComments.reverse
                         |> Print.listReverseAndMapAndIntersperseAndFlatten
-                            (\field ->
+                            (\fieldPrintAndComment ->
                                 let
-                                    ( GrenSyntax.Node fieldNameRange fieldName, fieldValue ) =
-                                        field.syntax
+                                    field =
+                                        fieldPrintAndComment.syntax
+
+                                    (GrenSyntax.Node fieldNameRange fieldName) =
+                                        field.name
 
                                     lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                     lineSpreadBetweenNameAndValueNotConsideringComments () =
                                         lineSpreadInRange
                                             { start = fieldNameRange.start
-                                            , end = fieldValue |> GrenSyntax.nodeRange |> .end
+                                            , end = field.value |> GrenSyntax.nodeRange |> .end
                                             }
                                             |> Print.lineSpreadMergeWith
-                                                (\() -> field.valuePrint |> Print.lineSpread)
+                                                (\() -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
 
                                     nameSeparatorValuePrint : Print
                                     nameSeparatorValuePrint =
                                         Print.exactly (fieldName ++ " " ++ fieldSpecific.nameValueSeparator)
                                             |> Print.followedBy
                                                 (Print.withIndentAtNextMultipleOf4
-                                                    ((case field.maybeCommentsBetweenNameAndValue of
+                                                    ((case fieldPrintAndComment.maybeCommentsBetweenNameAndValue of
                                                         Nothing ->
                                                             Print.spaceOrLinebreakIndented
                                                                 (lineSpreadBetweenNameAndValueNotConsideringComments ())
@@ -3266,16 +3278,16 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                                                     (Print.spaceOrLinebreakIndented
                                                                         (commentsBetweenNameAndValue.lineSpread
                                                                             |> Print.lineSpreadMergeWith
-                                                                                (\() -> field.valuePrint |> Print.lineSpread)
+                                                                                (\() -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
                                                                         )
                                                                     )
                                                      )
-                                                        |> Print.followedBy field.valuePrint
+                                                        |> Print.followedBy fieldPrintAndComment.valuePrint
                                                     )
                                                 )
                                 in
                                 Print.withIndentIncreasedBy 2
-                                    (case field.maybeCommentsBeforeName of
+                                    (case fieldPrintAndComment.maybeCommentsBeforeName of
                                         Nothing ->
                                             nameSeparatorValuePrint
 
@@ -5639,9 +5651,9 @@ expressionRecordUpdate :
         , fields :
             List
                 (GrenSyntax.Node
-                    ( GrenSyntax.Node String
-                    , GrenSyntax.Node GrenSyntax.Expression
-                    )
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.Expression
+                    }
                 )
         }
     -> Print
@@ -5656,15 +5668,15 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                 |> List.foldl
                     (\(GrenSyntax.Node _ fieldSyntax) soFar ->
                         let
-                            ( GrenSyntax.Node fieldNameRange fieldName, fieldValueNode ) =
-                                fieldSyntax
+                            (GrenSyntax.Node fieldNameRange fieldName) =
+                                fieldSyntax.name
 
                             valuePrint : Print
                             valuePrint =
-                                expressionNotParenthesized syntaxComments fieldValueNode
+                                expressionNotParenthesized syntaxComments fieldSyntax.value
 
                             (GrenSyntax.Node fieldValueRange _) =
-                                fieldValueNode
+                                fieldSyntax.value
                         in
                         { endLocation = fieldValueRange.end
                         , reverse =
@@ -5699,7 +5711,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                 Print.spaceOrLinebreakIndented
                                                     (lineSpreadBetweenRanges
                                                         fieldNameRange
-                                                        (fieldValueNode |> GrenSyntax.nodeRange)
+                                                        fieldValueRange
                                                         |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                     )
 
@@ -5717,7 +5729,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                                     (\() ->
                                                                         lineSpreadBetweenRanges
                                                                             fieldNameRange
-                                                                            (fieldValueNode |> GrenSyntax.nodeRange)
+                                                                            fieldValueRange
                                                                     )
                                                                 |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                             )
