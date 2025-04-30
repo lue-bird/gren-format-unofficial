@@ -3,9 +3,9 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, ValueOrFunctionDeclarationInfo
+    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), Case, ValueOrFunctionDeclarationInfo
     , StringQuotingStyle(..)
-    , TypeAnnotation(..), TypeAnnotationRecordField
+    , TypeAnnotation(..)
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
     )
 
@@ -15,9 +15,9 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, ValueOrFunctionDeclarationInfo
+@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, Case, ValueOrFunctionDeclarationInfo
 @docs StringQuotingStyle
-@docs TypeAnnotation, TypeAnnotationRecordField
+@docs TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
 
 -}
@@ -269,11 +269,26 @@ type Expression
         , cases : List Case
         }
     | ExpressionLambda Lambda
-    | ExpressionRecord (List (Node RecordSetter))
+    | ExpressionRecord
+        (List
+            (Node
+                { name : Node String
+                , value : Node Expression
+                }
+            )
+        )
     | ExpressionArray (List (Node Expression))
     | ExpressionRecordAccess (Node Expression) (Node String)
     | ExpressionRecordAccessFunction String
-    | ExpressionRecordUpdate (Node Expression) (List (Node RecordSetter))
+    | ExpressionRecordUpdate
+        (Node Expression)
+        (List
+            (Node
+                { name : Node String
+                , value : Node Expression
+                }
+            )
+        )
 
 
 {-| String literals can be single double-quoted (single line) and triple double-quoted (usually multi-line)?
@@ -282,12 +297,6 @@ Used by [`ExpressionString`](#Expression) and [`PatternString`](#Pattern)
 type StringQuotingStyle
     = StringSingleQuoted
     | StringTripleQuoted
-
-
-{-| Expression for a record field
--}
-type alias RecordSetter =
-    { name : Node String, value : Node Expression }
 
 
 {-| Expression for a let block
@@ -335,15 +344,26 @@ type TypeAnnotation
     | TypeAnnotationConstruct (Node ( ModuleName, String )) (List (Node TypeAnnotation))
     | TypeAnnotationUnit
     | TypeAnnotationParenthesized (Node TypeAnnotation)
-    | TypeAnnotationRecord (List (Node TypeAnnotationRecordField))
-    | TypeAnnotationRecordExtension (Node String) (Node (List (Node TypeAnnotationRecordField)))
+    | TypeAnnotationRecord
+        (List
+            (Node
+                { name : Node String
+                , value : Node TypeAnnotation
+                }
+            )
+        )
+    | TypeAnnotationRecordExtension
+        (Node String)
+        (Node
+            (List
+                (Node
+                    { name : Node String
+                    , value : Node TypeAnnotation
+                    }
+                )
+            )
+        )
     | TypeAnnotationFunction (Node TypeAnnotation) (Node TypeAnnotation)
-
-
-{-| Single field of a record. A name and its type.
--}
-type alias TypeAnnotationRecordField =
-    { name : Node String, value : Node TypeAnnotation }
 
 
 {-| Custom type for all patterns such as:

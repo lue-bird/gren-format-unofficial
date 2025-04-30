@@ -2072,11 +2072,39 @@ typeRecordEmpty =
 
 
 type RecordFieldsOrExtensionAfterName
-    = RecordExtensionExpressionAfterName (GrenSyntax.Node (List (GrenSyntax.Node GrenSyntax.TypeAnnotationRecordField)))
-    | FieldsAfterName { firstFieldValue : GrenSyntax.Node GrenSyntax.TypeAnnotation, tailFields : List (GrenSyntax.Node GrenSyntax.TypeAnnotationRecordField) }
+    = RecordExtensionExpressionAfterName
+        (GrenSyntax.Node
+            (List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                    }
+                )
+            )
+        )
+    | FieldsAfterName
+        { firstFieldValue : GrenSyntax.Node GrenSyntax.TypeAnnotation
+        , tailFields :
+            List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                    }
+                )
+        }
 
 
-recordFieldsTypeAnnotation : Parser (WithComments (List (GrenSyntax.Node GrenSyntax.TypeAnnotationRecordField)))
+recordFieldsTypeAnnotation :
+    Parser
+        (WithComments
+            (List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                    }
+                )
+            )
+        )
 recordFieldsTypeAnnotation =
     ParserFast.map4
         (\commentsBefore commentsWithExtraComma head tail ->
@@ -2116,7 +2144,15 @@ recordFieldsTypeAnnotation =
         )
 
 
-typeRecordFieldDefinitionFollowedByWhitespaceAndComments : Parser (WithComments (GrenSyntax.Node GrenSyntax.TypeAnnotationRecordField))
+typeRecordFieldDefinitionFollowedByWhitespaceAndComments :
+    Parser
+        (WithComments
+            (GrenSyntax.Node
+                { name : GrenSyntax.Node String
+                , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
+                }
+            )
+        )
 typeRecordFieldDefinitionFollowedByWhitespaceAndComments =
     ParserFast.map5WithRange
         (\range name commentsAfterName commentsAfterColon value commentsAfterValue ->
@@ -2755,12 +2791,27 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
 
 
 type RecordFieldsOrUpdateAfterName
-    = RecordUpdateFirstSetter (GrenSyntax.Node GrenSyntax.RecordSetter)
+    = RecordUpdateFirstSetter
+        (GrenSyntax.Node
+            { name : GrenSyntax.Node String
+            , value : GrenSyntax.Node GrenSyntax.Expression
+            }
+        )
     | FieldsFirstValue (GrenSyntax.Node GrenSyntax.Expression)
     | FieldsFirstValuePunned ()
 
 
-recordFields : Parser (WithComments (List (GrenSyntax.Node GrenSyntax.RecordSetter)))
+recordFields :
+    Parser
+        (WithComments
+            (List
+                (GrenSyntax.Node
+                    { name : GrenSyntax.Node String
+                    , value : GrenSyntax.Node GrenSyntax.Expression
+                    }
+                )
+            )
+        )
 recordFields =
     manyWithComments
         (ParserFast.symbolFollowedBy ","
@@ -2783,7 +2834,15 @@ recordFields =
         )
 
 
-recordSetterNodeFollowedByWhitespaceAndComments : Parser (WithComments (GrenSyntax.Node GrenSyntax.RecordSetter))
+recordSetterNodeFollowedByWhitespaceAndComments :
+    Parser
+        (WithComments
+            (GrenSyntax.Node
+                { name : GrenSyntax.Node String
+                , value : GrenSyntax.Node GrenSyntax.Expression
+                }
+            )
+        )
 recordSetterNodeFollowedByWhitespaceAndComments =
     ParserFast.map4WithRange
         (\range nameNode commentsAfterName commentsAfterEquals maybeValueResult ->
