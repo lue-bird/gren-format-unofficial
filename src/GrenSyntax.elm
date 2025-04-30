@@ -2,12 +2,11 @@ module GrenSyntax exposing
     ( File, ModuleName, Import
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
-    , Declaration(..), ValueConstructor, InfixDirection(..)
-    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, FunctionImplementation
+    , Declaration(..), ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
+    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), RecordSetter, Case, ValueOrFunctionDeclarationInfo
     , StringQuotingStyle(..)
     , TypeAnnotation(..), TypeAnnotationRecordField
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
-    , ChoiceTypeDeclarationInfo, InfixDeclarationInfo, TypeAliasDeclarationInfo, ValueOrFunctionDeclarationInfo
     )
 
 {-| Gren syntax tree
@@ -15,8 +14,8 @@ module GrenSyntax exposing
 @docs File, ModuleName, Import
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
-@docs Declaration, Type, ValueConstructor, TypeAlias, Infix, InfixDirection
-@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, Function, FunctionImplementation
+@docs Declaration, ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
+@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, RecordSetter, Case, ValueOrFunctionDeclarationInfo
 @docs StringQuotingStyle
 @docs TypeAnnotation, TypeAnnotationRecordField
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -194,7 +193,7 @@ type alias InfixDeclarationInfo =
     }
 
 
-{-| Union type for infix direction
+{-| Infix operator associativity
 -}
 type InfixDirection
     = Left
@@ -202,7 +201,7 @@ type InfixDirection
     | Non
 
 
-{-| Type alias for a full function
+{-| value/full function declaration
 -}
 type alias ValueOrFunctionDeclarationInfo =
     { documentation : Maybe (Node String)
@@ -213,16 +212,12 @@ type alias ValueOrFunctionDeclarationInfo =
                 , typeAnnotation : Node TypeAnnotation
                 }
             )
-    , declaration : Node FunctionImplementation
-    }
-
-
-{-| Type alias for a function's implementation
--}
-type alias FunctionImplementation =
-    { name : Node String
-    , arguments : List (Node Pattern)
-    , expression : Node Expression
+    , declaration :
+        Node
+            { name : Node String
+            , arguments : List (Node Pattern)
+            , expression : Node Expression
+            }
     }
 
 

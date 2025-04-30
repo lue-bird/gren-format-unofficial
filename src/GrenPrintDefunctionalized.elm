@@ -4450,7 +4450,11 @@ infixDirection syntaxInfixDirection =
 
 declarationExpressionImplementation :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.FunctionImplementation
+    ->
+        { name : GrenSyntax.Node String
+        , arguments : List (GrenSyntax.Node GrenSyntax.Pattern)
+        , expression : GrenSyntax.Node GrenSyntax.Expression
+        }
     -> Print
 declarationExpressionImplementation syntaxComments implementation =
     let
