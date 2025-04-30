@@ -3,7 +3,7 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), Case, ValueOrFunctionDeclarationInfo
+    , Pattern(..), Expression(..), Lambda, LetBlock, LetDeclaration(..), ValueOrFunctionDeclarationInfo
     , StringQuotingStyle(..)
     , TypeAnnotation(..)
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
@@ -15,7 +15,7 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, ChoiceTypeDeclarationInfo, ValueConstructor, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, Case, ValueOrFunctionDeclarationInfo
+@docs Pattern, Expression, Lambda, LetBlock, LetDeclaration, ValueOrFunctionDeclarationInfo
 @docs StringQuotingStyle
 @docs TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -266,7 +266,11 @@ type Expression
     | ExpressionLetIn LetBlock
     | ExpressionCaseOf
         { expression : Node Expression
-        , cases : List Case
+        , cases :
+            List
+                { pattern : Node Pattern
+                , result : Node Expression
+                }
         }
     | ExpressionLambda Lambda
     | ExpressionRecord
@@ -319,14 +323,6 @@ type LetDeclaration
 type alias Lambda =
     { args : List (Node Pattern)
     , expression : Node Expression
-    }
-
-
-{-| A case in a case block
--}
-type alias Case =
-    { pattern : Node Pattern
-    , result : Node Expression
     }
 
 

@@ -3043,7 +3043,18 @@ expressionOldCaseOfFollowedByOptimisticLayout =
         )
 
 
-casesFollowedByWhitespaceAndComments : Parser (WithComments ( GrenSyntax.Case, List GrenSyntax.Case ))
+casesFollowedByWhitespaceAndComments :
+    Parser
+        (WithComments
+            ( { pattern : GrenSyntax.Node GrenSyntax.Pattern
+              , result : GrenSyntax.Node GrenSyntax.Expression
+              }
+            , List
+                { pattern : GrenSyntax.Node GrenSyntax.Pattern
+                , result : GrenSyntax.Node GrenSyntax.Expression
+                }
+            )
+        )
 casesFollowedByWhitespaceAndComments =
     ParserFast.map5
         (\firstCasePatternResult commentsAfterFirstCasePattern commentsAfterFirstCaseArrowRight firstCaseExpressionResult lastToSecondCase ->
@@ -3072,7 +3083,13 @@ casesFollowedByWhitespaceAndComments =
         (manyWithCommentsReverse caseStatementFollowedByWhitespaceAndComments)
 
 
-caseStatementFollowedByWhitespaceAndComments : Parser (WithComments GrenSyntax.Case)
+caseStatementFollowedByWhitespaceAndComments :
+    Parser
+        (WithComments
+            { pattern : GrenSyntax.Node GrenSyntax.Pattern
+            , result : GrenSyntax.Node GrenSyntax.Expression
+            }
+        )
 caseStatementFollowedByWhitespaceAndComments =
     topIndentedFollowedBy
         (ParserFast.map4

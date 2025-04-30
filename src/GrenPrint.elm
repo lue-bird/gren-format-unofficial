@@ -322,7 +322,10 @@ expressionNotParenthesized syntaxComments expressionNode =
 -}
 case_ :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Case
+    ->
+        { pattern : GrenSyntax.Node GrenSyntax.Pattern
+        , result : GrenSyntax.Node GrenSyntax.Expression
+        }
     -> Print
 case_ syntaxComments syntaxCase =
     \state ->

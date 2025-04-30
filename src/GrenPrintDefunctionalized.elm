@@ -6124,7 +6124,11 @@ expressionCaseOf :
     ->
         { fullRange : GrenSyntax.Range
         , expression : GrenSyntax.Node GrenSyntax.Expression
-        , cases : List GrenSyntax.Case
+        , cases :
+            List
+                { pattern : GrenSyntax.Node GrenSyntax.Pattern
+                , result : GrenSyntax.Node GrenSyntax.Expression
+                }
         }
     -> Print
 expressionCaseOf syntaxComments syntaxCaseOf =
@@ -6176,7 +6180,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                     |> Print.followedBy
                         (syntaxCaseOf.cases
                             |> List.foldl
-                                (\( syntaxCase ) soFar ->
+                                (\syntaxCase soFar ->
                                     let
                                         commentsBeforeCasePattern : List String
                                         commentsBeforeCasePattern =
@@ -6188,7 +6192,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
 
                                         casePrint : Print
                                         casePrint =
-                                            case_ syntaxComments ( syntaxCase )
+                                            case_ syntaxComments syntaxCase
 
                                         commentsAndCasePrint : Print
                                         commentsAndCasePrint =
@@ -6405,9 +6409,12 @@ expressionToNotParenthesized (GrenSyntax.Node fullRange syntaxExpression) =
 -}
 case_ :
     List (GrenSyntax.Node String)
-    -> GrenSyntax.Case
+    ->
+        { pattern : GrenSyntax.Node GrenSyntax.Pattern
+        , result : GrenSyntax.Node GrenSyntax.Expression
+        }
     -> Print
-case_ syntaxComments ( syntaxCase ) =
+case_ syntaxComments syntaxCase =
     let
         patternPrint : Print
         patternPrint =
