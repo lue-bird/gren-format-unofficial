@@ -2515,15 +2515,11 @@ expressionFollowedByWhitespaceAndComments =
                                     |> ropePrependTo casesResult.comments
                             , end =
                                 case lastToSecondCase of
-                                    ( _, GrenSyntax.Node lastCaseExpressionRange _ ) :: _ ->
-                                        lastCaseExpressionRange.end
+                                    lastCase :: _ ->
+                                        lastCase.result |> GrenSyntax.nodeRange |> .end
 
                                     [] ->
-                                        let
-                                            ( _, GrenSyntax.Node firstCaseExpressionRange _ ) =
-                                                firstCase
-                                        in
-                                        firstCaseExpressionRange.end
+                                        firstCase.result |> GrenSyntax.nodeRange |> .end
                             , cases = firstCase :: List.reverse lastToSecondCase
                             }
                     )
@@ -2987,15 +2983,11 @@ expressionWhenIsFollowedByOptimisticLayout =
                     { start = start
                     , end =
                         case lastToSecondCase of
-                            ( _, GrenSyntax.Node lastCaseExpressionRange _ ) :: _ ->
-                                lastCaseExpressionRange.end
+                            lastCase :: _ ->
+                                lastCase.result |> GrenSyntax.nodeRange |> .end
 
                             [] ->
-                                let
-                                    ( _, GrenSyntax.Node firstCaseExpressionRange _ ) =
-                                        firstCase
-                                in
-                                firstCaseExpressionRange.end
+                                firstCase.result |> GrenSyntax.nodeRange |> .end
                     }
                     (GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
@@ -3030,15 +3022,11 @@ expressionOldCaseOfFollowedByOptimisticLayout =
                     { start = start
                     , end =
                         case lastToSecondCase of
-                            ( _, GrenSyntax.Node lastCaseExpressionRange _ ) :: _ ->
-                                lastCaseExpressionRange.end
+                            lastCase :: _ ->
+                                lastCase.result |> GrenSyntax.nodeRange |> .end
 
                             [] ->
-                                let
-                                    ( _, GrenSyntax.Node firstCaseExpressionRange _ ) =
-                                        firstCase
-                                in
-                                firstCaseExpressionRange.end
+                                firstCase.result |> GrenSyntax.nodeRange |> .end
                     }
                     (GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
@@ -3066,7 +3054,9 @@ casesFollowedByWhitespaceAndComments =
                     |> ropePrependTo firstCaseExpressionResult.comments
                     |> ropePrependTo lastToSecondCase.comments
             , syntax =
-                ( ( firstCasePatternResult.syntax, firstCaseExpressionResult.syntax )
+                ( { pattern = firstCasePatternResult.syntax
+                  , result = firstCaseExpressionResult.syntax
+                  }
                 , lastToSecondCase.syntax
                 )
             }
@@ -3092,7 +3082,10 @@ caseStatementFollowedByWhitespaceAndComments =
                         |> ropePrependTo commentsBeforeArrowRight
                         |> ropePrependTo commentsAfterArrowRight
                         |> ropePrependTo expr.comments
-                , syntax = ( patternResult.syntax, expr.syntax )
+                , syntax =
+                    { pattern = patternResult.syntax
+                    , result = expr.syntax
+                    }
                 }
             )
             pattern

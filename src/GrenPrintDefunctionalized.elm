@@ -6176,19 +6176,19 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                     |> Print.followedBy
                         (syntaxCaseOf.cases
                             |> List.foldl
-                                (\( casePattern, caseResult ) soFar ->
+                                (\( syntaxCase ) soFar ->
                                     let
                                         commentsBeforeCasePattern : List String
                                         commentsBeforeCasePattern =
                                             commentsInRange
                                                 { start = soFar.endLocation
-                                                , end = casePattern |> GrenSyntax.nodeRange |> .start
+                                                , end = syntaxCase.pattern |> GrenSyntax.nodeRange |> .start
                                                 }
                                                 syntaxComments
 
                                         casePrint : Print
                                         casePrint =
-                                            case_ syntaxComments ( casePattern, caseResult )
+                                            case_ syntaxComments ( syntaxCase )
 
                                         commentsAndCasePrint : Print
                                         commentsAndCasePrint =
@@ -6201,7 +6201,7 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                                                         |> Print.followedBy Print.linebreakIndented
                                                         |> Print.followedBy casePrint
                                     in
-                                    { endLocation = caseResult |> GrenSyntax.nodeRange |> .end
+                                    { endLocation = syntaxCase.result |> GrenSyntax.nodeRange |> .end
                                     , reverse = commentsAndCasePrint :: soFar.reverse
                                     }
                                 )
@@ -6407,23 +6407,23 @@ case_ :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Case
     -> Print
-case_ syntaxComments ( casePattern, caseResult ) =
+case_ syntaxComments ( syntaxCase ) =
     let
         patternPrint : Print
         patternPrint =
-            patternNotParenthesized syntaxComments casePattern
+            patternNotParenthesized syntaxComments syntaxCase.pattern
 
         commentsBeforeExpression : List String
         commentsBeforeExpression =
             commentsInRange
-                { start = casePattern |> GrenSyntax.nodeRange |> .end
-                , end = caseResult |> GrenSyntax.nodeRange |> .start
+                { start = syntaxCase.pattern |> GrenSyntax.nodeRange |> .end
+                , end = syntaxCase.result |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
         caseResultPrint : Print
         caseResultPrint =
-            expressionNotParenthesized syntaxComments caseResult
+            expressionNotParenthesized syntaxComments syntaxCase.result
     in
     patternPrint
         |> Print.followedBy

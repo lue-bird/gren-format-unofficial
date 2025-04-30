@@ -325,7 +325,9 @@ type alias Lambda =
 {-| A case in a case block
 -}
 type alias Case =
-    ( Node Pattern, Node Expression )
+    { pattern : Node Pattern
+    , result : Node Expression
+    }
 
 
 {-| Custom type for different type annotations. For example:
