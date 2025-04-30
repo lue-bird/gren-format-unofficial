@@ -3,7 +3,7 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), LetBlock, LetDeclaration(..)
+    , Pattern(..), Expression(..), LetDeclaration(..)
     , StringQuotingStyle(..)
     , TypeAnnotation(..)
     , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
@@ -15,7 +15,7 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, LetBlock, LetDeclaration
+@docs Pattern, Expression, LetDeclaration
 @docs StringQuotingStyle
 @docs TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
@@ -261,7 +261,10 @@ type Expression
     | ExpressionString { content : String, lineSpread : StringQuotingStyle }
     | ExpressionChar Char
     | ExpressionParenthesized (Node Expression)
-    | ExpressionLetIn LetBlock
+    | ExpressionLetIn
+        { declarations : List (Node LetDeclaration)
+        , result : Node Expression
+        }
     | ExpressionCaseOf
         { expression : Node Expression
         , cases :
@@ -302,14 +305,6 @@ Used by [`ExpressionString`](#Expression) and [`PatternString`](#Pattern)
 type StringQuotingStyle
     = StringSingleQuoted
     | StringTripleQuoted
-
-
-{-| Expression for a let block
--}
-type alias LetBlock =
-    { declarations : List (Node LetDeclaration)
-    , result : Node Expression
-    }
 
 
 {-| Union type for all possible declarations in a let block
