@@ -161,7 +161,7 @@ type alias ChoiceTypeDeclarationInfo =
 -}
 type alias ValueConstructor =
     { name : Node String
-    , arguments : Maybe (Node TypeAnnotation)
+    , value : Maybe (Node TypeAnnotation)
     }
 
 
@@ -215,7 +215,7 @@ type alias ValueOrFunctionDeclarationInfo =
     , declaration :
         Node
             { name : Node String
-            , arguments : List (Node Pattern)
+            , parameters : List (Node Pattern)
             , expression : Node Expression
             }
     }
@@ -321,8 +321,8 @@ type LetDeclaration
 {-| Expression for a lambda
 -}
 type alias Lambda =
-    { args : List (Node Pattern)
-    , expression : Node Expression
+    { parameters : List (Node Pattern)
+    , result : Node Expression
     }
 
 

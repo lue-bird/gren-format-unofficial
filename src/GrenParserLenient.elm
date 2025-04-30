@@ -949,7 +949,7 @@ declarationWithDocumentation =
                                                 , end = expressionRange.end
                                                 }
                                                 { name = signature.implementationName
-                                                , arguments = functionDeclarationAfterDocumentation.arguments
+                                                , parameters = functionDeclarationAfterDocumentation.arguments
                                                 , expression = functionDeclarationAfterDocumentation.expression
                                                 }
                                         }
@@ -973,7 +973,7 @@ declarationWithDocumentation =
                                         , declaration =
                                             GrenSyntax.Node { start = startNameRange.start, end = expressionRange.end }
                                                 { name = functionDeclarationAfterDocumentation.startName
-                                                , arguments = functionDeclarationAfterDocumentation.arguments
+                                                , parameters = functionDeclarationAfterDocumentation.arguments
                                                 , expression = functionDeclarationAfterDocumentation.expression
                                                 }
                                         }
@@ -1246,7 +1246,7 @@ functionDeclarationWithoutDocumentation =
                                     , declaration =
                                         GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
                                             { name = startNameNode
-                                            , arguments = arguments.syntax
+                                            , parameters = arguments.syntax
                                             , expression = result.syntax
                                             }
                                     }
@@ -1280,7 +1280,7 @@ functionDeclarationWithoutDocumentation =
                                             , end = expressionRange.end
                                             }
                                             { name = signature.implementationName
-                                            , arguments = arguments.syntax
+                                            , parameters = arguments.syntax
                                             , expression = result.syntax
                                             }
                                     }
@@ -1387,7 +1387,7 @@ functionDeclarationWithoutDocumentation =
                                     , end = result.syntax |> GrenSyntax.nodeRange |> .end
                                     }
                                     { name = nameNode
-                                    , arguments = arguments.syntax
+                                    , parameters = arguments.syntax
                                     , expression = result.syntax
                                     }
                             }
@@ -1790,7 +1790,7 @@ variantDeclarationFollowedByWhitespaceAndComments =
             , syntax =
                 GrenSyntax.Node fullRange
                     { name = nameNode
-                    , arguments = maybeValue.syntax
+                    , value = maybeValue.syntax
                     }
             }
         )
@@ -2934,8 +2934,8 @@ expressionLambdaFollowedByWhitespaceAndComments =
                     , end = expressionRange.end
                     }
                     (GrenSyntax.ExpressionLambda
-                        { args = parameter0.syntax :: parameter1Up.syntax
-                        , expression = expressionResult.syntax
+                        { parameters = parameter0.syntax :: parameter1Up.syntax
+                        , result = expressionResult.syntax
                         }
                     )
             }
@@ -3219,7 +3219,7 @@ letFunctionFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node Gr
 letFunctionFollowedByOptimisticLayout =
     ParserFast.oneOf2
         (ParserFast.map6WithStartLocation
-            (\startNameStart startNameNode commentsAfterStartName maybeSignature arguments commentsAfterEqual expressionResult ->
+            (\startNameStart startNameNode commentsAfterStartName maybeSignature parameters commentsAfterEqual expressionResult ->
                 case maybeSignature of
                     Nothing ->
                         let
@@ -3228,7 +3228,7 @@ letFunctionFollowedByOptimisticLayout =
                         in
                         { comments =
                             commentsAfterStartName
-                                |> ropePrependTo arguments.comments
+                                |> ropePrependTo parameters.comments
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
@@ -3239,7 +3239,7 @@ letFunctionFollowedByOptimisticLayout =
                                     , declaration =
                                         GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
                                             { name = startNameNode
-                                            , arguments = arguments.syntax
+                                            , parameters = parameters.syntax
                                             , expression = expressionResult.syntax
                                             }
                                     }
@@ -3256,7 +3256,7 @@ letFunctionFollowedByOptimisticLayout =
                         in
                         { comments =
                             (commentsAfterStartName |> ropePrependTo signature.comments)
-                                |> ropePrependTo arguments.comments
+                                |> ropePrependTo parameters.comments
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
@@ -3273,7 +3273,7 @@ letFunctionFollowedByOptimisticLayout =
                                     , declaration =
                                         GrenSyntax.Node { start = implementationNameRange.start, end = expressionRange.end }
                                             { name = signature.implementationName
-                                            , arguments = arguments.syntax
+                                            , parameters = parameters.syntax
                                             , expression = expressionResult.syntax
                                             }
                                     }
@@ -3335,13 +3335,13 @@ letFunctionFollowedByOptimisticLayout =
                 )
         )
         (ParserFast.map8WithStartLocation
-            (\start commentsBeforeTypeAnnotation typeAnnotationResult commentsBetweenTypeAndName nameNode afterImplementationName arguments commentsAfterEqual result ->
+            (\start commentsBeforeTypeAnnotation typeAnnotationResult commentsBetweenTypeAndName nameNode afterImplementationName parameters commentsAfterEqual result ->
                 { comments =
                     commentsBeforeTypeAnnotation
                         |> ropePrependTo typeAnnotationResult.comments
                         |> ropePrependTo commentsBetweenTypeAndName
                         |> ropePrependTo afterImplementationName
-                        |> ropePrependTo arguments.comments
+                        |> ropePrependTo parameters.comments
                         |> ropePrependTo commentsAfterEqual
                         |> ropePrependTo result.comments
                 , syntax =
@@ -3371,7 +3371,7 @@ letFunctionFollowedByOptimisticLayout =
                                     , end = result.syntax |> GrenSyntax.nodeRange |> .end
                                     }
                                     { name = nameNode
-                                    , arguments = arguments.syntax
+                                    , parameters = parameters.syntax
                                     , expression = result.syntax
                                     }
                             }

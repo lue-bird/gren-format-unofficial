@@ -4342,7 +4342,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                     { start = variant.name |> GrenSyntax.nodeValue
                                     , fullRange = variantRange
                                     , arguments =
-                                        case variant.arguments of
+                                        case variant.value of
                                             Nothing ->
                                                 []
 
@@ -4464,7 +4464,7 @@ declarationExpressionImplementation :
     List (GrenSyntax.Node String)
     ->
         { name : GrenSyntax.Node String
-        , arguments : List (GrenSyntax.Node GrenSyntax.Pattern)
+        , parameters : List (GrenSyntax.Node GrenSyntax.Pattern)
         , expression : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
@@ -4475,7 +4475,7 @@ declarationExpressionImplementation syntaxComments implementation =
             , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
-            implementation.arguments
+            implementation.parameters
                 |> List.foldl
                     (\parameterPattern soFar ->
                         let
@@ -5855,7 +5855,7 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
             , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
-            syntaxLambda.args
+            syntaxLambda.parameters
                 |> List.foldl
                     (\parameterPattern soFar ->
                         let
@@ -5904,7 +5904,7 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
         commentsBeforeResult =
             commentsInRange
                 { start = parameterPrintsWithCommentsBefore.endLocation
-                , end = syntaxLambda.expression |> GrenSyntax.nodeRange |> .start
+                , end = syntaxLambda.result |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -5916,7 +5916,7 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
         resultPrint : Print
         resultPrint =
             expressionNotParenthesized syntaxComments
-                syntaxLambda.expression
+                syntaxLambda.result
     in
     printExactlyBackSlash
         |> Print.followedBy
