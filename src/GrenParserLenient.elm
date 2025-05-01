@@ -3269,17 +3269,22 @@ expressionNumber =
 expressionIfThenElseFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression))
 expressionIfThenElseFollowedByOptimisticLayout =
     ParserFast.map6WithStartLocation
-        (\start commentsAfterIf condition commentsAfterThen ifTrue commentsAfterElse ifFalse ->
+        (\start commentsAfterIf condition commentsAfterThen onTrue commentsAfterElse onFalse ->
             { comments =
                 commentsAfterIf
                     |> ropePrependTo condition.comments
                     |> ropePrependTo commentsAfterThen
-                    |> ropePrependTo ifTrue.comments
+                    |> ropePrependTo onTrue.comments
                     |> ropePrependTo commentsAfterElse
-                    |> ropePrependTo ifFalse.comments
+                    |> ropePrependTo onFalse.comments
             , syntax =
-                { range = { start = start, end = ifFalse.syntax.range.end }
-                , value = GrenSyntax.ExpressionIfThenElse condition.syntax ifTrue.syntax ifFalse.syntax
+                { range = { start = start, end = onFalse.syntax.range.end }
+                , value =
+                    GrenSyntax.ExpressionIfThenElse
+                        { condition = condition.syntax
+                        , onTrue = onTrue.syntax
+                        , onFalse = onFalse.syntax
+                        }
                 }
             }
         )

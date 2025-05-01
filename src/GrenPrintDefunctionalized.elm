@@ -4724,7 +4724,7 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionReference _ _ ->
             False
 
-        GrenSyntax.ExpressionIfThenElse _ _ _ ->
+        GrenSyntax.ExpressionIfThenElse _ ->
             True
 
         GrenSyntax.ExpressionOperatorFunction _ ->
@@ -4830,13 +4830,13 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
             Print.exactly
                 (qualifiedReference { qualification = qualification, name = unqualified })
 
-        GrenSyntax.ExpressionIfThenElse condition onTrue onFalse ->
+        GrenSyntax.ExpressionIfThenElse ifThenElse ->
             expressionIfThenElse syntaxComments
                 { fullRange = syntaxExpressionNode.range
-                , condition = condition
+                , condition = ifThenElse.condition
                 , conditionLineSpreadMinimum = Print.SingleLine
-                , onTrue = onTrue
-                , onFalse = onFalse
+                , onTrue = ifThenElse.onTrue
+                , onFalse = ifThenElse.onFalse
                 }
 
         GrenSyntax.ExpressionOperatorFunction operatorSymbol ->
@@ -6110,17 +6110,17 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         |> Print.followedBy printExactlyElse
         |> Print.followedBy
             (case ( commentsBeforeOnFalseNotParenthesizedInParens, onFalseNotParenthesized.value ) of
-                ( [], GrenSyntax.ExpressionIfThenElse onFalseCondition onFalseOnTrue onFalseOnFalse ) ->
+                ( [], GrenSyntax.ExpressionIfThenElse ifThenElse ) ->
                     case commentsBeforeOnFalse of
                         [] ->
                             printExactlySpace
                                 |> Print.followedBy
                                     (expressionIfThenElse syntaxComments
                                         { fullRange = onFalseNotParenthesized.range
-                                        , condition = onFalseCondition
+                                        , condition = ifThenElse.condition
                                         , conditionLineSpreadMinimum = Print.SingleLine
-                                        , onTrue = onFalseOnTrue
-                                        , onFalse = onFalseOnFalse
+                                        , onTrue = ifThenElse.onTrue
+                                        , onFalse = ifThenElse.onFalse
                                         }
                                     )
 
@@ -6135,9 +6135,9 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
                                         , conditionLineSpreadMinimum =
                                             -- don't ask me why
                                             Print.MultipleLines
-                                        , condition = onFalseCondition
-                                        , onTrue = onFalseOnTrue
-                                        , onFalse = onFalseOnFalse
+                                        , condition = ifThenElse.condition
+                                        , onTrue = ifThenElse.onTrue
+                                        , onFalse = ifThenElse.onFalse
                                         }
                                     )
 

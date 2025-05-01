@@ -741,14 +741,18 @@ b = 3
                                                             { range = { start = { row = 4, column = 5 }, end = { row = 7, column = 10 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionIfThenElse
-                                                                    { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 12 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "cond"
-                                                                    }
-                                                                    { range = { start = { row = 5, column = 9 }, end = { row = 5, column = 10 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { start = { row = 7, column = 9 }, end = { row = 7, column = 10 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { condition =
+                                                                        { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 12 } }
+                                                                        , value = GrenSyntax.ExpressionReference [] "cond"
+                                                                        }
+                                                                    , onTrue =
+                                                                        { range = { start = { row = 5, column = 9 }, end = { row = 5, column = 10 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , onFalse =
+                                                                        { range = { start = { row = 7, column = 9 }, end = { row = 7, column = 10 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -5227,14 +5231,18 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
                             , value =
                                 GrenSyntax.ExpressionIfThenElse
-                                    { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "True"
-                                    }
-                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                    , value = GrenSyntax.ExpressionReference [] "foo"
-                                    }
-                                    { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
-                                    , value = GrenSyntax.ExpressionReference [] "bar"
+                                    { condition =
+                                        { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        }
+                                    , onTrue =
+                                        { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
+                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        }
+                                    , onFalse =
+                                        { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
+                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        }
                                     }
                             }
                 )
@@ -5245,14 +5253,18 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
                             , value =
                                 GrenSyntax.ExpressionIfThenElse
-                                    { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "True"
-                                    }
-                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                    , value = GrenSyntax.ExpressionReference [] "foo"
-                                    }
-                                    { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
-                                    , value = GrenSyntax.ExpressionReference [] "bar"
+                                    { condition =
+                                        { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        }
+                                    , onTrue =
+                                        { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
+                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        }
+                                    , onFalse =
+                                        { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
+                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        }
                                     }
                             }
                 )
@@ -5263,24 +5275,32 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 49 } }
                             , value =
                                 GrenSyntax.ExpressionIfThenElse
-                                    { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "True"
-                                    }
-                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 40 } }
-                                    , value =
-                                        GrenSyntax.ExpressionIfThenElse
-                                            { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 22 } }
-                                            , value = GrenSyntax.ExpressionReference [] "False"
-                                            }
-                                            { range = { start = { row = 1, column = 28 }, end = { row = 1, column = 31 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
-                                            }
-                                            { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 40 } }
-                                            , value = GrenSyntax.ExpressionReference [] "baz"
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 46 }, end = { row = 1, column = 49 } }
-                                    , value = GrenSyntax.ExpressionReference [] "bar"
+                                    { condition =
+                                        { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        }
+                                    , onTrue =
+                                        { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 40 } }
+                                        , value =
+                                            GrenSyntax.ExpressionIfThenElse
+                                                { condition =
+                                                    { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 22 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "False"
+                                                    }
+                                                , onTrue =
+                                                    { range = { start = { row = 1, column = 28 }, end = { row = 1, column = 31 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "foo"
+                                                    }
+                                                , onFalse =
+                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 40 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "baz"
+                                                    }
+                                                }
+                                        }
+                                    , onFalse =
+                                        { range = { start = { row = 1, column = 46 }, end = { row = 1, column = 49 } }
+                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        }
                                     }
                             }
                 )

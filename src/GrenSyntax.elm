@@ -254,7 +254,11 @@ type Expression
     | ExpressionCall (List (Node Expression))
     | ExpressionInfixOperation String (Node Expression) (Node Expression)
     | ExpressionReference ModuleName String
-    | ExpressionIfThenElse (Node Expression) (Node Expression) (Node Expression)
+    | ExpressionIfThenElse
+        { condition : Node Expression
+        , onTrue : Node Expression
+        , onFalse : Node Expression
+        }
     | ExpressionLetIn
         { declarations : List (Node LetDeclaration)
         , result : Node Expression
