@@ -3240,6 +3240,10 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                         |> Print.listReverseAndMapAndIntersperseAndFlatten
                             (\fieldPrintAndComment ->
                                 let
+                                    field :
+                                        { name : GrenSyntax.Node String
+                                        , value : GrenSyntax.Node fieldValue
+                                        }
                                     field =
                                         fieldPrintAndComment.syntax
 
@@ -4958,6 +4962,7 @@ printExpressionNegation syntaxComments negated =
 
     else
         let
+            negatedNotParenthesized : GrenSyntax.Node GrenSyntax.Expression
             negatedNotParenthesized =
                 negated |> expressionToNotParenthesized
         in

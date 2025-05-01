@@ -2560,7 +2560,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                         [] ->
                                             Just reference.name
 
-                                        _ ->
+                                        _ :: _ ->
                                             Nothing
 
                                 _ ->
@@ -2617,7 +2617,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                 )
                                 }
 
-                        _ ->
+                        Nothing ->
                             case afterNameBeforeFields.syntax of
                                 RecordUpdateFirstSetter firstField ->
                                     Just
