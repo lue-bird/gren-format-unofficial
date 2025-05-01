@@ -105,7 +105,7 @@ all =
                     (\() ->
                         GrenParserLenient.run GrenParserLenient.singleLineComment """--bar\u{D83D}\u{DD27}"""
                             |> Expect.equal
-                                (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }, value = "--bar🔧" })
+                                (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }, value = """--bar\u{D83D}\u{DD27}""" })
                     )
                 , Test.test "singleLineComment does not include new line"
                     (\() ->
@@ -140,7 +140,9 @@ bar\u{D83D}\u{DD27}-}"""
                             |> Expect.equal
                                 (Just
                                     { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } }
-                                    , value = "{-foo\nbar🔧-}"
+                                    , value =
+                                        """{-foo
+bar\u{D83D}\u{DD27}-}"""
                                     }
                                 )
                     )
@@ -5612,30 +5614,33 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                             , value =
                                 GrenSyntax.ExpressionRecordUpdate
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "model"
+                                    { record =
+                                        { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        }
+                                    , fields =
+                                        [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                          }
+                                        , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    }
+                                                }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                , value = GrenSyntax.ExpressionInteger 1
-                                                }
-                                            }
-                                      }
-                                    , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                , value = GrenSyntax.ExpressionReference [] "True"
-                                                }
-                                            }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "record update, qualified updated reference"
@@ -5645,30 +5650,33 @@ Nothing"""
                             { range = { end = { column = 45, row = 1 }, start = { column = 1, row = 1 } }
                             , value =
                                 GrenSyntax.ExpressionRecordUpdate
-                                    { range = { end = { column = 15, row = 1 }, start = { column = 3, row = 1 } }
-                                    , value = GrenSyntax.ExpressionReference [ "Shared" ] "model"
+                                    { record =
+                                        { range = { end = { column = 15, row = 1 }, start = { column = 3, row = 1 } }
+                                        , value = GrenSyntax.ExpressionReference [ "Shared" ] "model"
+                                        }
+                                    , fields =
+                                        [ { range = { end = { column = 27, row = 1 }, start = { column = 18, row = 1 } }
+                                          , value =
+                                                { name =
+                                                    { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }, value = "count" }
+                                                , value =
+                                                    { range = { end = { column = 27, row = 1 }, start = { column = 26, row = 1 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                          }
+                                        , { range = { end = { column = 44, row = 1 }, start = { column = 29, row = 1 } }
+                                          , value =
+                                                { name =
+                                                    { range = { end = { column = 36, row = 1 }, start = { column = 29, row = 1 } }, value = "loading" }
+                                                , value =
+                                                    { range = { end = { column = 43, row = 1 }, start = { column = 39, row = 1 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    }
+                                                }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { end = { column = 27, row = 1 }, start = { column = 18, row = 1 } }
-                                      , value =
-                                            { name =
-                                                { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }, value = "count" }
-                                            , value =
-                                                { range = { end = { column = 27, row = 1 }, start = { column = 26, row = 1 } }
-                                                , value = GrenSyntax.ExpressionInteger 1
-                                                }
-                                            }
-                                      }
-                                    , { range = { end = { column = 44, row = 1 }, start = { column = 29, row = 1 } }
-                                      , value =
-                                            { name =
-                                                { range = { end = { column = 36, row = 1 }, start = { column = 29, row = 1 } }, value = "loading" }
-                                            , value =
-                                                { range = { end = { column = 43, row = 1 }, start = { column = 39, row = 1 } }
-                                                , value = GrenSyntax.ExpressionReference [] "True"
-                                                }
-                                            }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "record update with extra comma between fields"
@@ -5678,30 +5686,33 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                             , value =
                                 GrenSyntax.ExpressionRecordUpdate
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "model"
+                                    { record =
+                                        { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        }
+                                    , fields =
+                                        [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                          }
+                                        , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    }
+                                                }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                , value = GrenSyntax.ExpressionInteger 1
-                                                }
-                                            }
-                                      }
-                                    , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                , value = GrenSyntax.ExpressionReference [] "True"
-                                                }
-                                            }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "record update with name-value separator : and name-value separator empty"
@@ -5711,30 +5722,33 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
                             , value =
                                 GrenSyntax.ExpressionRecordUpdate
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                    , value = GrenSyntax.ExpressionReference [] "model"
+                                    { record =
+                                        { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
+                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        }
+                                    , fields =
+                                        [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                          }
+                                        , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    }
+                                                }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 16 } }, value = "count" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                , value = GrenSyntax.ExpressionInteger 1
-                                                }
-                                            }
-                                      }
-                                    , { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 37 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                , value = GrenSyntax.ExpressionReference [] "True"
-                                                }
-                                            }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "record update no spacing"
@@ -5744,30 +5758,33 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 36 } }
                             , value =
                                 GrenSyntax.ExpressionRecordUpdate
-                                    { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
-                                    , value = GrenSyntax.ExpressionReference [] "model"
+                                    { record =
+                                        { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
+                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        }
+                                    , fields =
+                                        [ { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 18 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 14 } }, value = "count" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                          }
+                                        , { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 35 } }
+                                          , value =
+                                                { name =
+                                                    { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 27 } }, value = "loading" }
+                                                , value =
+                                                    { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 34 } }
+                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    }
+                                                }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 18 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 14 } }, value = "count" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } }
-                                                , value = GrenSyntax.ExpressionInteger 1
-                                                }
-                                            }
-                                      }
-                                    , { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 35 } }
-                                      , value =
-                                            { name =
-                                                { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 27 } }, value = "loading" }
-                                            , value =
-                                                { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 34 } }
-                                                , value = GrenSyntax.ExpressionReference [] "True"
-                                                }
-                                            }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "record access as function"
@@ -6414,31 +6431,34 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 22 } }
                                                 , value =
                                                     GrenSyntax.ExpressionRecordUpdate
-                                                        { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "d"
-                                                        }
-                                                        [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 21 } }
-                                                          , value =
-                                                                { name =
-                                                                    { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }, value = "b" }
-                                                                , value =
-                                                                    { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 20 } }
+                                                        { record =
+                                                            { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
+                                                            , value = GrenSyntax.ExpressionReference [] "d"
+                                                            }
+                                                        , fields =
+                                                            [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 21 } }
+                                                              , value =
+                                                                    { name =
+                                                                        { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }, value = "b" }
                                                                     , value =
-                                                                        GrenSyntax.ExpressionCall
-                                                                            [ { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "f"
-                                                                              }
-                                                                            , { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "x"
-                                                                              }
-                                                                            , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "y"
-                                                                              }
-                                                                            ]
+                                                                        { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 20 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionCall
+                                                                                [ { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } }
+                                                                                  , value = GrenSyntax.ExpressionReference [] "f"
+                                                                                  }
+                                                                                , { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } }
+                                                                                  , value = GrenSyntax.ExpressionReference [] "x"
+                                                                                  }
+                                                                                , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
+                                                                                  , value = GrenSyntax.ExpressionReference [] "y"
+                                                                                  }
+                                                                                ]
+                                                                        }
                                                                     }
-                                                                }
-                                                          }
-                                                        ]
+                                                              }
+                                                            ]
+                                                        }
                                                 }
                                                 { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 24 } }, value = "b" }
                                       }

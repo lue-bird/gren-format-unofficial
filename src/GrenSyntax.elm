@@ -286,14 +286,15 @@ type Expression
     | ExpressionRecordAccess (Node Expression) (Node String)
     | ExpressionRecordAccessFunction String
     | ExpressionRecordUpdate
-        (Node Expression)
-        (List
-            (Node
-                { name : Node String
-                , value : Node Expression
-                }
-            )
-        )
+        { record : Node Expression
+        , fields :
+            List
+                (Node
+                    { name : Node String
+                    , value : Node Expression
+                    }
+                )
+        }
 
 
 {-| String literals can be single double-quoted (single line) and triple double-quoted (usually multi-line)?

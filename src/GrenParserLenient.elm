@@ -2545,8 +2545,9 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                     case afterNameBeforeFields.syntax of
                                         RecordUpdateFirstSetter firstField ->
                                             GrenSyntax.ExpressionRecordUpdate
-                                                firstFieldNameOrExpression.syntax
-                                                (firstField :: tailFields.syntax)
+                                                { record = firstFieldNameOrExpression.syntax
+                                                , fields = firstField :: tailFields.syntax
+                                                }
 
                                         FieldsFirstValue firstFieldValue ->
                                             GrenSyntax.ExpressionRecord
@@ -2581,8 +2582,9 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                         { comments = comments
                                         , syntax =
                                             GrenSyntax.ExpressionRecordUpdate
-                                                firstFieldNameOrExpression.syntax
-                                                (firstField :: tailFields.syntax)
+                                                { record = firstFieldNameOrExpression.syntax
+                                                , fields = firstField :: tailFields.syntax
+                                                }
                                         }
 
                                 FieldsFirstValue _ ->
