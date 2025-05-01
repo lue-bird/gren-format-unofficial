@@ -12,10 +12,10 @@ all =
     Test.concat
         [ Test.describe "FileTests"
             (Array.map
-                (\( n, s ) ->
-                    Test.test ("sample " ++ String.fromInt n)
+                (\{ number = number, sample = sample } ->
+                    Test.test ("sample " ++ String.fromInt number)
                         (\{} ->
-                            case GrenParserLenient.run GrenParserLenient.module_ s of
+                            when GrenParserLenient.run GrenParserLenient.module_ sample is
                                 Nothing ->
                                     Expect.fail "failed to parse"
 
@@ -26,14 +26,14 @@ all =
                 GrainParserLenientTestFullModules.allSamples
             )
         , Test.test "moduleName"
-            (\() ->
+            (\{} ->
                 "Foo"
                     |> GrenParserLenient.run GrenParserLenient.moduleName
                     |> Maybe.map GrenSyntax.nodeValue
                     |> Expect.equal (Just [ "Foo" ])
             )
         , Test.test "moduleNameDir"
-            (\() ->
+            (\{} ->
                 "Foo.Bar"
                     |> GrenParserLenient.run GrenParserLenient.moduleName
                     |> Maybe.map GrenSyntax.nodeValue
@@ -50,8 +50,8 @@ a =
 
     f 0"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "positively indented, too few spaces"
                 (\{} ->
@@ -77,8 +77,8 @@ a =
     in
     b"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "top indented, too many spaces"
                 (\{} ->
@@ -107,9 +107,9 @@ a =
                     )
                 , Test.test "singleLineComment including 2-part utf-16 char range"
                     (\{} ->
-                        GrenParserLenient.run GrenParserLenient.singleLineComment """--bar\u{D83D}\u{DD27}"""
+                        GrenParserLenient.run GrenParserLenient.singleLineComment "--bar🔧"
                             |> Expect.equal
-                                (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }, value = """--bar\u{D83D}\u{DD27}""" })
+                                (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }, value = "--bar🔧" })
                     )
                 , Test.test "singleLineComment does not include new line"
                     (\{} ->
@@ -140,15 +140,15 @@ a =
                     (\{} ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment
                             """
-\{-foo
-bar\u{D83D}\u{DD27}-}"""
+{-foo
+bar🔧-}"""
                             |> Expect.equal
                                 (Just
                                     { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } }
                                     , value =
                                         """
-\{-foo
-bar\u{D83D}\u{DD27}-}"""
+{-foo
+bar🔧-}"""
                                     }
                                 )
                     )
@@ -288,8 +288,8 @@ module
 Foo 
  exposing  (..)"""
                         |> GrenParserLenient.run GrenParserLenient.moduleHeader
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "exposing .."
                 (\{} ->
@@ -502,8 +502,8 @@ Foo
   ..
 )"""
                             |> GrenParserLenient.run GrenParserLenient.exposing_
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "should fail to parse empty with just 1 `.`"
                     (\{} ->
@@ -514,8 +514,8 @@ Foo
                     (\{} ->
                         "( ... )"
                             |> GrenParserLenient.run GrenParserLenient.exposing_
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "should fail to parse empty with 2 spaced `.`"
                     (\{} ->
@@ -1611,7 +1611,7 @@ fun2 n =
                 )
             ]
         , Test.test "Comments ordering"
-            (\() ->
+            (\{} ->
                 let
                     input : String
                     input =
@@ -1654,7 +1654,7 @@ f =
                         )
             )
         , Test.test "declarations with comments"
-            (\() ->
+            (\{} ->
                 """
 module Foo exposing (b, fn)
 
@@ -1684,7 +1684,7 @@ b =
                         )
             )
         , Test.test "function declaration with a case and trailing whitespace"
-            (\() ->
+            (\{} ->
                 """
 module Trailing.Whitespace exposing (..)
 
@@ -1781,7 +1781,7 @@ caseWhitespace f = case f   of
                         )
             )
         , Test.test "function declaration with lambda and trailing whitespace"
-            (\() ->
+            (\{} ->
                 """
 module Trailing.Whitespace exposing (..)
 
@@ -1870,7 +1870,7 @@ lambdaWhitespace =   \\ a b ->    a
                         )
             )
         , Test.test "function declaration with let and trailing whitespace"
-            (\() ->
+            (\{} ->
                 """
 module Trailing.Whitespace exposing (..)
 
@@ -1961,7 +1961,7 @@ letWhitespace = let
                         )
             )
         , Test.test "type declaration with documentation after imports"
-            (\() ->
+            (\{} ->
                 """
 module Foo exposing (..)
 
@@ -2030,7 +2030,7 @@ type Configuration
                         )
             )
         , Test.test "module documentation formatted like a type documentation"
-            (\() ->
+            (\{} ->
                 """
 module Foo exposing (..)
 
@@ -2088,7 +2088,7 @@ type Configuration
                         )
             )
         , Test.test "documentation on a port declaration is treated as a normal comment"
-            (\() ->
+            (\{} ->
                 """
 port module Foo exposing (..)
 
@@ -2177,7 +2177,7 @@ port sendResponse : String -> Cmd msg
                         )
             )
         , Test.test "port module without port gets parsed to normal module"
-            (\() ->
+            (\{} ->
                 """
 port module Foo exposing (..)
 
@@ -2228,7 +2228,7 @@ sendResponse =
                         )
             )
         , Test.test "normal module with port gets parsed to port module"
-            (\() ->
+            (\{} ->
                 """
 module Foo exposing (..)
 
@@ -2298,7 +2298,7 @@ port sendResponse : String -> Cmd msg
                         )
             )
         , Test.test "A file with a large number of comments should not create a stack overflow"
-            (\() ->
+            (\{} ->
                 let
                     comments : String
                     comments =
@@ -2342,7 +2342,7 @@ a = 1
             , Test.test "function declaration with documentation"
                 (\{} ->
                     """
-\{-| Foo does bar -}
+{-| Foo does bar -}
 foo = bar"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 10 } }
@@ -3389,7 +3389,7 @@ update msg model =
             , Test.test "type alias with documentation"
                 (\{} ->
                     """
-\{-| Foo is colorful -}
+{-| Foo is colorful -}
 type alias Foo = {color: String }"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 34 } }
@@ -3645,7 +3645,7 @@ type alias Foo = {color: String }"""
             , Test.test "type with documentation"
                 (\{} ->
                     """
-\{-| Classic RGB -}
+{-| Classic RGB -}
 type Color = Blue String | Red | Green"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 39 } }
@@ -3745,8 +3745,8 @@ a"""
 type Maybe a = Just a |
 Nothing"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "fail if declarations not on module-level"
                 (\{} ->
@@ -5064,10 +5064,10 @@ a foo as bar = f3"""
                 )
             , Test.test "multiline string escape"
                 (\{} ->
-                    """\"\"\" \\\"\"\" \"\"\""""
+                    "\"\"\" \\\"\"\" \"\"\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
-                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = """ \"\"\" """ }))
+                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = " \"\"\" " }))
                 )
             , Test.test "character escaped"
                 (\{} ->
@@ -7535,8 +7535,8 @@ let
   in
   bar"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "allow let destructuring with top indented expression"
                     (\{} ->
@@ -7547,8 +7547,8 @@ let
   in
   bar"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "should not parse let type annotation without a declaration"
                     (\{} ->
@@ -7840,8 +7840,8 @@ True
   of
     A -> 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "allow the `of` keyword to be top indented"
                     (\{} ->
@@ -7850,8 +7850,8 @@ case True
 of
                A -> 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "allow a case first branch pattern to be top indented"
                     (\{} ->
@@ -7859,8 +7859,8 @@ of
 case True of
 True -> 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "allow case branch result to be top indented"
                     (\{} ->
@@ -7869,8 +7869,8 @@ case f of
   True ->
 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
-                            |> Maybe.map (\_ -> ())
-                            |> Expect.equal (Just ())
+                            |> Maybe.map (\_ -> {})
+                            |> Expect.equal (Just {})
                     )
                 , Test.test "case expression"
                     (\{} ->
@@ -8263,8 +8263,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow `then` indentation to be top indented"
                 (\{} ->
@@ -8277,8 +8277,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if `then` to not be positively indented if it doesn't overlap with existing indents"
                 (\{} ->
@@ -8291,8 +8291,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if-true-branch to be top indented"
                 (\{} ->
@@ -8305,8 +8305,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if `else` to be top indented"
                 (\{} ->
@@ -8319,8 +8319,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if `else` to not positively indented if it doesn't overlap with existing indents"
                 (\{} ->
@@ -8333,8 +8333,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if if-false-branch to be top indented"
                 (\{} ->
@@ -8347,8 +8347,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow record closing curly to be top indented"
                 (\{} ->
@@ -8361,8 +8361,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow record field value to be top indented"
                 (\{} ->
@@ -8375,8 +8375,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow record field name to be top indented"
                 (\{} ->
@@ -8389,8 +8389,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow record field `=` to be top indented"
                 (\{} ->
@@ -8403,8 +8403,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow infix operator to be top indented"
                 (\{} ->
@@ -8417,8 +8417,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "fail if function call argument is top indented"
                 (\{} ->
@@ -8443,8 +8443,8 @@ a =
     in
     x"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow case branch result call argument to be top indented"
                 (\{} ->
@@ -8454,8 +8454,8 @@ foo =
         Nothing -> a <|
         \\_ -> ()"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             , Test.test "allow if case branch result call argument to not positively indented if it doesn't overlap with existing indents"
                 (\{} ->
@@ -8465,8 +8465,8 @@ foo =
         Nothing -> a
   b"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
-                        |> Maybe.map (\_ -> ())
-                        |> Expect.equal (Just ())
+                        |> Maybe.map (\_ -> {})
+                        |> Expect.equal (Just {})
                 )
             ]
         , Test.describe "pattern"
@@ -8556,7 +8556,7 @@ foo =
                             , value = GrenSyntax.PatternHex 1
                             }
                 )
-            , Test.test "Float should not be valid" (\() -> expectFailsToParse GrenParserLenient.pattern "1.0")
+            , Test.test "Float should not be valid" (\{} -> expectFailsToParse GrenParserLenient.pattern "1.0")
             , Test.test "Uncons"
                 (\{} ->
                     "n :: tail"
@@ -10751,7 +10751,7 @@ parseSource source parser =
 
 moduleExpectInvalid : String -> Expect.Expectation
 moduleExpectInvalid source =
-    case GrenParserLenient.run GrenParserLenient.module_ source of
+    when GrenParserLenient.run GrenParserLenient.module_ source is
         Nothing ->
             Expect.pass
 
@@ -10775,20 +10775,20 @@ expectSyntaxWithoutComments :
     -> String
     -> Expect.Expectation
 expectSyntaxWithoutComments parser expected source =
-    case GrenParserLenient.run parser source of
+    when GrenParserLenient.run parser source is
         Nothing ->
             Expect.fail "Expected the source to be parsed correctly"
 
         Just actual ->
             Expect.all
-                [ \() -> actual.syntax |> Expect.equal expected
-                , \() ->
+                [ \{} -> actual.syntax |> Expect.equal expected
+                , \{} ->
                     actual.comments
                         |> GrenParserLenient.commentsToList
                         |> Expect.equalLists []
                         |> Expect.onFail "This parser should not produce any comments. If this is expected, then you should use expectAstWithComments instead."
                 ]
-                ()
+                {}
 
 
 expectSyntaxWithComments :
@@ -10797,16 +10797,16 @@ expectSyntaxWithComments :
     -> String
     -> Expect.Expectation
 expectSyntaxWithComments parser expected source =
-    case GrenParserLenient.run parser source of
+    when GrenParserLenient.run parser source is
         Nothing ->
             Expect.fail "Expected the source to be parsed correctly"
 
         Just actual ->
             Expect.all
-                [ \() -> actual.syntax |> Expect.equal expected.syntax
-                , \() -> actual.comments |> GrenParserLenient.commentsToList |> Expect.equal expected.comments
+                [ \{} -> actual.syntax |> Expect.equal expected.syntax
+                , \{} -> actual.comments |> GrenParserLenient.commentsToList |> Expect.equal expected.comments
                 ]
-                ()
+                {}
 
 
 expectFailsToParse :
@@ -10814,7 +10814,7 @@ expectFailsToParse :
     -> String
     -> Expect.Expectation
 expectFailsToParse parser source =
-    case source |> GrenParserLenient.run parser of
+    when source |> GrenParserLenient.run parser is
         Nothing ->
             Expect.pass
 

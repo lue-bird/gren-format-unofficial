@@ -32,13 +32,13 @@ type alias SingleProjectRunState =
     { sourceDirectoriesToRead : Set.Set String
     , sourceFilesToRead : Set.Set String
     , formattedModulesToWrite : Dict.Dict String Bytes
-    , sourceDirectoryReadErrors : List { path : String, message : String }
-    , sourceFileReadErrors : List { path : String, message : String }
+    , sourceDirectoryReadErrors : Array { path : String, message : String }
+    , sourceFileReadErrors : Array { path : String, message : String }
     }
 
 
 type alias WatchState =
-    { grenJsonSourceDirectories : List String
+    { grenJsonSourceDirectories : Array String
     , sourceFilesToRead : Set.Set String
     , formattedModulesToWrite : Dict.Dict String Bytes
     , sourceFileReadErrors : Dict.Dict String String
@@ -64,8 +64,8 @@ interface state =
                     (\launchArguments ->
                         case
                             launchArguments
-                                |> List.drop 2
-                                |> List.filter
+                                |> Array.drop 2
+                                |> Array.filter
                                     (\arg ->
                                         (arg /= "--yes")
                                             && (arg /= "--gren-version")
@@ -162,7 +162,7 @@ nodeShowHelpText =
                   , description = "for editors and other tooling"
                   }
                 ]
-                    |> List.map
+                    |> Array.map
                         (\commandAndDescription ->
                             "  - "
                                 ++ (commandAndDescription.command
@@ -223,7 +223,7 @@ interfaceSingleFileStandardStreamRun singleFileStandardStreamRun =
                         )
 
 
-nodeGrenJsonSourceDirectoriesRequest : Node.Interface (Result String (List String))
+nodeGrenJsonSourceDirectoriesRequest : Node.Interface (Result String (Array String))
 nodeGrenJsonSourceDirectoriesRequest =
     Node.fileRequest "gren.json"
         |> Node.interfaceFutureMap
@@ -307,7 +307,7 @@ singleRunInterface state =
                                                 |> Set.remove sourceDirectoryPath
                                         , sourceFilesToRead =
                                             subPaths
-                                                |> List.foldl
+                                                |> Array.foldl
                                                     (\subPath soFar ->
                                                         if subPath |> String.endsWith ".gren" then
                                                             soFar |> Set.insert (sourceDirectoryPath ++ "/" ++ subPath)
@@ -335,7 +335,7 @@ singleRunInterface state =
                         SingleProjectRun
                             { sourceFilesToRead =
                                 subPaths
-                                    |> List.foldl
+                                    |> Array.foldl
                                         (\subPath soFar ->
                                             if subPath |> String.endsWith ".gren" then
                                                 soFar |> Set.insert ("tests/" ++ subPath)
@@ -394,7 +394,7 @@ singleRunInterface state =
             )
         |> Node.interfaceBatch
     , state.sourceDirectoryReadErrors
-        |> List.map
+        |> Array.map
             (\directoryReadError ->
                 Node.standardErrWrite
                     ("failed to read the source directory "
@@ -406,7 +406,7 @@ singleRunInterface state =
             )
         |> Node.interfaceBatch
     , state.sourceFileReadErrors
-        |> List.map
+        |> Array.map
             (\fileReadError ->
                 Node.standardErrWrite
                     ("failed to read the source file "
@@ -448,7 +448,7 @@ grenSyntaxModuleToBytes grenSyntaxModule =
 watchInterface : WatchState -> Node.Interface State
 watchInterface state =
     [ state.grenJsonSourceDirectories
-        |> List.map
+        |> Array.map
             (\grenJsonSourceDirectory ->
                 Node.fileChangeListen grenJsonSourceDirectory
                     |> Node.interfaceFutureMap
@@ -588,12 +588,12 @@ nodeTestsChangeListen =
     Node.fileChangeListen "tests"
 
 
-packageSourceDirectories : List String
+packageSourceDirectories : Array String
 packageSourceDirectories =
     [ "src" ]
 
 
-fastDictToListAndMap : (a -> b -> c) -> Dict.Dict a b -> List c
+fastDictToListAndMap : (a -> b -> c) -> Dict.Dict a b -> Array c
 fastDictToListAndMap keyValueToElement fastDict =
     fastDict
         |> Dict.foldr
@@ -603,7 +603,7 @@ fastDictToListAndMap keyValueToElement fastDict =
             []
 
 
-fastSetToListAndMap : (a -> b) -> Set.Set a -> List b
+fastSetToListAndMap : (a -> b) -> Set.Set a -> Array b
 fastSetToListAndMap keyToElement fastDict =
     fastDict
         |> Set.foldr

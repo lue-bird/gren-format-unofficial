@@ -3910,14 +3910,14 @@ a =
                 (\{} ->
                     """
 module A exposing (..)
-a = '\u{D83D}\u{DFE9}' """
+a = '🟩' """
                         |> expectPrintedAs
                             """
 module A exposing (..)
 
 
 a =
-    '\u{D83D}\u{DFE9}'
+    '🟩'
 """
                 )
             , Test.test "single double quote string without escapes"
@@ -3980,14 +3980,14 @@ a =
                 (\{} ->
                     """
 module A exposing (..)
-a = "\u{D83D}\u{DFE9}" """
+a = "🟩" """
                         |> expectPrintedAs
                             """
 module A exposing (..)
 
 
 a =
-    "\u{D83D}\u{DFE9}"
+    "🟩"
 """
                 )
             , Test.test "triple double quote string single-line without escapes"
@@ -4008,14 +4008,14 @@ a =
                 (\{} ->
                     """
 module A exposing (..)
-a = \"\"\"\u{D83D}\u{DFE9}\"\"\" """
+a = \"\"\"🟩\"\"\" """
                         |> expectPrintedAs
                             """
 module A exposing (..)
 
 
 a =
-    \"\"\"\u{D83D}\u{DFE9}\"\"\"
+    \"\"\"🟩\"\"\"
 """
                 )
             , Test.test "triple double quote string with unicode escape ansi hide cursor"
@@ -5703,7 +5703,7 @@ checkIfDisabled flightType maybeDate1 maybeDate2 =
 
 expectPrintedAs : String -> String -> Expect.Expectation
 expectPrintedAs expected source =
-    case source |> GrenParserLenient.run GrenParserLenient.module_ of
+    when source |> GrenParserLenient.run GrenParserLenient.module_ is
         Nothing ->
             Expect.fail ("failed to parse actual source:\n" ++ source)
 

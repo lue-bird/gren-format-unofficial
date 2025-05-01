@@ -65,7 +65,7 @@ toStringWithIndent indent print =
 toStringWithIndentAndLinebreakIndentAsStringWithRight : Int -> String -> String -> Print -> String
 toStringWithIndentAndLinebreakIndentAsStringWithRight indentIgnoringMultiplesOfBy4 linebreakIndentAsString right print =
     -- IGNORE TCO
-    case print of
+    when print is
         Exact string ->
             string ++ right ++ ""
 
@@ -109,7 +109,7 @@ toStringWithIndentAndLinebreakIndentAsStringWithRight indentIgnoringMultiplesOfB
 
 indentAtMost4 : Int -> String
 indentAtMost4 atMost4 =
-    case atMost4 of
+    when atMost4 is
         1 ->
             " "
 
@@ -126,7 +126,7 @@ indentAtMost4 atMost4 =
 
 indentInverseRemainderBy4 : Int -> String
 indentInverseRemainderBy4 inverseRemainderBy4 =
-    case inverseRemainderBy4 of
+    when inverseRemainderBy4 is
         0 ->
             "    "
 
@@ -146,7 +146,7 @@ take up if turned into a string?
 -}
 lineSpread : Print -> LineSpread
 lineSpread print =
-    case print of
+    when print is
         Exact _ ->
             SingleLine
 
@@ -168,9 +168,9 @@ lineSpread print =
 
 lineSpreadWithRemaining : Print -> Array Print -> LineSpread
 lineSpreadWithRemaining print remainingPrints =
-    case print of
+    when print is
         Exact _ ->
-            case remainingPrints of
+            when remainingPrints is
                 [] ->
                     SingleLine
 
@@ -309,7 +309,7 @@ To only concatenate 2, use [`Print.followedBy`](#followedBy)
 -}
 listIntersperseAndFlatten : Print -> Array Print -> Print
 listIntersperseAndFlatten inBetweenPrint elements =
-    case elements of
+    when elements is
         [] ->
             empty
 
@@ -339,7 +339,7 @@ To only concatenate 2, use [`Print.followedBy`](#followedBy)
 -}
 listMapAndIntersperseAndFlatten : (a -> Print) -> Print -> Array a -> Print
 listMapAndIntersperseAndFlatten elementToPrint inBetweenPrint prints =
-    case prints of
+    when prints is
         [] ->
             empty
 
@@ -369,7 +369,7 @@ To only concatenate 2, use [`Print.followedBy`](#followedBy)
 -}
 listReverseAndIntersperseAndFlatten : Print -> Array Print -> Print
 listReverseAndIntersperseAndFlatten inBetweenPrint prints =
-    case prints of
+    when prints is
         [] ->
             empty
 
@@ -398,7 +398,7 @@ To only concatenate 2, use [`Print.followedBy`](#followedBy)
 -}
 listReverseAndMapAndIntersperseAndFlatten : (a -> Print) -> Print -> Array a -> Print
 listReverseAndMapAndIntersperseAndFlatten elementToPrint inBetweenPrint elements =
-    case elements of
+    when elements is
         [] ->
             empty
 
@@ -450,7 +450,7 @@ To merge a list, use [`Print.lineSpreadListMapAndCombine`](#lineSpreadListMapAnd
 -}
 lineSpreadMergeWith : ({} -> LineSpread) -> LineSpread -> LineSpread
 lineSpreadMergeWith bLineSpreadLazy aLineSpread =
-    case aLineSpread of
+    when aLineSpread is
         MultipleLines ->
             MultipleLines
 
@@ -466,7 +466,7 @@ To merge more a list, use [`Print.lineSpreadListMapAndCombine`](#lineSpreadListM
 -}
 lineSpreadMergeWithStrict : LineSpread -> LineSpread -> LineSpread
 lineSpreadMergeWithStrict bLineSpreadLazy aLineSpread =
-    case aLineSpread of
+    when aLineSpread is
         MultipleLines ->
             MultipleLines
 
@@ -482,12 +482,12 @@ To only combine 2, use [`Print.lineSpreadMergeWith`](#lineSpreadMergeWith)
 -}
 lineSpreadListMapAndCombine : (a -> LineSpread) -> Array a -> LineSpread
 lineSpreadListMapAndCombine elementLineSpread lineSpreads =
-    case lineSpreads of
+    when lineSpreads is
         [] ->
             SingleLine
 
         head :: tail ->
-            case elementLineSpread head of
+            when elementLineSpread head is
                 MultipleLines ->
                     MultipleLines
 
@@ -505,7 +505,7 @@ and [`withIndentAtNextMultipleOf4`](#withIndentAtNextMultipleOf4)
 -}
 spaceOrLinebreakIndented : LineSpread -> Print
 spaceOrLinebreakIndented lineSpreadToUse =
-    case lineSpreadToUse of
+    when lineSpreadToUse is
         SingleLine ->
             space
 
@@ -523,7 +523,7 @@ and [`withIndentAtNextMultipleOf4`](#withIndentAtNextMultipleOf4)
 -}
 emptyOrLinebreakIndented : LineSpread -> Print
 emptyOrLinebreakIndented lineSpreadToUse =
-    case lineSpreadToUse of
+    when lineSpreadToUse is
         SingleLine ->
             empty
 
