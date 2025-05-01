@@ -4767,7 +4767,7 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionArray _ ->
             False
 
-        GrenSyntax.ExpressionRecordAccess _ _ ->
+        GrenSyntax.ExpressionRecordAccess _ ->
             False
 
         GrenSyntax.ExpressionRecordAccessFunction _ ->
@@ -4931,10 +4931,11 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
                 , elements = elements
                 }
 
-        GrenSyntax.ExpressionRecordAccess syntaxRecord accessedFieldNameNode ->
-            expressionParenthesizedIfSpaceSeparated syntaxComments syntaxRecord
+        GrenSyntax.ExpressionRecordAccess grenExpressionRecordAccess ->
+            expressionParenthesizedIfSpaceSeparated syntaxComments
+                grenExpressionRecordAccess.record
                 |> Print.followedBy
-                    (Print.exactly ("." ++ accessedFieldNameNode.value))
+                    (Print.exactly ("." ++ grenExpressionRecordAccess.field.value))
 
         GrenSyntax.ExpressionRecordAccessFunction dotFieldName ->
             Print.exactly ("." ++ (dotFieldName |> String.replace "." ""))

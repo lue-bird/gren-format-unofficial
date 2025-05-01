@@ -283,7 +283,10 @@ type Expression
             )
         )
     | ExpressionArray (List (Node Expression))
-    | ExpressionRecordAccess (Node Expression) (Node String)
+    | ExpressionRecordAccess
+        { record : Node Expression
+        , field : Node String
+        }
     | ExpressionRecordAccessFunction String
     | ExpressionRecordUpdate
         { record : Node Expression

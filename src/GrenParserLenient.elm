@@ -2250,7 +2250,11 @@ followedByMultiRecordAccess beforeRecordAccesses =
             { comments = leftResult.comments
             , syntax =
                 { range = { start = leftResult.syntax.range.start, end = fieldNode.range.end }
-                , value = GrenSyntax.ExpressionRecordAccess leftResult.syntax fieldNode
+                , value =
+                    GrenSyntax.ExpressionRecordAccess
+                        { record = leftResult.syntax
+                        , field = fieldNode
+                        }
                 }
             }
         )
