@@ -1018,7 +1018,7 @@ b = 2
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { start = { row = 4, column = 16 }, end = { row = 4, column = 17 } }
-                                                            , value = ( [], "A" )
+                                                            , value = { qualification = [], name = "A" }
                                                             }
                                                             []
                                                     }
@@ -1038,7 +1038,7 @@ b = 2
                                                                 , value =
                                                                     GrenSyntax.TypeAnnotationConstruct
                                                                         { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 8 } }
-                                                                        , value = ( [], "Int" )
+                                                                        , value = { qualification = [], name = "Int" }
                                                                         }
                                                                         []
                                                                 }
@@ -2111,7 +2111,7 @@ port sendResponse : String -> Cmd msg
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { start = { row = 8, column = 21 }, end = { row = 8, column = 27 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -2120,7 +2120,7 @@ port sendResponse : String -> Cmd msg
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { start = { row = 8, column = 31 }, end = { row = 8, column = 34 } }
-                                                                    , value = ( [], "Cmd" )
+                                                                    , value = { qualification = [], name = "Cmd" }
                                                                     }
                                                                     [ { range = { start = { row = 8, column = 35 }, end = { row = 8, column = 38 } }
                                                                       , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -2219,7 +2219,7 @@ port sendResponse : String -> Cmd msg
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { end = { column = 27, row = 4 }, start = { column = 21, row = 4 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -2228,7 +2228,7 @@ port sendResponse : String -> Cmd msg
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { end = { column = 34, row = 4 }, start = { column = 31, row = 4 } }
-                                                                    , value = ( [], "Cmd" )
+                                                                    , value = { qualification = [], name = "Cmd" }
                                                                     }
                                                                     [ { range = { end = { column = 38, row = 4 }, start = { column = 35, row = 4 } }
                                                                       , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -2766,7 +2766,7 @@ foo = bar"""
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { end = { column = 30, row = 1 }, start = { column = 24, row = 1 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -2776,7 +2776,7 @@ foo = bar"""
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { end = { column = 47, row = 1 }, start = { column = 44, row = 1 } }
-                                                            , value = ( [], "Cmd" )
+                                                            , value = { qualification = [], name = "Cmd" }
                                                             }
                                                             [ { range = { end = { column = 51, row = 1 }, start = { column = 48, row = 1 } }
                                                               , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -2813,7 +2813,7 @@ foo = bar"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { end = { column = 20, row = 1 }, start = { column = 16, row = 1 } }
-                                                                                , value = ( [], "Move" )
+                                                                                , value = { qualification = [], name = "Move" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -2829,7 +2829,7 @@ foo = bar"""
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { end = { column = 35, row = 1 }, start = { column = 32, row = 1 } }
-                                                            , value = ( [], "Sub" )
+                                                            , value = { qualification = [], name = "Sub" }
                                                             }
                                                             [ { range = { end = { column = 39, row = 1 }, start = { column = 36, row = 1 } }
                                                               , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -2924,7 +2924,7 @@ main =
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { end = { column = 12, row = 1 }, start = { column = 8, row = 1 } }
-                                                            , value = ( [], "Html" )
+                                                            , value = { qualification = [], name = "Html" }
                                                             }
                                                             [ { range = { end = { column = 16, row = 1 }, start = { column = 13, row = 1 } }
                                                               , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -2979,7 +2979,7 @@ main =
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { end = { column = 7, row = 1 }, start = { column = 3, row = 1 } }
-                                                            , value = ( [], "Html" )
+                                                            , value = { qualification = [], name = "Html" }
                                                             }
                                                             [ { range = { end = { column = 11, row = 1 }, start = { column = 8, row = 1 } }
                                                               , value = GrenSyntax.TypeAnnotationVariable "msg"
@@ -3223,7 +3223,7 @@ update msg model =
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
-                                                            , value = ( [], "Model" )
+                                                            , value = { qualification = [], name = "Model" }
                                                             }
                                                             []
                                                     }
@@ -3275,7 +3275,7 @@ update msg model =
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 32 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -3315,7 +3315,7 @@ type alias Foo = {color: String }"""
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { start = { row = 2, column = 26 }, end = { row = 2, column = 32 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -3350,7 +3350,7 @@ type alias Foo = {color: String }"""
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } }
-                                                                    , value = ( [], "String" )
+                                                                    , value = { qualification = [], name = "String" }
                                                                     }
                                                                     []
                                                             }
@@ -3415,7 +3415,7 @@ type alias Foo = {color: String }"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "String" )
+                                                                , value = { qualification = [], name = "String" }
                                                                 }
                                                                 []
                                                         }
@@ -3461,7 +3461,7 @@ type alias Foo = {color: String }"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "String" )
+                                                                , value = { qualification = [], name = "String" }
                                                                 }
                                                                 []
                                                         }
@@ -3507,7 +3507,7 @@ type alias Foo = {color: String }"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "String" )
+                                                                , value = { qualification = [], name = "String" }
                                                                 }
                                                                 []
                                                         }
@@ -3558,7 +3558,7 @@ type Color = Blue String | Red | Green"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 2, column = 19 }, end = { row = 2, column = 25 } }
-                                                                , value = ( [], "String" )
+                                                                , value = { qualification = [], name = "String" }
                                                                 }
                                                                 []
                                                         }
@@ -3744,7 +3744,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                                    , value = ( [ "Foo" ], "Bar" )
+                                    , value = { qualification = [ "Foo" ], name = "Bar" }
                                     }
                                     []
                             }
@@ -3757,7 +3757,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = ( [], "Bar" )
+                                    , value = { qualification = [], name = "Bar" }
                                     }
                                     []
                             }
@@ -3770,7 +3770,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = ( [], "Foo" )
+                                    , value = { qualification = [], name = "Foo" }
                                     }
                                     [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
                                       , value = GrenSyntax.TypeAnnotationUnit
@@ -3782,7 +3782,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                                , value = ( [], "Bar" )
+                                                , value = { qualification = [], name = "Bar" }
                                                 }
                                                 []
                                       }
@@ -3797,7 +3797,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = ( [], "Foo" )
+                                    , value = { qualification = [], name = "Foo" }
                                     }
                                     [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
                                       , value = GrenSyntax.TypeAnnotationUnit
@@ -3809,7 +3809,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                                , value = ( [], "Bar" )
+                                                , value = { qualification = [], name = "Bar" }
                                                 }
                                                 []
                                       }
@@ -3840,7 +3840,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = ( [], "String" )
+                                                        , value = { qualification = [], name = "String" }
                                                         }
                                                         []
                                                 }
@@ -3865,7 +3865,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = ( [], "String" )
+                                                        , value = { qualification = [], name = "String" }
                                                         }
                                                         []
                                                 }
@@ -3890,7 +3890,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = ( [], "String" )
+                                                        , value = { qualification = [], name = "String" }
                                                         }
                                                         []
                                                 }
@@ -3915,7 +3915,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -3930,7 +3930,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -3954,7 +3954,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -3969,7 +3969,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -3993,7 +3993,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -4008,7 +4008,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -4037,7 +4037,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4052,7 +4052,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4083,7 +4083,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4098,7 +4098,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4129,7 +4129,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4144,7 +4144,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
                                                                 { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = ( [], "Vec2" )
+                                                                , value = { qualification = [], name = "Vec2" }
                                                                 }
                                                                 []
                                                         }
@@ -4184,7 +4184,7 @@ Nothing"""
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
                                                                             { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                                                            , value = ( [], "Int" )
+                                                                            , value = { qualification = [], name = "Int" }
                                                                             }
                                                                             []
                                                                     }
@@ -4199,7 +4199,7 @@ Nothing"""
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
                                                                             { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 25 } }
-                                                                            , value = ( [], "Int" )
+                                                                            , value = { qualification = [], name = "Int" }
                                                                             }
                                                                             []
                                                                     }
@@ -4214,7 +4214,7 @@ Nothing"""
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
                                                                             { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 33 } }
-                                                                            , value = ( [], "Int" )
+                                                                            , value = { qualification = [], name = "Int" }
                                                                             }
                                                                             []
                                                                     }
@@ -4243,7 +4243,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -4258,7 +4258,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 23 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -4273,7 +4273,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 34 } }
-                                                        , value = ( [], "Int" )
+                                                        , value = { qualification = [], name = "Int" }
                                                         }
                                                         []
                                                 }
@@ -4314,7 +4314,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = ( [], "Foo" )
+                                                , value = { qualification = [], name = "Foo" }
                                                 }
                                                 []
                                         }
@@ -4323,7 +4323,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                , value = ( [], "Bar" )
+                                                , value = { qualification = [], name = "Bar" }
                                                 }
                                                 []
                                         }
@@ -4342,7 +4342,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = ( [], "Foo" )
+                                                , value = { qualification = [], name = "Foo" }
                                                 }
                                                 []
                                         }
@@ -4355,7 +4355,7 @@ Nothing"""
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                            , value = ( [], "Bar" )
+                                                            , value = { qualification = [], name = "Bar" }
                                                             }
                                                             []
                                                     }
@@ -4380,7 +4380,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = ( [], "Foo" )
+                                                , value = { qualification = [], name = "Foo" }
                                                 }
                                                 []
                                         }
@@ -4393,7 +4393,7 @@ Nothing"""
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                            , value = ( [], "Bar" )
+                                                            , value = { qualification = [], name = "Bar" }
                                                             }
                                                             []
                                                     }
@@ -4446,7 +4446,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { end = { column = 4, row = 1 }, start = { column = 1, row = 1 } }
-                                                , value = ( [], "Msg" )
+                                                , value = { qualification = [], name = "Msg" }
                                                 }
                                                 []
                                         }
@@ -4459,7 +4459,7 @@ Nothing"""
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
                                                             { range = { end = { column = 13, row = 1 }, start = { column = 8, row = 1 } }
-                                                            , value = ( [], "Model" )
+                                                            , value = { qualification = [], name = "Model" }
                                                             }
                                                             []
                                                     }
@@ -4475,7 +4475,7 @@ Nothing"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }
-                                                                                , value = ( [], "Model" )
+                                                                                , value = { qualification = [], name = "Model" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -4484,13 +4484,13 @@ Nothing"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { end = { column = 28, row = 1 }, start = { column = 25, row = 1 } }
-                                                                                , value = ( [], "Cmd" )
+                                                                                , value = { qualification = [], name = "Cmd" }
                                                                                 }
                                                                                 [ { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
                                                                                   , value =
                                                                                         GrenSyntax.TypeAnnotationConstruct
                                                                                             { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
-                                                                                            , value = ( [], "Msg" )
+                                                                                            , value = { qualification = [], name = "Msg" }
                                                                                             }
                                                                                             []
                                                                                   }
@@ -4561,7 +4561,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
-                                                        , value = ( [], "Foo" )
+                                                        , value = { qualification = [], name = "Foo" }
                                                         }
                                                         []
                                                 }
@@ -4570,7 +4570,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = ( [], "Bar" )
+                                                        , value = { qualification = [], name = "Bar" }
                                                         }
                                                         []
                                                 }
@@ -4597,7 +4597,7 @@ Nothing"""
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
-                                                                    , value = ( [], "Foo" )
+                                                                    , value = { qualification = [], name = "Foo" }
                                                                     }
                                                                     []
                                                             }
@@ -4606,7 +4606,7 @@ Nothing"""
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                     { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                                    , value = ( [], "Bar" )
+                                                                    , value = { qualification = [], name = "Bar" }
                                                                     }
                                                                     []
                                                             }
@@ -4633,7 +4633,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = ( [], "Maybe" )
+                                    , value = { qualification = [], name = "Maybe" }
                                     }
                                     [ { range = { start = { row = 2, column = 2 }, end = { row = 2, column = 3 } }
                                       , value = GrenSyntax.TypeAnnotationVariable "a"
@@ -4649,7 +4649,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { end = { column = 5, row = 1 }, start = { column = 1, row = 1 } }
-                                    , value = ( [], "List" )
+                                    , value = { qualification = [], name = "List" }
                                     }
                                     [ { range = { end = { column = 13, row = 1 }, start = { column = 5, row = 1 } }
                                       , value =
@@ -4658,7 +4658,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
                                                         { range = { end = { column = 12, row = 1 }, start = { column = 6, row = 1 } }
-                                                        , value = ( [], "String" )
+                                                        , value = { qualification = [], name = "String" }
                                                         }
                                                         []
                                                 }
@@ -4674,13 +4674,13 @@ Nothing"""
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
-                                    , value = ( [], "Dict" )
+                                    , value = { qualification = [], name = "Dict" }
                                     }
                                     [ { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
                                       , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
-                                                , value = ( [], "String" )
+                                                , value = { qualification = [], name = "String" }
                                                 }
                                                 []
                                       }
@@ -4688,7 +4688,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.TypeAnnotationConstruct
                                                 { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 16 } }
-                                                , value = ( [], "Int" )
+                                                , value = { qualification = [], name = "Int" }
                                                 }
                                                 []
                                       }
@@ -6968,7 +6968,7 @@ Nothing"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
-                                                                                , value = ( [], "Int" )
+                                                                                , value = { qualification = [], name = "Int" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -7025,7 +7025,7 @@ Nothing"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
-                                                                                , value = ( [], "Int" )
+                                                                                , value = { qualification = [], name = "Int" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -7080,7 +7080,7 @@ Nothing"""
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { start = { row = 2, column = 7 }, end = { row = 2, column = 10 } }
-                                                                                , value = ( [], "Int" )
+                                                                                , value = { qualification = [], name = "Int" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -8823,7 +8823,7 @@ bar = 1
                                                                 , value =
                                                                     GrenSyntax.TypeAnnotationConstruct
                                                                         { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 10 } }
-                                                                        , value = ( [], "Int" )
+                                                                        , value = { qualification = [], name = "Int" }
                                                                         }
                                                                         []
                                                                 }
@@ -9084,7 +9084,7 @@ type alias Foo
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
                                                                                 { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 21 } }
-                                                                                , value = ( [], "String" )
+                                                                                , value = { qualification = [], name = "String" }
                                                                                 }
                                                                                 []
                                                                         }
@@ -9227,7 +9227,7 @@ log a =
                                                                             , value =
                                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                                     { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } }
-                                                                                    , value = ( [], "Int" )
+                                                                                    , value = { qualification = [], name = "Int" }
                                                                                     }
                                                                                     []
                                                                             }
@@ -9236,7 +9236,7 @@ log a =
                                                                             , value =
                                                                                 GrenSyntax.TypeAnnotationConstruct
                                                                                     { range = { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } }
-                                                                                    , value = ( [], "Int" )
+                                                                                    , value = { qualification = [], name = "Int" }
                                                                                     }
                                                                                     []
                                                                             }

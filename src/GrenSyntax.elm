@@ -329,7 +329,7 @@ type LetDeclaration
 -}
 type TypeAnnotation
     = TypeAnnotationVariable String
-    | TypeAnnotationConstruct (Node ( ModuleName, String )) (List (Node TypeAnnotation))
+    | TypeAnnotationConstruct (Node { qualification : ModuleName, name : String }) (List (Node TypeAnnotation))
     | TypeAnnotationUnit
     | TypeAnnotationParenthesized (Node TypeAnnotation)
     | TypeAnnotationRecord

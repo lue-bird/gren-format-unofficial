@@ -3772,10 +3772,6 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
             Print.exactly name
 
         GrenSyntax.TypeAnnotationConstruct referenceNode arguments ->
-            let
-                ( referenceQualification, referenceUnqualified ) =
-                    referenceNode.value
-            in
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     typeParenthesizedIfSpaceSeparated
@@ -3784,10 +3780,7 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
                 syntaxComments
                 { fullRange = syntaxTypeNode.range
                 , start =
-                    qualifiedReference
-                        { qualification = referenceQualification
-                        , name = referenceUnqualified
-                        }
+                    qualifiedReference referenceNode.value
                 , arguments = arguments
                 }
 

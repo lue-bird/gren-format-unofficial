@@ -2111,18 +2111,25 @@ typeConstructWithoutArguments =
     ParserFast.map2WithRange
         (\range startName afterStartName ->
             let
-                name : ( GrenSyntax.ModuleName, String )
+                name : { qualification : GrenSyntax.ModuleName, name : String }
                 name =
                     case afterStartName of
                         Nothing ->
-                            ( [], startName )
+                            { qualification = [], name = startName }
 
                         Just ( qualificationAfterStartName, unqualified ) ->
-                            ( startName :: qualificationAfterStartName, unqualified )
+                            { qualification = startName :: qualificationAfterStartName
+                            , name = unqualified
+                            }
             in
             { comments = ropeEmpty
             , syntax =
-                { range = range, value = GrenSyntax.TypeAnnotationConstruct { range = range, value = name } [] }
+                { range = range
+                , value =
+                    GrenSyntax.TypeAnnotationConstruct
+                        { range = range, value = name }
+                        []
+                }
             }
         )
         nameUppercase
@@ -2171,14 +2178,16 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
         (ParserFast.map2WithRange
             (\range startName afterStartName ->
                 let
-                    name : ( GrenSyntax.ModuleName, String )
+                    name : { qualification : GrenSyntax.ModuleName, name : String }
                     name =
                         case afterStartName of
                             Nothing ->
-                                ( [], startName )
+                                { qualification = [], name = startName }
 
                             Just ( qualificationAfterStartName, unqualified ) ->
-                                ( startName :: qualificationAfterStartName, unqualified )
+                                { qualification = startName :: qualificationAfterStartName
+                                , name = unqualified
+                                }
                 in
                 { range = range, value = name }
             )
