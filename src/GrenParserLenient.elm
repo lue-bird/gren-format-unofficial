@@ -1791,7 +1791,10 @@ type_ =
                     |> ropePrependTo outType.comments
             , syntax =
                 GrenSyntax.nodeCombine
-                    GrenSyntax.TypeAnnotationFunction
+                    (\input output ->
+                        GrenSyntax.TypeAnnotationFunction
+                            { input = input, output = output }
+                    )
                     inType.syntax
                     outType.syntax
             }

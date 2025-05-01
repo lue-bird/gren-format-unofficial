@@ -350,7 +350,10 @@ type TypeAnnotation
                 )
             )
         )
-    | TypeAnnotationFunction (Node TypeAnnotation) (Node TypeAnnotation)
+    | TypeAnnotationFunction
+        { input : Node TypeAnnotation
+        , output : Node TypeAnnotation
+        }
 
 
 {-| Custom type for all patterns such as:
@@ -397,8 +400,8 @@ The purpose of this type is to add the information of the [`Range`](#Range), i.e
 element of the tree was found.
 
 -}
-type alias Node a =
-    { range : Range, value : a }
+type alias Node value =
+    { range : Range, value : value }
 
 
 {-| Combine two nodes, constructing a new node which will have the outer most range of the child nodes
@@ -417,14 +420,14 @@ nodeMap f node =
 
 {-| Extract the range out of a `Node a`
 -}
-nodeRange : Node a -> Range
+nodeRange : Node value_ -> Range
 nodeRange node =
     node.range
 
 
 {-| Extract the value (`a`) out of a `Node a`
 -}
-nodeValue : Node a -> a
+nodeValue : Node value -> value
 nodeValue node =
     node.value
 

@@ -3353,8 +3353,8 @@ typeFunctionNotParenthesized :
     List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
-        , inType : GrenSyntax.Node GrenSyntax.TypeAnnotation
-        , outType : GrenSyntax.Node GrenSyntax.TypeAnnotation
+        , input : GrenSyntax.Node GrenSyntax.TypeAnnotation
+        , output : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     -> Print
 typeFunctionNotParenthesized syntaxComments function =
@@ -3364,7 +3364,7 @@ typeFunctionNotParenthesized syntaxComments function =
             , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
             }
         afterArrowTypes =
-            typeFunctionExpand function.outType
+            typeFunctionExpand function.output
 
         afterArrowTypesBeforeRightestPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
@@ -3415,7 +3415,7 @@ typeFunctionNotParenthesized syntaxComments function =
                                 :: soFar.reverse
                         }
                     )
-                    { endLocation = function.inType |> GrenSyntax.nodeRange |> .end
+                    { endLocation = function.input |> GrenSyntax.nodeRange |> .end
                     , reverse = []
                     }
 
@@ -3433,7 +3433,7 @@ typeFunctionNotParenthesized syntaxComments function =
 
         inTypePrint : Print
         inTypePrint =
-            typeParenthesizedIfFunction syntaxComments function.inType
+            typeParenthesizedIfFunction syntaxComments function.input
 
         rightestAfterArrowTypePrint : Print
         rightestAfterArrowTypePrint =
@@ -3536,13 +3536,13 @@ typeToFunction :
     GrenSyntax.Node GrenSyntax.TypeAnnotation
     ->
         Maybe
-            { inType : GrenSyntax.Node GrenSyntax.TypeAnnotation
-            , outType : GrenSyntax.Node GrenSyntax.TypeAnnotation
+            { input : GrenSyntax.Node GrenSyntax.TypeAnnotation
+            , output : GrenSyntax.Node GrenSyntax.TypeAnnotation
             }
 typeToFunction typeNode =
     case typeNode |> typeToNotParenthesized |> GrenSyntax.nodeValue of
-        GrenSyntax.TypeAnnotationFunction inType outType ->
-            Just { inType = inType, outType = outType }
+        GrenSyntax.TypeAnnotationFunction typeFunction ->
+            Just typeFunction
 
         GrenSyntax.TypeAnnotationVariable _ ->
             Nothing
@@ -3590,8 +3590,8 @@ typeToNotParenthesized syntaxTypeNode =
             , value = GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode
             }
 
-        GrenSyntax.TypeAnnotationFunction inType outType ->
-            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationFunction inType outType }
+        GrenSyntax.TypeAnnotationFunction typeFunction ->
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationFunction typeFunction }
 
 
 typeFunctionExpand :
@@ -3603,16 +3603,16 @@ typeFunctionExpand :
         }
 typeFunctionExpand typeNode =
     case typeNode.value of
-        GrenSyntax.TypeAnnotationFunction inType outType ->
+        GrenSyntax.TypeAnnotationFunction typeFunction ->
             let
                 outTypeExpanded :
                     { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
                     , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
                     }
                 outTypeExpanded =
-                    typeFunctionExpand outType
+                    typeFunctionExpand typeFunction.output
             in
-            { beforeRightest = inType :: outTypeExpanded.beforeRightest
+            { beforeRightest = typeFunction.input :: outTypeExpanded.beforeRightest
             , rightest = outTypeExpanded.rightest
             }
 
@@ -3747,7 +3747,7 @@ typeIsSpaceSeparated syntaxType =
         GrenSyntax.TypeAnnotationRecordExtension _ _ ->
             False
 
-        GrenSyntax.TypeAnnotationFunction _ _ ->
+        GrenSyntax.TypeAnnotationFunction _ ->
             True
 
 
@@ -3830,10 +3830,10 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
                 , fields = fieldsNode.value
                 }
 
-        GrenSyntax.TypeAnnotationFunction inType outType ->
+        GrenSyntax.TypeAnnotationFunction typeFunction ->
             { fullRange = syntaxTypeNode.range
-            , inType = inType
-            , outType = outType
+            , input = typeFunction.input
+            , output = typeFunction.output
             }
                 |> typeFunctionNotParenthesized syntaxComments
 
