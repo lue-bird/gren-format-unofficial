@@ -1397,7 +1397,7 @@ moduleLevelComments syntaxComments =
                             (\syntaxComment ->
                                 case syntaxComment of
                                     "{--}" ->
-                                        moduleLevgrenultiLneCommentWithoutWhitespace
+                                        moduleLevelMultiLineCommentWithoutWhitespace
 
                                     notEmptyMultiLineComment ->
                                         comment notEmptyMultiLineComment
@@ -1406,8 +1406,8 @@ moduleLevelComments syntaxComments =
                     )
 
 
-moduleLevgrenultiLneCommentWithoutWhitespace : Print.Print
-moduleLevgrenultiLneCommentWithoutWhitespace =
+moduleLevelMultiLineCommentWithoutWhitespace : Print.Print
+moduleLevelMultiLineCommentWithoutWhitespace =
     printLinebreakLinebreak
         |> Print.followedBy printExactlyCurlyOpeningDotDotCurlyClosing
         |> Print.followedBy Print.linebreak
@@ -4719,7 +4719,7 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionInfixOperation _ _ _ ->
             True
 
-        GrenSyntax.ExpressionReference _ _ ->
+        GrenSyntax.ExpressionReference _ ->
             False
 
         GrenSyntax.ExpressionIfThenElse _ ->
@@ -4824,9 +4824,9 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
                 , right = right
                 }
 
-        GrenSyntax.ExpressionReference qualification unqualified ->
+        GrenSyntax.ExpressionReference reference ->
             Print.exactly
-                (qualifiedReference { qualification = qualification, name = unqualified })
+                (qualifiedReference reference)
 
         GrenSyntax.ExpressionIfThenElse ifThenElse ->
             expressionIfThenElse syntaxComments

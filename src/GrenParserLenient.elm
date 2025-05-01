@@ -2546,9 +2546,23 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                 |> ropePrependTo afterNameBeforeFields.comments
                                 |> ropePrependTo tailFields.comments
                                 |> ropePrependTo commentsBeforeClosingCurly
+
+                        maybePotentialFirstFieldName : Maybe String
+                        maybePotentialFirstFieldName =
+                            case firstFieldNameOrExpression.syntax.value of
+                                GrenSyntax.ExpressionReference reference ->
+                                    case reference.qualification of
+                                        [] ->
+                                            Just reference.name
+
+                                        _ ->
+                                            Nothing
+
+                                _ ->
+                                    Nothing
                     in
-                    case firstFieldNameOrExpression.syntax |> GrenSyntax.nodeValue of
-                        GrenSyntax.ExpressionReference [] potentialFirstFieldName ->
+                    case maybePotentialFirstFieldName of
+                        Just potentialFirstFieldName ->
                             let
                                 firstFieldNameOrExpressionRange : GrenSyntax.Range
                                 firstFieldNameOrExpressionRange =
@@ -2586,7 +2600,11 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                     { name = nameNode
                                                     , value =
                                                         { range = { start = firstFieldNameOrExpressionRange.end, end = firstFieldNameOrExpressionRange.end }
-                                                        , value = GrenSyntax.ExpressionReference [] potentialFirstFieldName
+                                                        , value =
+                                                            GrenSyntax.ExpressionReference
+                                                                { qualification = []
+                                                                , name = potentialFirstFieldName
+                                                                }
                                                         }
                                                     }
                                                  }
@@ -2594,7 +2612,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                 )
                                 }
 
-                        updatedRecordExpression ->
+                        _ ->
                             case afterNameBeforeFields.syntax of
                                 RecordUpdateFirstSetter firstField ->
                                     Just
@@ -2610,39 +2628,44 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                     Nothing
 
                                 FieldsFirstValuePunned () ->
-                                    case updatedRecordExpression of
+                                    case firstFieldNameOrExpression.syntax.value of
                                         GrenSyntax.ExpressionCall (potentialFirstFieldNameNode :: argument0 :: argument1Up) ->
                                             case potentialFirstFieldNameNode.value of
-                                                GrenSyntax.ExpressionReference [] potentialFirstFieldName ->
-                                                    let
-                                                        nameNode : GrenSyntax.Node String
-                                                        nameNode =
-                                                            { range = potentialFirstFieldNameNode.range, value = potentialFirstFieldName }
+                                                GrenSyntax.ExpressionReference reference ->
+                                                    case reference.qualification of
+                                                        [] ->
+                                                            let
+                                                                nameNode : GrenSyntax.Node String
+                                                                nameNode =
+                                                                    { range = potentialFirstFieldNameNode.range, value = reference.name }
 
-                                                        firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
-                                                        firstFieldValueNode =
-                                                            case argument1Up of
-                                                                [] ->
-                                                                    argument0
+                                                                firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
+                                                                firstFieldValueNode =
+                                                                    case argument1Up of
+                                                                        [] ->
+                                                                            argument0
 
-                                                                argument1 :: argument2Up ->
-                                                                    { range =
-                                                                        { start = argument0 |> GrenSyntax.nodeRange |> .start
-                                                                        , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
-                                                                        }
-                                                                    , value = GrenSyntax.ExpressionCall (argument0 :: argument1 :: argument2Up)
-                                                                    }
-                                                    in
-                                                    Just
-                                                        { comments = comments
-                                                        , syntax =
-                                                            GrenSyntax.ExpressionRecord
-                                                                ({ range = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange
-                                                                 , value = { name = nameNode, value = firstFieldValueNode }
-                                                                 }
-                                                                    :: tailFields.syntax
-                                                                )
-                                                        }
+                                                                        argument1 :: argument2Up ->
+                                                                            { range =
+                                                                                { start = argument0 |> GrenSyntax.nodeRange |> .start
+                                                                                , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
+                                                                                }
+                                                                            , value = GrenSyntax.ExpressionCall (argument0 :: argument1 :: argument2Up)
+                                                                            }
+                                                            in
+                                                            Just
+                                                                { comments = comments
+                                                                , syntax =
+                                                                    GrenSyntax.ExpressionRecord
+                                                                        ({ range = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange
+                                                                         , value = { name = nameNode, value = firstFieldValueNode }
+                                                                         }
+                                                                            :: tailFields.syntax
+                                                                        )
+                                                                }
+
+                                                        _ :: _ ->
+                                                            Nothing
 
                                                 _ ->
                                                     Nothing
@@ -2781,7 +2804,11 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                                     { start = nameNode |> GrenSyntax.nodeRange |> .end
                                     , end = nameNode |> GrenSyntax.nodeRange |> .end
                                     }
-                                , value = GrenSyntax.ExpressionReference [] (nameNode |> GrenSyntax.nodeValue)
+                                , value =
+                                    GrenSyntax.ExpressionReference
+                                        { qualification = []
+                                        , name = nameNode.value
+                                        }
                                 }
                             }
                         }
@@ -3397,10 +3424,13 @@ expressionQualifiedOrVariantOrRecordConstructorReferenceFollowedByRecordAccess =
                 , value =
                     case after of
                         Nothing ->
-                            GrenSyntax.ExpressionReference [] firstName
+                            GrenSyntax.ExpressionReference { qualification = [], name = firstName }
 
                         Just ( qualificationAfter, unqualified ) ->
-                            GrenSyntax.ExpressionReference (firstName :: qualificationAfter) unqualified
+                            GrenSyntax.ExpressionReference
+                                { qualification = firstName :: qualificationAfter
+                                , name = unqualified
+                                }
                 }
             }
         )
@@ -3440,7 +3470,11 @@ expressionUnqualifiedFunctionReferenceFollowedByRecordAccess =
         (\range unqualified ->
             { comments = ropeEmpty
             , syntax =
-                { range = range, value = GrenSyntax.ExpressionReference [] unqualified }
+                { range = range
+                , value =
+                    GrenSyntax.ExpressionReference
+                        { qualification = [], name = unqualified }
+                }
             }
         )
         |> followedByMultiRecordAccess

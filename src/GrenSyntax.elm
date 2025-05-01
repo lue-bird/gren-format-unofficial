@@ -253,7 +253,7 @@ type Expression
     | ExpressionParenthesized (Node Expression)
     | ExpressionCall (List (Node Expression))
     | ExpressionInfixOperation String (Node Expression) (Node Expression)
-    | ExpressionReference ModuleName String
+    | ExpressionReference { qualification : ModuleName, name : String }
     | ExpressionIfThenElse
         { condition : Node Expression
         , onTrue : Node Expression

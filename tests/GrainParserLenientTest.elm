@@ -743,7 +743,7 @@ b = 3
                                                                 GrenSyntax.ExpressionIfThenElse
                                                                     { condition =
                                                                         { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 12 } }
-                                                                        , value = GrenSyntax.ExpressionReference [] "cond"
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "cond" }
                                                                         }
                                                                     , onTrue =
                                                                         { range = { start = { row = 5, column = 9 }, end = { row = 5, column = 10 } }
@@ -1139,10 +1139,10 @@ fun2 n =
                                                                     , value =
                                                                         GrenSyntax.ExpressionCall
                                                                             [ { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 7 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "fun2"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
                                                                               }
                                                                             , { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 9 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "n"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                               }
                                                                             ]
                                                                     }
@@ -1150,10 +1150,10 @@ fun2 n =
                                                                     , value =
                                                                         GrenSyntax.ExpressionCall
                                                                             [ { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 9 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "fun2"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
                                                                               }
                                                                             , { range = { start = { row = 5, column = 10 }, end = { row = 5, column = 11 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "n"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                               }
                                                                             ]
                                                                     }
@@ -1182,10 +1182,10 @@ fun2 n =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 8, column = 3 }, end = { row = 8, column = 7 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "fun1"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun1" }
                                                                       }
                                                                     , { range = { start = { row = 8, column = 8 }, end = { row = 8, column = 9 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "n"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                       }
                                                                     ]
                                                             }
@@ -1263,10 +1263,10 @@ fun2 n =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 7 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "fun2"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
                                                                       }
                                                                     , { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 9 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "n"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                       }
                                                                     ]
                                                             }
@@ -1294,10 +1294,10 @@ fun2 n =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 8, column = 3 }, end = { row = 8, column = 7 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "fun1"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun1" }
                                                                       }
                                                                     , { range = { start = { row = 8, column = 8 }, end = { row = 8, column = 9 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "n"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                       }
                                                                     ]
                                                             }
@@ -1383,10 +1383,10 @@ fun2 n =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 7 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "fun2"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
                                                                       }
                                                                     , { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 9 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "n"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                       }
                                                                     ]
                                                             }
@@ -1414,10 +1414,10 @@ fun2 n =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 8, column = 3 }, end = { row = 8, column = 7 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "fun1"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun1" }
                                                                       }
                                                                     , { range = { start = { row = 8, column = 8 }, end = { row = 8, column = 9 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "n"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                       }
                                                                     ]
                                                             }
@@ -1715,7 +1715,7 @@ caseWhitespace f = case f   of
                                                             GrenSyntax.ExpressionCaseOf
                                                                 { expression =
                                                                     { range = { start = { row = 4, column = 25 }, end = { row = 4, column = 26 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "f"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                                                     }
                                                                 , cases =
                                                                     [ { pattern =
@@ -1817,10 +1817,10 @@ lambdaWhitespace =   \\ a b ->    a
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "+"
                                                                             { range = { start = { row = 4, column = 34 }, end = { row = 4, column = 35 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "a"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                                             }
                                                                             { range = { start = { row = 8, column = 5 }, end = { row = 8, column = 6 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "b"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                                             }
                                                                     }
                                                                 }
@@ -1912,7 +1912,7 @@ letWhitespace = let
                                                                     ]
                                                                 , result =
                                                                     { range = { start = { row = 8, column = 2 }, end = { row = 8, column = 3 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "b"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                                     }
                                                                 }
                                                         }
@@ -2162,7 +2162,7 @@ sendResponse =
                                                     { parameters = []
                                                     , expression =
                                                         { range = { end = { column = 13, row = 5 }, start = { column = 5, row = 5 } }
-                                                        , value = GrenSyntax.ExpressionReference [ "Cmd" ] "none"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [ "Cmd" ], name = "none" }
                                                         }
                                                     , name =
                                                         { range = { end = { column = 13, row = 4 }, start = { column = 1, row = 4 } }
@@ -2290,7 +2290,7 @@ a = 1
                                             , parameters = []
                                             , expression =
                                                 { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 10 } }
-                                                , value = GrenSyntax.ExpressionReference [] "bar"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                                 }
                                             }
                                         }
@@ -2319,7 +2319,7 @@ foo = bar"""
                                             , parameters = []
                                             , expression =
                                                 { range = { start = { row = 2, column = 7 }, end = { row = 2, column = 10 } }
-                                                , value = GrenSyntax.ExpressionReference [] "bar"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                                 }
                                             }
                                         }
@@ -2396,7 +2396,7 @@ foo = bar"""
                                                                                         GrenSyntax.ExpressionCaseOf
                                                                                             { expression =
                                                                                                 { range = { start = { row = 4, column = 12 }, end = { row = 4, column = 13 } }
-                                                                                                , value = GrenSyntax.ExpressionReference [] "x"
+                                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                                                 }
                                                                                             , cases =
                                                                                                 [ { pattern =
@@ -2405,7 +2405,7 @@ foo = bar"""
                                                                                                         }
                                                                                                   , result =
                                                                                                         { range = { start = { row = 5, column = 17 }, end = { row = 5, column = 18 } }
-                                                                                                        , value = GrenSyntax.ExpressionReference [] "z"
+                                                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "z" }
                                                                                                         }
                                                                                                   }
                                                                                                 ]
@@ -2427,7 +2427,7 @@ foo = bar"""
                                                                                 , parameters = []
                                                                                 , expression =
                                                                                     { range = { start = { row = 6, column = 9 }, end = { row = 6, column = 10 } }
-                                                                                    , value = GrenSyntax.ExpressionReference [] "b"
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                                                     }
                                                                                 }
                                                                             }
@@ -2436,7 +2436,7 @@ foo = bar"""
                                                             ]
                                                         , result =
                                                             { range = { start = { row = 7, column = 6 }, end = { row = 7, column = 7 } }
-                                                            , value = GrenSyntax.ExpressionReference [] "a"
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                             }
                                                         }
                                                 }
@@ -2470,7 +2470,7 @@ foo = bar"""
                                                     GrenSyntax.ExpressionInfixOperation
                                                         "+"
                                                         { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                         }
                                                         { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
                                                         , value = GrenSyntax.ExpressionInteger 1
@@ -2526,7 +2526,7 @@ foo = bar"""
                                                             ]
                                                         , result =
                                                             { range = { start = { row = 5, column = 3 }, end = { row = 5, column = 4 } }
-                                                            , value = GrenSyntax.ExpressionReference [] "b"
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                             }
                                                         }
                                                 }
@@ -2590,7 +2590,7 @@ foo = bar"""
                                                             ]
                                                         , result =
                                                             { range = { start = { row = 5, column = 3 }, end = { row = 5, column = 4 } }
-                                                            , value = GrenSyntax.ExpressionReference [] "b"
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                             }
                                                         }
                                                 }
@@ -2620,7 +2620,7 @@ foo = bar"""
                                                 , value =
                                                     GrenSyntax.ExpressionCall
                                                         [ { range = { start = { row = 2, column = 3 }, end = { row = 2, column = 18 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "beginnerProgram"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "beginnerProgram" }
                                                           }
                                                         , { range = { start = { row = 2, column = 19 }, end = { row = 2, column = 62 } }
                                                           , value =
@@ -2641,7 +2641,7 @@ foo = bar"""
                                                                                 { range = { start = { row = 2, column = 32 }, end = { row = 2, column = 36 } }, value = "view" }
                                                                             , value =
                                                                                 { range = { start = { row = 2, column = 39 }, end = { row = 2, column = 43 } }
-                                                                                , value = GrenSyntax.ExpressionReference [] "view"
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "view" }
                                                                                 }
                                                                             }
                                                                       }
@@ -2651,7 +2651,7 @@ foo = bar"""
                                                                                 { range = { start = { row = 2, column = 45 }, end = { row = 2, column = 51 } }, value = "update" }
                                                                             , value =
                                                                                 { range = { start = { row = 2, column = 54 }, end = { row = 2, column = 60 } }
-                                                                                , value = GrenSyntax.ExpressionReference [] "update"
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "update" }
                                                                                 }
                                                                             }
                                                                       }
@@ -2698,7 +2698,7 @@ foo = bar"""
                                                     GrenSyntax.ExpressionCaseOf
                                                         { expression =
                                                             { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 11 } }
-                                                            , value = GrenSyntax.ExpressionReference [] "msg"
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "msg" }
                                                             }
                                                         , cases =
                                                             [ { pattern =
@@ -2711,7 +2711,7 @@ foo = bar"""
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "+"
                                                                             { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "model"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                                                             }
                                                                             { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
                                                                             , value = GrenSyntax.ExpressionInteger 1
@@ -2728,7 +2728,7 @@ foo = bar"""
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "-"
                                                                             { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "model"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                                                             }
                                                                             { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
                                                                             , value = GrenSyntax.ExpressionInteger 1
@@ -2867,7 +2867,7 @@ foo = bar"""
                                                 , value =
                                                     GrenSyntax.ExpressionCall
                                                         [ { range = { start = { row = 2, column = 3 }, end = { row = 2, column = 7 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "text"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                           }
                                                         , { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 23 } }
                                                           , value =
@@ -2899,7 +2899,7 @@ main =
                                                 , value =
                                                     GrenSyntax.ExpressionCall
                                                         [ { range = { end = { column = 7, row = 3 }, start = { column = 3, row = 3 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "text"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                           }
                                                         , { range = { end = { column = 23, row = 3 }, start = { column = 8, row = 3 } }
                                                           , value =
@@ -2954,7 +2954,7 @@ main =
                                                 , value =
                                                     GrenSyntax.ExpressionCall
                                                         [ { range = { end = { column = 7, row = 3 }, start = { column = 3, row = 3 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "text"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                           }
                                                         , { range = { end = { column = 23, row = 3 }, start = { column = 8, row = 3 } }
                                                           , value =
@@ -3012,7 +3012,7 @@ main =
                                                 , value =
                                                     GrenSyntax.ExpressionCall
                                                         [ { range = { start = { row = 2, column = 3 }, end = { row = 2, column = 7 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "text"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                           }
                                                         , { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 23 } }
                                                           , value =
@@ -3045,7 +3045,7 @@ main =
                                                 , parameters = []
                                                 , expression =
                                                     { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 12 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "x"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                     }
                                                 }
                                             }
@@ -3084,7 +3084,7 @@ main =
                                                     GrenSyntax.ExpressionInfixOperation
                                                         "<|"
                                                         { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 36 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "curry"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "curry" }
                                                         }
                                                         { range = { start = { row = 1, column = 40 }, end = { row = 1, column = 83 } }
                                                         , value =
@@ -3097,10 +3097,10 @@ main =
                                                                         , value =
                                                                             GrenSyntax.ExpressionCall
                                                                                 [ { range = { start = { row = 1, column = 41 }, end = { row = 1, column = 48 } }
-                                                                                  , value = GrenSyntax.ExpressionReference [] "uncurry"
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "uncurry" }
                                                                                   }
                                                                                 , { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 55 } }
-                                                                                  , value = GrenSyntax.ExpressionReference [] "update"
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "update" }
                                                                                   }
                                                                                 ]
                                                                         }
@@ -3109,10 +3109,10 @@ main =
                                                                 , value =
                                                                     GrenSyntax.ExpressionCall
                                                                         [ { range = { start = { row = 1, column = 60 }, end = { row = 1, column = 74 } }
-                                                                          , value = GrenSyntax.ExpressionReference [] "batchStateCmds"
+                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "batchStateCmds" }
                                                                           }
                                                                         , { range = { start = { row = 1, column = 75 }, end = { row = 1, column = 83 } }
-                                                                          , value = GrenSyntax.ExpressionReference [] "sendPort"
+                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "sendPort" }
                                                                           }
                                                                         ]
                                                                 }
@@ -3157,7 +3157,7 @@ main =
                                                     GrenSyntax.ExpressionCaseOf
                                                         { expression =
                                                             { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 11 } }
-                                                            , value = GrenSyntax.ExpressionReference [] "msg"
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "msg" }
                                                             }
                                                         , cases =
                                                             [ { pattern =
@@ -3170,7 +3170,7 @@ main =
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "+"
                                                                             { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "model"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                                                             }
                                                                             { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
                                                                             , value = GrenSyntax.ExpressionInteger 1
@@ -3187,7 +3187,7 @@ main =
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "-"
                                                                             { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "model"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                                                             }
                                                                             { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
                                                                             , value = GrenSyntax.ExpressionInteger 1
@@ -3244,7 +3244,7 @@ update msg model =
                                                 ]
                                             , expression =
                                                 { range = { start = { row = 3, column = 5 }, end = { row = 3, column = 8 } }
-                                                , value = GrenSyntax.ExpressionReference [] "msg"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "msg" }
                                                 }
                                             }
                                         }
@@ -4783,7 +4783,7 @@ Nothing"""
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                             |> Expect.equal
-                                (Just (GrenSyntax.ExpressionReference [] "e"))
+                                (Just (GrenSyntax.ExpressionReference { qualification = [], name = "e" }))
                     )
                 , Test.test "integer with negative exponent (uppercase E)"
                     (\() ->
@@ -4957,7 +4957,7 @@ Nothing"""
                     "Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                            , value = GrenSyntax.ExpressionReference [] "Bar"
+                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "Bar" }
                             }
                 )
             , Test.test "Type expression for lower case"
@@ -4965,7 +4965,7 @@ Nothing"""
                     "bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                            , value = GrenSyntax.ExpressionReference [] "bar"
+                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                             }
                 )
             , Test.test "Type expression for lower case but qualified"
@@ -4973,7 +4973,7 @@ Nothing"""
                     "Bar.foo"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                            , value = GrenSyntax.ExpressionReference [ "Bar" ] "foo"
+                            , value = GrenSyntax.ExpressionReference { qualification = [ "Bar" ], name = "foo" }
                             }
                 )
             , Test.test "parenthesizedExpression"
@@ -4984,7 +4984,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionParenthesized
                                     { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 5 } }
-                                    , value = GrenSyntax.ExpressionReference [] "bar"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                     }
                             }
                 )
@@ -5007,7 +5007,7 @@ Nothing"""
                                                     }
                                             }
                                             { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference [] "sign"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "sign" }
                                             }
                                     }
                             }
@@ -5020,7 +5020,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
-                                      , value = GrenSyntax.ExpressionReference [ "List" ] "concat"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "concat" }
                                       }
                                     , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 15 } }
                                       , value = GrenSyntax.ExpressionArray []
@@ -5037,7 +5037,7 @@ Nothing"""
                                 GrenSyntax.ExpressionInfixOperation
                                     "+"
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = GrenSyntax.ExpressionReference [] "model"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                     }
                                     { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
                                     , value = GrenSyntax.ExpressionInteger 1
@@ -5057,7 +5057,7 @@ Nothing"""
                                         GrenSyntax.ExpressionInfixOperation
                                             "+"
                                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "count"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
                                             }
                                             { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
                                             , value = GrenSyntax.ExpressionInteger 1
@@ -5081,7 +5081,7 @@ Nothing"""
                                         GrenSyntax.ExpressionInfixOperation
                                             "+"
                                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "count"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
                                             }
                                             { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
                                             , value = GrenSyntax.ExpressionInteger 1
@@ -5101,7 +5101,7 @@ Nothing"""
                                 GrenSyntax.ExpressionInfixOperation
                                     "+"
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = GrenSyntax.ExpressionReference [] "count"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
                                     }
                                     { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
                                     , value =
@@ -5129,14 +5129,14 @@ Nothing"""
                                         GrenSyntax.ExpressionInfixOperation
                                             "&&"
                                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                            , value = GrenSyntax.ExpressionReference [] "condition"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
                                             }
                                             { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 23 } }
-                                            , value = GrenSyntax.ExpressionReference [] "condition"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
                                             }
                                     }
                                     { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 28 } }
-                                    , value = GrenSyntax.ExpressionReference [] "f"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                     }
                             }
                 )
@@ -5151,7 +5151,7 @@ Nothing"""
                                     , value =
                                         GrenSyntax.ExpressionCall
                                             [ { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
-                                              , value = GrenSyntax.ExpressionReference [] "always"
+                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "always" }
                                               }
                                             , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 47 } }
                                               , value =
@@ -5160,7 +5160,7 @@ Nothing"""
                                                         , value =
                                                             GrenSyntax.ExpressionCall
                                                                 [ { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 25 } }
-                                                                  , value = GrenSyntax.ExpressionReference [ "List" ] "concat"
+                                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "concat" }
                                                                   }
                                                                 , { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 46 } }
                                                                   , value =
@@ -5169,7 +5169,7 @@ Nothing"""
                                                                               , value =
                                                                                     GrenSyntax.ExpressionArray
                                                                                         [ { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 38 } }
-                                                                                          , value = GrenSyntax.ExpressionReference [] "fileName"
+                                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "fileName" }
                                                                                           }
                                                                                         ]
                                                                               }
@@ -5190,7 +5190,7 @@ Nothing"""
                     "foo"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                            , value = GrenSyntax.ExpressionReference [] "foo"
+                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                             }
                 )
             , Test.test "unit application"
@@ -5201,7 +5201,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
-                                      , value = GrenSyntax.ExpressionReference [ "Task" ] "succeed"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "Task" ], name = "succeed" }
                                       }
                                     , { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 16 } }
                                       , value = GrenSyntax.ExpressionUnit
@@ -5217,10 +5217,10 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                      , value = GrenSyntax.ExpressionReference [] "foo"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                       }
                                     , { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 8 } }
-                                      , value = GrenSyntax.ExpressionReference [] "bar"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                       }
                                     ]
                             }
@@ -5239,15 +5239,15 @@ Nothing"""
                                 GrenSyntax.ExpressionIfThenElse
                                     { condition =
                                         { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                         }
                                     , onTrue =
                                         { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                         }
                                     , onFalse =
                                         { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
-                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                         }
                                     }
                             }
@@ -5261,15 +5261,15 @@ Nothing"""
                                 GrenSyntax.ExpressionIfThenElse
                                     { condition =
                                         { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                         }
                                     , onTrue =
                                         { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                         }
                                     , onFalse =
                                         { range = { start = { row = 1, column = 23 }, end = { row = 1, column = 26 } }
-                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                         }
                                     }
                             }
@@ -5283,7 +5283,7 @@ Nothing"""
                                 GrenSyntax.ExpressionIfThenElse
                                     { condition =
                                         { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "True"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                         }
                                     , onTrue =
                                         { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 40 } }
@@ -5291,21 +5291,21 @@ Nothing"""
                                             GrenSyntax.ExpressionIfThenElse
                                                 { condition =
                                                     { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 22 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "False"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "False" }
                                                     }
                                                 , onTrue =
                                                     { range = { start = { row = 1, column = 28 }, end = { row = 1, column = 31 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "foo"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                                     }
                                                 , onFalse =
                                                     { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 40 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "baz"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "baz" }
                                                     }
                                                 }
                                         }
                                     , onFalse =
                                         { range = { start = { row = 1, column = 46 }, end = { row = 1, column = 49 } }
-                                        , value = GrenSyntax.ExpressionReference [] "bar"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                         }
                                     }
                             }
@@ -5333,7 +5333,7 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 18 } }, value = "view" }
                                             , value =
                                                 { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                , value = GrenSyntax.ExpressionReference [] "view"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "view" }
                                                 }
                                             }
                                       }
@@ -5343,7 +5343,7 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 33 } }, value = "update" }
                                             , value =
                                                 { range = { start = { row = 1, column = 36 }, end = { row = 1, column = 42 } }
-                                                , value = GrenSyntax.ExpressionReference [] "update"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "update" }
                                                 }
                                             }
                                       }
@@ -5394,7 +5394,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.ExpressionCall
                                                 [ { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                                  , value = GrenSyntax.ExpressionReference [] "class"
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "class" }
                                                   }
                                                 , { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
                                                   , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "a" }
@@ -5405,7 +5405,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.ExpressionCall
                                                 [ { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 18 } }
-                                                  , value = GrenSyntax.ExpressionReference [] "text"
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                   }
                                                 , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 24 } }
                                                   , value =
@@ -5427,7 +5427,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.ExpressionCall
                                                 [ { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                                  , value = GrenSyntax.ExpressionReference [] "class"
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "class" }
                                                   }
                                                 , { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
                                                   , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "a" }
@@ -5438,7 +5438,7 @@ Nothing"""
                                       , value =
                                             GrenSyntax.ExpressionCall
                                                 [ { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 18 } }
-                                                  , value = GrenSyntax.ExpressionReference [] "text"
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "text" }
                                                   }
                                                 , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 24 } }
                                                   , value =
@@ -5497,7 +5497,7 @@ Nothing"""
                     "Html.text"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                            , value = GrenSyntax.ExpressionReference [ "Html" ] "text"
+                            , value = GrenSyntax.ExpressionReference { qualification = [ "Html" ], name = "text" }
                             }
                 )
             , Test.test "qualified expression with name colliding with keyword"
@@ -5505,7 +5505,7 @@ Nothing"""
                     "Html.Attributes.type"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 21 } }
-                            , value = GrenSyntax.ExpressionReference [ "Html", "Attributes" ] "type_"
+                            , value = GrenSyntax.ExpressionReference { qualification = [ "Html", "Attributes" ], name = "type_" }
                             }
                 )
             , Test.test "record access"
@@ -5517,7 +5517,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordAccess
                                     { record =
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                         }
                                     , field =
                                         { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 8 } }
@@ -5535,7 +5535,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordAccess
                                     { record =
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                        , value = GrenSyntax.ExpressionReference [] "foo"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                         }
                                     , field =
                                         { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 13 } }
@@ -5557,7 +5557,7 @@ Nothing"""
                                             GrenSyntax.ExpressionRecordAccess
                                                 { record =
                                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "foo"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                                     }
                                                 , field =
                                                     { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 8 } }
@@ -5585,7 +5585,7 @@ Nothing"""
                                             GrenSyntax.ExpressionRecordAccess
                                                 { record =
                                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                                                    , value = GrenSyntax.ExpressionReference [ "A", "B" ] "foo"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [ "A", "B" ], name = "foo" }
                                                     }
                                                 , field =
                                                     { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
@@ -5641,7 +5641,7 @@ Nothing"""
                                                 { range = { end = { column = 29, row = 1 }, start = { column = 22, row = 1 } }, value = "aPunned" }
                                             , value =
                                                 { range = { end = { column = 29, row = 1 }, start = { column = 29, row = 1 } }
-                                                , value = GrenSyntax.ExpressionReference [] "aPunned"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "aPunned" }
                                                 }
                                             }
                                       }
@@ -5651,7 +5651,7 @@ Nothing"""
                                                 { range = { end = { column = 38, row = 1 }, start = { column = 31, row = 1 } }, value = "bPunned" }
                                             , value =
                                                 { range = { end = { column = 38, row = 1 }, start = { column = 38, row = 1 } }
-                                                , value = GrenSyntax.ExpressionReference [] "bPunned"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "bPunned" }
                                                 }
                                             }
                                       }
@@ -5661,7 +5661,7 @@ Nothing"""
                                                 { range = { end = { column = 49, row = 1 }, start = { column = 42, row = 1 } }, value = "cPunned" }
                                             , value =
                                                 { range = { end = { column = 49, row = 1 }, start = { column = 49, row = 1 } }
-                                                , value = GrenSyntax.ExpressionReference [] "cPunned"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "cPunned" }
                                                 }
                                             }
                                       }
@@ -5735,7 +5735,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordUpdate
                                     { record =
                                         { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                         }
                                     , fields =
                                         [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
@@ -5754,7 +5754,7 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
                                                 , value =
                                                     { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                     }
                                                 }
                                           }
@@ -5771,7 +5771,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordUpdate
                                     { record =
                                         { range = { end = { column = 15, row = 1 }, start = { column = 3, row = 1 } }
-                                        , value = GrenSyntax.ExpressionReference [ "Shared" ] "model"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [ "Shared" ], name = "model" }
                                         }
                                     , fields =
                                         [ { range = { end = { column = 27, row = 1 }, start = { column = 18, row = 1 } }
@@ -5790,7 +5790,7 @@ Nothing"""
                                                     { range = { end = { column = 36, row = 1 }, start = { column = 29, row = 1 } }, value = "loading" }
                                                 , value =
                                                     { range = { end = { column = 43, row = 1 }, start = { column = 39, row = 1 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                     }
                                                 }
                                           }
@@ -5807,7 +5807,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordUpdate
                                     { record =
                                         { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                         }
                                     , fields =
                                         [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
@@ -5826,7 +5826,7 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
                                                 , value =
                                                     { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                     }
                                                 }
                                           }
@@ -5843,7 +5843,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordUpdate
                                     { record =
                                         { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 8 } }
-                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                         }
                                     , fields =
                                         [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 20 } }
@@ -5862,7 +5862,7 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 29 } }, value = "loading" }
                                                 , value =
                                                     { range = { start = { row = 1, column = 32 }, end = { row = 1, column = 36 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                     }
                                                 }
                                           }
@@ -5879,7 +5879,7 @@ Nothing"""
                                 GrenSyntax.ExpressionRecordUpdate
                                     { record =
                                         { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 7 } }
-                                        , value = GrenSyntax.ExpressionReference [] "model"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
                                         }
                                     , fields =
                                         [ { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 18 } }
@@ -5898,7 +5898,7 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 27 } }, value = "loading" }
                                                 , value =
                                                     { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 34 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                     }
                                                 }
                                           }
@@ -5914,13 +5914,13 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                      , value = GrenSyntax.ExpressionReference [ "List" ] "map"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "map" }
                                       }
                                     , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
                                       , value = GrenSyntax.ExpressionRecordAccessFunction ".name"
                                       }
                                     , { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 22 } }
-                                      , value = GrenSyntax.ExpressionReference [] "people"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "people" }
                                       }
                                     ]
                             }
@@ -5939,7 +5939,7 @@ Nothing"""
                                               , value = GrenSyntax.ExpressionRecordAccessFunction ".spaceEvenly"
                                               }
                                             , { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 37 } }
-                                              , value = GrenSyntax.ExpressionReference [ "Internal", "Style" ] "classes"
+                                              , value = GrenSyntax.ExpressionReference { qualification = [ "Internal", "Style" ], name = "classes" }
                                               }
                                             ]
                                     }
@@ -6018,7 +6018,7 @@ Nothing"""
                                       , value = GrenSyntax.ExpressionOperatorFunction "::"
                                       }
                                     , { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                      , value = GrenSyntax.ExpressionReference [] "x"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                       }
                                     ]
                             }
@@ -6064,7 +6064,7 @@ Nothing"""
                                                           , value =
                                                                 GrenSyntax.ExpressionNegation
                                                                     { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "x"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                     }
                                                           }
                                                         ]
@@ -6089,7 +6089,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.ExpressionNegation
                                                         { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                         }
                                                 }
                                             }
@@ -6109,23 +6109,23 @@ Nothing"""
                                     , value =
                                         GrenSyntax.ExpressionCall
                                             [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                              , value = GrenSyntax.ExpressionReference [ "List" ] "sum"
+                                              , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "sum" }
                                               }
                                             , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
                                               , value =
                                                     GrenSyntax.ExpressionArray
                                                         [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "a"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                           }
                                                         , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                                          , value = GrenSyntax.ExpressionReference [] "b"
+                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                           }
                                                         ]
                                               }
                                             ]
                                     }
                                     { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 17 } }
-                                    , value = GrenSyntax.ExpressionReference [] "x"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                     }
                             }
                 )
@@ -6152,7 +6152,7 @@ Nothing"""
                                                                 , value =
                                                                     GrenSyntax.ExpressionNegation
                                                                         { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } }
-                                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                         }
                                                                 }
                                                             }
@@ -6162,7 +6162,7 @@ Nothing"""
                                         ]
                                     , result =
                                         { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                        , value = GrenSyntax.ExpressionReference [] "a"
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                         }
                                     }
                             }
@@ -6188,7 +6188,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.ExpressionNegation
                                                         { range = { start = { row = 2, column = 9 }, end = { row = 2, column = 10 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "a"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                         }
                                                 }
                                           }
@@ -6216,7 +6216,7 @@ Nothing"""
                                                                 , value =
                                                                     GrenSyntax.ExpressionNegation
                                                                         { range = { end = { column = 9, row = 1 }, start = { column = 8, row = 1 } }
-                                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                         }
                                                                 }
                                                             , name = { range = { end = { column = 6, row = 1 }, start = { column = 5, row = 1 } }, value = "a" }
@@ -6232,7 +6232,7 @@ Nothing"""
                                         , value =
                                             GrenSyntax.ExpressionNegation
                                                 { range = { end = { column = 14, row = 1 }, start = { column = 13, row = 1 } }
-                                                , value = GrenSyntax.ExpressionReference [] "a"
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                 }
                                         }
                                     }
@@ -6257,7 +6257,7 @@ Nothing"""
                                                 , value =
                                                     GrenSyntax.ExpressionNegation
                                                         { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                         }
                                                 }
                                             }
@@ -6301,7 +6301,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                                      , value = GrenSyntax.ExpressionReference [] "toFloat"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "toFloat" }
                                       }
                                     , { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 11 } }
                                       , value =
@@ -6339,10 +6339,10 @@ Nothing"""
                                                                     GrenSyntax.ExpressionInfixOperation
                                                                         "-"
                                                                         { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
-                                                                        , value = GrenSyntax.ExpressionReference [] "x"
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                         }
                                                                         { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
-                                                                        , value = GrenSyntax.ExpressionReference [] "y"
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
                                                                         }
                                                                 }
                                                         }
@@ -6456,10 +6456,10 @@ Nothing"""
                                 GrenSyntax.ExpressionInfixOperation
                                     "|>"
                                     { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.ExpressionReference [] "a"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                     }
                                     { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                    , value = GrenSyntax.ExpressionReference [] "b"
+                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                     }
                             }
                 )
@@ -6471,7 +6471,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
-                                      , value = GrenSyntax.ExpressionReference [] "chompWhile"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "chompWhile" }
                                       }
                                     , { range = { start = { row = 1, column = 12 }, end = { row = 1, column = 54 } }
                                       , value =
@@ -6494,7 +6494,7 @@ Nothing"""
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "=="
                                                                             { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "c"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
                                                                             }
                                                                             { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 27 } }
                                                                             , value = GrenSyntax.ExpressionChar ' '
@@ -6509,7 +6509,7 @@ Nothing"""
                                                                                 GrenSyntax.ExpressionInfixOperation
                                                                                     "=="
                                                                                     { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 32 } }
-                                                                                    , value = GrenSyntax.ExpressionReference [] "c"
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
                                                                                     }
                                                                                     { range = { start = { row = 1, column = 36 }, end = { row = 1, column = 40 } }
                                                                                     , value = GrenSyntax.ExpressionChar '\n'
@@ -6520,7 +6520,7 @@ Nothing"""
                                                                                 GrenSyntax.ExpressionInfixOperation
                                                                                     "=="
                                                                                     { range = { start = { row = 1, column = 44 }, end = { row = 1, column = 45 } }
-                                                                                    , value = GrenSyntax.ExpressionReference [] "c"
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
                                                                                     }
                                                                                     { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 53 } }
                                                                                     , value = GrenSyntax.ExpressionChar '\u{000D}'
@@ -6542,7 +6542,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                      , value = GrenSyntax.ExpressionReference [] "foo"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                       }
                                     , { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 24 } }
                                       , value =
@@ -6553,7 +6553,7 @@ Nothing"""
                                                         GrenSyntax.ExpressionRecordUpdate
                                                             { record =
                                                                 { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
-                                                                , value = GrenSyntax.ExpressionReference [] "d"
+                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "d" }
                                                                 }
                                                             , fields =
                                                                 [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 21 } }
@@ -6565,13 +6565,13 @@ Nothing"""
                                                                             , value =
                                                                                 GrenSyntax.ExpressionCall
                                                                                     [ { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } }
-                                                                                      , value = GrenSyntax.ExpressionReference [] "f"
+                                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                                                                       }
                                                                                     , { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 18 } }
-                                                                                      , value = GrenSyntax.ExpressionReference [] "x"
+                                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                                       }
                                                                                     , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                                                      , value = GrenSyntax.ExpressionReference [] "y"
+                                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
                                                                                       }
                                                                                     ]
                                                                             }
@@ -6597,7 +6597,7 @@ Nothing"""
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
-                                      , value = GrenSyntax.ExpressionReference [ "Random" ] "list"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "Random" ], name = "list" }
                                       }
                                     , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 15 } }
                                       , value =
@@ -6607,7 +6607,7 @@ Nothing"""
                                                 }
                                       }
                                     , { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 25 } }
-                                      , value = GrenSyntax.ExpressionReference [] "generator"
+                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "generator" }
                                       }
                                     ]
                             }
@@ -6668,7 +6668,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                             }
                                         }
                                 }
@@ -6693,7 +6693,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 14 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                             }
                                         }
                                 }
@@ -6712,7 +6712,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                             }
                                         }
                                 }
@@ -6738,10 +6738,10 @@ Nothing"""
                                                 GrenSyntax.ExpressionInfixOperation
                                                     "+"
                                                     { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "a"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                     }
                                                     { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "b"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                     }
                                             }
                                         }
@@ -6761,7 +6761,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                             }
                                         }
                                 }
@@ -6780,7 +6780,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference [] "foo"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "foo" }
                                             }
                                         }
                                 }
@@ -6811,7 +6811,7 @@ Nothing"""
                                                                 , parameters = []
                                                                 , expression =
                                                                     { range = { start = { row = 2, column = 9 }, end = { row = 2, column = 12 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "bar"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                                                     }
                                                                 }
                                                             }
@@ -6834,7 +6834,7 @@ Nothing"""
                                                                     ]
                                                                 , expression =
                                                                     { range = { start = { row = 4, column = 12 }, end = { row = 4, column = 13 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "n"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
                                                                     }
                                                                 }
                                                             }
@@ -6881,7 +6881,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -6936,7 +6936,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 4, column = 4 }, end = { row = 4, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -6991,7 +6991,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 5, column = 3 }, end = { row = 5, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -7048,7 +7048,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 7, column = 3 }, end = { row = 7, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -7103,7 +7103,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 5, column = 3 }, end = { row = 5, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -7174,7 +7174,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 4, column = 9 }, end = { row = 4, column = 12 } }
-                                            , value = GrenSyntax.ExpressionReference [] "bar"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "bar" }
                                             }
                                         }
                                 }
@@ -7255,7 +7255,7 @@ Nothing"""
                                                         , value = GrenSyntax.PatternIgnored Nothing
                                                         }
                                                         { range = { start = { row = 2, column = 9 }, end = { row = 2, column = 10 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "b"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                         }
                                               }
                                             , { range = { start = { row = 3, column = 5 }, end = { row = 3, column = 12 } }
@@ -7271,7 +7271,7 @@ Nothing"""
                                                                 ]
                                                         }
                                                         { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "b"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
                                                         }
                                               }
                                             , { range = { start = { row = 4, column = 5 }, end = { row = 4, column = 15 } }
@@ -7285,7 +7285,7 @@ Nothing"""
                                                                 }
                                                         }
                                                         { range = { start = { row = 4, column = 14 }, end = { row = 4, column = 15 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "e"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "e" }
                                                         }
                                               }
                                             , { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 19 } }
@@ -7308,7 +7308,7 @@ Nothing"""
                                                                 }
                                                         }
                                                         { range = { start = { row = 5, column = 18 }, end = { row = 5, column = 19 } }
-                                                        , value = GrenSyntax.ExpressionReference [] "g"
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "g" }
                                                         }
                                               }
                                             ]
@@ -7343,10 +7343,10 @@ Nothing"""
                                                                     , value =
                                                                         GrenSyntax.ExpressionCall
                                                                             [ { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 27 } }
-                                                                              , value = GrenSyntax.ExpressionReference [ "String" ] "length"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [ "String" ], name = "length" }
                                                                               }
                                                                             , { range = { start = { row = 1, column = 28 }, end = { row = 1, column = 29 } }
-                                                                              , value = GrenSyntax.ExpressionReference [] "s"
+                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "s" }
                                                                               }
                                                                             ]
                                                                     }
@@ -7357,7 +7357,7 @@ Nothing"""
                                             ]
                                         , result =
                                             { range = { start = { row = 1, column = 33 }, end = { row = 1, column = 39 } }
-                                            , value = GrenSyntax.ExpressionReference [] "indent"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "indent" }
                                             }
                                         }
                                 }
@@ -7486,7 +7486,7 @@ Nothing"""
                         "letterbox"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                , value = GrenSyntax.ExpressionReference [] "letterbox"
+                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "letterbox" }
                                 }
                     )
                 ]
@@ -7538,7 +7538,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "f"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7626,7 +7626,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                            , value = GrenSyntax.ExpressionReference [] "f"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7666,10 +7666,10 @@ True -> 1"""
                                                 GrenSyntax.ExpressionInfixOperation
                                                     "|>"
                                                     { range = { end = { column = 2, row = 1 }, start = { column = 1, row = 1 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "f"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                                     }
                                                     { range = { end = { column = 7, row = 1 }, start = { column = 6, row = 1 } }
-                                                    , value = GrenSyntax.ExpressionReference [] "g"
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "g" }
                                                     }
                                             }
                                         , cases =
@@ -7705,7 +7705,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "f"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7731,7 +7731,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "f"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7757,7 +7757,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "x"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7797,7 +7797,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.ExpressionReference [] "x"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -7866,7 +7866,7 @@ True -> 1"""
                                     GrenSyntax.ExpressionCaseOf
                                         { expression =
                                             { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 9 } }
-                                            , value = GrenSyntax.ExpressionReference [] "msg"
+                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "msg" }
                                             }
                                         , cases =
                                             [ { pattern =
@@ -9259,13 +9259,13 @@ log a =
                                                             , value =
                                                                 GrenSyntax.ExpressionCall
                                                                     [ { range = { start = { row = 6, column = 5 }, end = { row = 6, column = 14 } }
-                                                                      , value = GrenSyntax.ExpressionReference [ "Debug" ] "log"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [ "Debug" ], name = "log" }
                                                                       }
                                                                     , { range = { start = { row = 6, column = 15 }, end = { row = 6, column = 19 } }
                                                                       , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "ok" }
                                                                       }
                                                                     , { range = { start = { row = 6, column = 20 }, end = { row = 6, column = 21 } }
-                                                                      , value = GrenSyntax.ExpressionReference [] "a"
+                                                                      , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
                                                                       }
                                                                     ]
                                                             }
@@ -9327,7 +9327,7 @@ bar = (x + 1) * (2 * y)
                                                                                 GrenSyntax.ExpressionInfixOperation
                                                                                     "+"
                                                                                     { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
-                                                                                    , value = GrenSyntax.ExpressionReference [] "x"
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                                     }
                                                                                     { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
                                                                                     , value = GrenSyntax.ExpressionInteger 1
@@ -9345,7 +9345,7 @@ bar = (x + 1) * (2 * y)
                                                                                     , value = GrenSyntax.ExpressionInteger 2
                                                                                     }
                                                                                     { range = { start = { row = 3, column = 22 }, end = { row = 3, column = 23 } }
-                                                                                    , value = GrenSyntax.ExpressionReference [] "y"
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
                                                                                     }
                                                                             }
                                                                     }
@@ -9401,7 +9401,7 @@ bar = x + 1 * 2
                                                                 GrenSyntax.ExpressionInfixOperation
                                                                     "+"
                                                                     { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "x"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                     }
                                                                     { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 16 } }
                                                                     , value =
@@ -9470,7 +9470,7 @@ bar = x * 1 + 2
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "*"
                                                                             { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "x"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
                                                                             }
                                                                             { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
                                                                             , value = GrenSyntax.ExpressionInteger 1
@@ -9675,14 +9675,14 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "&&"
                                                                             { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 13 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "True"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                             }
                                                                             { range = { start = { row = 3, column = 17 }, end = { row = 3, column = 21 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "True"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                             }
                                                                     }
                                                                     { range = { start = { row = 3, column = 25 }, end = { row = 3, column = 29 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                     }
                                                             }
                                                         }
@@ -9706,17 +9706,17 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                                 GrenSyntax.ExpressionInfixOperation
                                                                     "||"
                                                                     { range = { start = { row = 4, column = 9 }, end = { row = 4, column = 13 } }
-                                                                    , value = GrenSyntax.ExpressionReference [] "True"
+                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                     }
                                                                     { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 29 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
                                                                             "&&"
                                                                             { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 21 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "True"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                             }
                                                                             { range = { start = { row = 4, column = 25 }, end = { row = 4, column = 29 } }
-                                                                            , value = GrenSyntax.ExpressionReference [] "True"
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
                                                                             }
                                                                     }
                                                             }
