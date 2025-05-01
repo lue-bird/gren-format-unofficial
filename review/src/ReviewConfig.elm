@@ -90,6 +90,7 @@ config =
     , Review.Action.rule
 
     -- ## limit
+    , Review.VariantValueCount.zeroOrOne
     , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule
     , [ ReviewPipelineStyles.rightPizzaPipelines
