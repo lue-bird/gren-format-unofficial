@@ -216,23 +216,21 @@ type alias ValueOrFunctionDeclarationInfo =
     }
 
 
-{-| Custom type for all expressions such as:
+{-| A value or function:
 
-  - `Unit`: `()`
-  - `Application`: `add a b`
-  - `OperatorApplication`: `a + b`
-  - `FunctionOrValue`: `add` or `True`
-  - `IfBlock`: `if a then b else c`
-  - `PrefixOperator`: `(+)`
-  - `Operator`: `+` (not possible to get in practice)
-  - `Integer`: `42`
-  - `Hex`: `0x1F`
-  - `Floatable`: `42.0`
-  - `Negation`: `-a`
-  - `Literal`: `"text"`
-  - `CharLiteral`: `'a'`
-  - `TupledExpression`: `(a, b)` or `(a, b, c)`
-  - `ParenthesizedExpression`: `(a)`
+  - `ExpressionUnit`: `()`
+  - `ExpressionInteger`: `-42`
+  - `ExpressionHex`: `0x1F`
+  - `ExpressionFloat`: `42.0`
+  - `ExpressionChar`: `'a'`
+  - `ExpressionString`: `"text"`
+  - `ExpressionOperatorFunction`: `(+)`
+  - `ExpressionNegation`: `-a`
+  - `ExpressionParenthesized`: `(a)`
+  - `ExpressionCall`: `add a b`
+  - `ExpressionInfixOperation`: `a + b`
+  - `ExpressionReference`: `add` or `Basics.True` or `portCmd`
+  - `ExpressionIfThenElse`: `if a then b else c`
   - `ExpressionLetIn`: `let a = 4 in a`
   - `ExpressionCaseOf`: `case a of` followed by pattern matches
   - `ExpressionLambda`: `(\a -> a)`
@@ -240,24 +238,23 @@ type alias ValueOrFunctionDeclarationInfo =
   - `ExpressionArray`: `[ x, y ]`
   - `ExpressionRecordAccess`: `a.name`
   - `ExpressionRecordAccessFunction`: `.name`
-  - `ExpressionRecordUpdate`: `{ a | name = "text" }`
-  - `ExpressionGlsl`: `[glsl| ... |]`
+  - `ExpressionRecordUpdate`: `{ Some.record | name = "text" }`
 
 -}
 type Expression
     = ExpressionUnit
+    | ExpressionInteger Int
+    | ExpressionHex Int
+    | ExpressionFloat Float
+    | ExpressionChar Char
+    | ExpressionString { content : String, quotingStyle : StringQuotingStyle }
+    | ExpressionOperatorFunction String
+    | ExpressionNegation (Node Expression)
+    | ExpressionParenthesized (Node Expression)
     | ExpressionCall (List (Node Expression))
     | ExpressionInfixOperation String (Node Expression) (Node Expression)
     | ExpressionReference ModuleName String
     | ExpressionIfThenElse (Node Expression) (Node Expression) (Node Expression)
-    | ExpressionOperatorFunction String
-    | ExpressionInteger Int
-    | ExpressionHex Int
-    | ExpressionFloat Float
-    | ExpressionNegation (Node Expression)
-    | ExpressionString { content : String, quotingStyle : StringQuotingStyle }
-    | ExpressionChar Char
-    | ExpressionParenthesized (Node Expression)
     | ExpressionLetIn
         { declarations : List (Node LetDeclaration)
         , result : Node Expression
