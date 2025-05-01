@@ -4010,7 +4010,12 @@ followedByMultiArgumentApplication appliedExpressionParser =
 applyExtensionRight : ExtensionRight -> GrenSyntax.Node GrenSyntax.Expression -> GrenSyntax.Node GrenSyntax.Expression
 applyExtensionRight (ExtendRightByOperation operation) leftNode =
     { range = { start = leftNode.range.start, end = operation.expression.range.end }
-    , value = GrenSyntax.ExpressionInfixOperation operation.symbol leftNode operation.expression
+    , value =
+        GrenSyntax.ExpressionInfixOperation
+            { operator = operation.symbol
+            , left = leftNode
+            , right = operation.expression
+            }
     }
 
 

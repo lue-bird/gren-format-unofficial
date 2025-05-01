@@ -1134,28 +1134,31 @@ fun2 n =
                                                             { range = { start = { row = 4, column = 3 }, end = { row = 5, column = 11 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "+"
-                                                                    { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 9 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionCall
-                                                                            [ { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 7 } }
-                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
-                                                                              }
-                                                                            , { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 9 } }
-                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
-                                                                              }
-                                                                            ]
-                                                                    }
-                                                                    { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 11 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionCall
-                                                                            [ { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 9 } }
-                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
-                                                                              }
-                                                                            , { range = { start = { row = 5, column = 10 }, end = { row = 5, column = 11 } }
-                                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
-                                                                              }
-                                                                            ]
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 9 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionCall
+                                                                                [ { range = { start = { row = 4, column = 3 }, end = { row = 4, column = 7 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
+                                                                                  }
+                                                                                , { range = { start = { row = 4, column = 8 }, end = { row = 4, column = 9 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
+                                                                                  }
+                                                                                ]
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 11 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionCall
+                                                                                [ { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 9 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "fun2" }
+                                                                                  }
+                                                                                , { range = { start = { row = 5, column = 10 }, end = { row = 5, column = 11 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "n" }
+                                                                                  }
+                                                                                ]
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -1815,12 +1818,15 @@ lambdaWhitespace =   \\ a b ->    a
                                                                     { range = { start = { row = 4, column = 34 }, end = { row = 8, column = 6 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
-                                                                            "+"
-                                                                            { range = { start = { row = 4, column = 34 }, end = { row = 4, column = 35 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
-                                                                            }
-                                                                            { range = { start = { row = 8, column = 5 }, end = { row = 8, column = 6 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                                                            { operator = "+"
+                                                                            , left =
+                                                                                { range = { start = { row = 4, column = 34 }, end = { row = 4, column = 35 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
+                                                                                }
+                                                                            , right =
+                                                                                { range = { start = { row = 8, column = 5 }, end = { row = 8, column = 6 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                                                                }
                                                                             }
                                                                     }
                                                                 }
@@ -2468,12 +2474,15 @@ foo = bar"""
                                                 { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 14 } }
                                                 , value =
                                                     GrenSyntax.ExpressionInfixOperation
-                                                        "+"
-                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
-                                                        }
-                                                        { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                        { operator = "+"
+                                                        , left =
+                                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                                            }
+                                                        , right =
+                                                            { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
+                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                            }
                                                         }
                                                 }
                                             }
@@ -2709,12 +2718,15 @@ foo = bar"""
                                                                     { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 16 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
-                                                                            "+"
-                                                                            { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
-                                                                            }
-                                                                            { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                            { operator = "+"
+                                                                            , left =
+                                                                                { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
+                                                                                }
+                                                                            , right =
+                                                                                { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 1
+                                                                                }
                                                                             }
                                                                     }
                                                               }
@@ -2726,12 +2738,15 @@ foo = bar"""
                                                                     { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 16 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
-                                                                            "-"
-                                                                            { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
-                                                                            }
-                                                                            { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                            { operator = "-"
+                                                                            , left =
+                                                                                { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
+                                                                                }
+                                                                            , right =
+                                                                                { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 1
+                                                                                }
                                                                             }
                                                                     }
                                                               }
@@ -3082,40 +3097,46 @@ main =
                                                 { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 83 } }
                                                 , value =
                                                     GrenSyntax.ExpressionInfixOperation
-                                                        "<|"
-                                                        { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 36 } }
-                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "curry" }
-                                                        }
-                                                        { range = { start = { row = 1, column = 40 }, end = { row = 1, column = 83 } }
-                                                        , value =
-                                                            GrenSyntax.ExpressionInfixOperation
-                                                                ">>"
-                                                                { range = { start = { row = 1, column = 40 }, end = { row = 1, column = 56 } }
-                                                                , value =
-                                                                    GrenSyntax.ExpressionParenthesized
-                                                                        { range = { start = { row = 1, column = 41 }, end = { row = 1, column = 55 } }
+                                                        { operator = "<|"
+                                                        , left =
+                                                            { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 36 } }
+                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "curry" }
+                                                            }
+                                                        , right =
+                                                            { range = { start = { row = 1, column = 40 }, end = { row = 1, column = 83 } }
+                                                            , value =
+                                                                GrenSyntax.ExpressionInfixOperation
+                                                                    { operator = ">>"
+                                                                    , left =
+                                                                        { range = { start = { row = 1, column = 40 }, end = { row = 1, column = 56 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionParenthesized
+                                                                                { range = { start = { row = 1, column = 41 }, end = { row = 1, column = 55 } }
+                                                                                , value =
+                                                                                    GrenSyntax.ExpressionCall
+                                                                                        [ { range = { start = { row = 1, column = 41 }, end = { row = 1, column = 48 } }
+                                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "uncurry" }
+                                                                                          }
+                                                                                        , { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 55 } }
+                                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "update" }
+                                                                                          }
+                                                                                        ]
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 1, column = 60 }, end = { row = 1, column = 83 } }
                                                                         , value =
                                                                             GrenSyntax.ExpressionCall
-                                                                                [ { range = { start = { row = 1, column = 41 }, end = { row = 1, column = 48 } }
-                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "uncurry" }
+                                                                                [ { range = { start = { row = 1, column = 60 }, end = { row = 1, column = 74 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "batchStateCmds" }
                                                                                   }
-                                                                                , { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 55 } }
-                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "update" }
+                                                                                , { range = { start = { row = 1, column = 75 }, end = { row = 1, column = 83 } }
+                                                                                  , value = GrenSyntax.ExpressionReference { qualification = [], name = "sendPort" }
                                                                                   }
                                                                                 ]
                                                                         }
-                                                                }
-                                                                { range = { start = { row = 1, column = 60 }, end = { row = 1, column = 83 } }
-                                                                , value =
-                                                                    GrenSyntax.ExpressionCall
-                                                                        [ { range = { start = { row = 1, column = 60 }, end = { row = 1, column = 74 } }
-                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "batchStateCmds" }
-                                                                          }
-                                                                        , { range = { start = { row = 1, column = 75 }, end = { row = 1, column = 83 } }
-                                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "sendPort" }
-                                                                          }
-                                                                        ]
-                                                                }
+                                                                    }
+                                                            }
                                                         }
                                                 }
                                             }
@@ -3168,12 +3189,15 @@ main =
                                                                     { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 16 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
-                                                                            "+"
-                                                                            { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
-                                                                            }
-                                                                            { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                            { operator = "+"
+                                                                            , left =
+                                                                                { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 12 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
+                                                                                }
+                                                                            , right =
+                                                                                { range = { start = { row = 4, column = 15 }, end = { row = 4, column = 16 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 1
+                                                                                }
                                                                             }
                                                                     }
                                                               }
@@ -3185,12 +3209,15 @@ main =
                                                                     { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 16 } }
                                                                     , value =
                                                                         GrenSyntax.ExpressionInfixOperation
-                                                                            "-"
-                                                                            { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
-                                                                            }
-                                                                            { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                            { operator = "-"
+                                                                            , left =
+                                                                                { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 12 } }
+                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
+                                                                                }
+                                                                            , right =
+                                                                                { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 16 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 1
+                                                                                }
                                                                             }
                                                                     }
                                                               }
@@ -4998,16 +5025,19 @@ Nothing"""
                                     { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 11 } }
                                     , value =
                                         GrenSyntax.ExpressionInfixOperation
-                                            "*"
-                                            { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 4 } }
-                                            , value =
-                                                GrenSyntax.ExpressionNegation
-                                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } }
-                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                    }
-                                            }
-                                            { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 11 } }
-                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "sign" }
+                                            { operator = "*"
+                                            , left =
+                                                { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 4 } }
+                                                , value =
+                                                    GrenSyntax.ExpressionNegation
+                                                        { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } }
+                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                        }
+                                                }
+                                            , right =
+                                                { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 11 } }
+                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "sign" }
+                                                }
                                             }
                                     }
                             }
@@ -5035,12 +5065,15 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "+"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
-                                    }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                    , value = GrenSyntax.ExpressionInteger 1
+                                    { operator = "+"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "model" }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                        , value = GrenSyntax.ExpressionInteger 1
+                                        }
                                     }
                             }
                 )
@@ -5051,20 +5084,26 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "=="
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                    , value =
-                                        GrenSyntax.ExpressionInfixOperation
-                                            "+"
-                                            { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
-                                            }
-                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                            , value = GrenSyntax.ExpressionInteger 1
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
-                                    , value = GrenSyntax.ExpressionInteger 1
+                                    { operator = "=="
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
+                                        , value =
+                                            GrenSyntax.ExpressionInfixOperation
+                                                { operator = "+"
+                                                , left =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
+                                                    }
+                                                , right =
+                                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
+                                        , value = GrenSyntax.ExpressionInteger 1
+                                        }
                                     }
                             }
                 )
@@ -5075,20 +5114,26 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "/="
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                    , value =
-                                        GrenSyntax.ExpressionInfixOperation
-                                            "+"
-                                            { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
-                                            }
-                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                            , value = GrenSyntax.ExpressionInteger 1
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
-                                    , value = GrenSyntax.ExpressionInteger 1
+                                    { operator = "/="
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
+                                        , value =
+                                            GrenSyntax.ExpressionInfixOperation
+                                                { operator = "+"
+                                                , left =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
+                                                    }
+                                                , right =
+                                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
+                                        , value = GrenSyntax.ExpressionInteger 1
+                                        }
                                     }
                             }
                 )
@@ -5099,20 +5144,26 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "+"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
-                                    }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                    , value =
-                                        GrenSyntax.ExpressionInfixOperation
-                                            "//"
-                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                            , value = GrenSyntax.ExpressionInteger 1
-                                            }
-                                            { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
-                                            , value = GrenSyntax.ExpressionInteger 2
-                                            }
+                                    { operator = "+"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "count" }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
+                                        , value =
+                                            GrenSyntax.ExpressionInfixOperation
+                                                { operator = "//"
+                                                , left =
+                                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                , right =
+                                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 15 } }
+                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                    }
+                                                }
+                                        }
                                     }
                             }
                 )
@@ -5123,20 +5174,26 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "<|"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 23 } }
-                                    , value =
-                                        GrenSyntax.ExpressionInfixOperation
-                                            "&&"
-                                            { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
-                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
-                                            }
-                                            { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 23 } }
-                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 28 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
+                                    { operator = "<|"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 23 } }
+                                        , value =
+                                            GrenSyntax.ExpressionInfixOperation
+                                                { operator = "&&"
+                                                , left =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
+                                                    }
+                                                , right =
+                                                    { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 23 } }
+                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "condition" }
+                                                    }
+                                                }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 28 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
+                                        }
                                     }
                             }
                 )
@@ -6030,12 +6087,15 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "-"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.ExpressionInteger 2
-                                    }
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } }
-                                    , value = GrenSyntax.ExpressionInteger 1
+                                    { operator = "-"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                        , value = GrenSyntax.ExpressionInteger 2
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 4 } }
+                                        , value = GrenSyntax.ExpressionInteger 1
+                                        }
                                     }
                             }
                 )
@@ -6104,28 +6164,31 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "-"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
-                                    , value =
-                                        GrenSyntax.ExpressionCall
-                                            [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                              , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "sum" }
-                                              }
-                                            , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
-                                              , value =
-                                                    GrenSyntax.ExpressionArray
-                                                        [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
-                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
-                                                          }
-                                                        , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                                          , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
-                                                          }
-                                                        ]
-                                              }
-                                            ]
-                                    }
-                                    { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 17 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                    { operator = "-"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
+                                        , value =
+                                            GrenSyntax.ExpressionCall
+                                                [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "sum" }
+                                                  }
+                                                , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
+                                                  , value =
+                                                        GrenSyntax.ExpressionArray
+                                                            [ { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
+                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
+                                                              }
+                                                            , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
+                                                              , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                                              }
+                                                            ]
+                                                  }
+                                                ]
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 17 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                        }
                                     }
                             }
                 )
@@ -6337,12 +6400,15 @@ Nothing"""
                                                                 { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 12 } }
                                                                 , value =
                                                                     GrenSyntax.ExpressionInfixOperation
-                                                                        "-"
-                                                                        { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
-                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
-                                                                        }
-                                                                        { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
-                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
+                                                                        { operator = "-"
+                                                                        , left =
+                                                                            { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                                                            }
+                                                                        , right =
+                                                                            { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 12 } }
+                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
+                                                                            }
                                                                         }
                                                                 }
                                                         }
@@ -6370,52 +6436,64 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 33 } }
                                                 , value =
                                                     GrenSyntax.ExpressionInfixOperation
-                                                        "=="
-                                                        { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 22 } }
-                                                        , value =
-                                                            GrenSyntax.ExpressionInfixOperation
-                                                                "+"
-                                                                { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
-                                                                , value =
-                                                                    GrenSyntax.ExpressionNegation
-                                                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                                                        , value = GrenSyntax.ExpressionInteger 1
-                                                                        }
-                                                                }
-                                                                { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 22 } }
-                                                                , value =
-                                                                    GrenSyntax.ExpressionInfixOperation
-                                                                        "*"
-                                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                                        { operator = "=="
+                                                        , left =
+                                                            { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 22 } }
+                                                            , value =
+                                                                GrenSyntax.ExpressionInfixOperation
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
                                                                         , value =
                                                                             GrenSyntax.ExpressionNegation
-                                                                                { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 13 } }
-                                                                                , value = GrenSyntax.ExpressionInteger 10
+                                                                                { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 1
                                                                                 }
                                                                         }
-                                                                        { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 22 } }
+                                                                    , right =
+                                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 22 } }
                                                                         , value =
                                                                             GrenSyntax.ExpressionInfixOperation
-                                                                                "^"
-                                                                                { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 20 } }
-                                                                                , value =
-                                                                                    GrenSyntax.ExpressionNegation
-                                                                                        { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 20 } }
-                                                                                        , value = GrenSyntax.ExpressionInteger 100
-                                                                                        }
-                                                                                }
-                                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 22 } }
-                                                                                , value = GrenSyntax.ExpressionInteger 2
+                                                                                { operator = "*"
+                                                                                , left =
+                                                                                    { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionNegation
+                                                                                            { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 13 } }
+                                                                                            , value = GrenSyntax.ExpressionInteger 10
+                                                                                            }
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 22 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionInfixOperation
+                                                                                            { operator = "^"
+                                                                                            , left =
+                                                                                                { range = { start = { row = 1, column = 16 }, end = { row = 1, column = 20 } }
+                                                                                                , value =
+                                                                                                    GrenSyntax.ExpressionNegation
+                                                                                                        { range = { start = { row = 1, column = 17 }, end = { row = 1, column = 20 } }
+                                                                                                        , value = GrenSyntax.ExpressionInteger 100
+                                                                                                        }
+                                                                                                }
+                                                                                            , right =
+                                                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 22 } }
+                                                                                                , value = GrenSyntax.ExpressionInteger 2
+                                                                                                }
+                                                                                            }
+                                                                                    }
                                                                                 }
                                                                         }
-                                                                }
-                                                        }
-                                                        { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 33 } }
-                                                        , value =
-                                                            GrenSyntax.ExpressionNegation
-                                                                { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 33 } }
-                                                                , value = GrenSyntax.ExpressionInteger 100001
-                                                                }
+                                                                    }
+                                                            }
+                                                        , right =
+                                                            { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 33 } }
+                                                            , value =
+                                                                GrenSyntax.ExpressionNegation
+                                                                    { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 33 } }
+                                                                    , value = GrenSyntax.ExpressionInteger 100001
+                                                                    }
+                                                            }
                                                         }
                                                 }
                                             }
@@ -6430,20 +6508,26 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "-"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value =
-                                        GrenSyntax.ExpressionInfixOperation
-                                            "+"
-                                            { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                            , value = GrenSyntax.ExpressionInteger 1
-                                            }
-                                            { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } }
-                                            , value = GrenSyntax.ExpressionInteger 2
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                    , value = GrenSyntax.ExpressionInteger 3
+                                    { operator = "-"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                        , value =
+                                            GrenSyntax.ExpressionInfixOperation
+                                                { operator = "+"
+                                                , left =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                    }
+                                                , right =
+                                                    { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 6 } }
+                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                    }
+                                                }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                        , value = GrenSyntax.ExpressionInteger 3
+                                        }
                                     }
                             }
                 )
@@ -6454,12 +6538,15 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "|>"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
-                                    }
-                                    { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                    { operator = "|>"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
+                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                        }
                                     }
                             }
                 )
@@ -6488,44 +6575,59 @@ Nothing"""
                                                             { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 53 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "||"
-                                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 27 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "=="
-                                                                            { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
-                                                                            }
-                                                                            { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 27 } }
-                                                                            , value = GrenSyntax.ExpressionChar ' '
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 53 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "||"
-                                                                            { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 40 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "=="
-                                                                                    { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 32 } }
+                                                                    { operator = "||"
+                                                                    , left =
+                                                                        { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 27 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "=="
+                                                                                , left =
+                                                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 20 } }
                                                                                     , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
                                                                                     }
-                                                                                    { range = { start = { row = 1, column = 36 }, end = { row = 1, column = 40 } }
-                                                                                    , value = GrenSyntax.ExpressionChar '\n'
+                                                                                , right =
+                                                                                    { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 27 } }
+                                                                                    , value = GrenSyntax.ExpressionChar ' '
                                                                                     }
-                                                                            }
-                                                                            { range = { start = { row = 1, column = 44 }, end = { row = 1, column = 53 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "=="
-                                                                                    { range = { start = { row = 1, column = 44 }, end = { row = 1, column = 45 } }
-                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 53 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "||"
+                                                                                , left =
+                                                                                    { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 40 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionInfixOperation
+                                                                                            { operator = "=="
+                                                                                            , left =
+                                                                                                { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 32 } }
+                                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
+                                                                                                }
+                                                                                            , right =
+                                                                                                { range = { start = { row = 1, column = 36 }, end = { row = 1, column = 40 } }
+                                                                                                , value = GrenSyntax.ExpressionChar '\n'
+                                                                                                }
+                                                                                            }
                                                                                     }
-                                                                                    { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 53 } }
-                                                                                    , value = GrenSyntax.ExpressionChar '\u{000D}'
+                                                                                , right =
+                                                                                    { range = { start = { row = 1, column = 44 }, end = { row = 1, column = 53 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionInfixOperation
+                                                                                            { operator = "=="
+                                                                                            , left =
+                                                                                                { range = { start = { row = 1, column = 44 }, end = { row = 1, column = 45 } }
+                                                                                                , value = GrenSyntax.ExpressionReference { qualification = [], name = "c" }
+                                                                                                }
+                                                                                            , right =
+                                                                                                { range = { start = { row = 1, column = 49 }, end = { row = 1, column = 53 } }
+                                                                                                , value = GrenSyntax.ExpressionChar '\u{000D}'
+                                                                                                }
+                                                                                            }
                                                                                     }
-                                                                            }
+                                                                                }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -6619,37 +6721,40 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    "+"
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.ExpressionInteger 1
-                                    }
-                                    { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 16 } }
-                                    , value =
-                                        GrenSyntax.ExpressionNegation
-                                            { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 16 } }
-                                            , value =
-                                                GrenSyntax.ExpressionRecordAccess
-                                                    { record =
-                                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 14 } }
-                                                        , value =
-                                                            GrenSyntax.ExpressionRecord
-                                                                [ { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 13 } }
-                                                                  , value =
-                                                                        { name = { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }, value = "x" }
-                                                                        , value =
-                                                                            { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 13 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 10
+                                    { operator = "+"
+                                    , left =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                        , value = GrenSyntax.ExpressionInteger 1
+                                        }
+                                    , right =
+                                        { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 16 } }
+                                        , value =
+                                            GrenSyntax.ExpressionNegation
+                                                { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 16 } }
+                                                , value =
+                                                    GrenSyntax.ExpressionRecordAccess
+                                                        { record =
+                                                            { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 14 } }
+                                                            , value =
+                                                                GrenSyntax.ExpressionRecord
+                                                                    [ { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 13 } }
+                                                                      , value =
+                                                                            { name = { range = { start = { row = 1, column = 7 }, end = { row = 1, column = 8 } }, value = "x" }
+                                                                            , value =
+                                                                                { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 13 } }
+                                                                                , value = GrenSyntax.ExpressionInteger 10
+                                                                                }
                                                                             }
-                                                                        }
-                                                                  }
-                                                                ]
+                                                                      }
+                                                                    ]
+                                                            }
+                                                        , field =
+                                                            { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } }
+                                                            , value = "x"
+                                                            }
                                                         }
-                                                    , field =
-                                                        { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 16 } }
-                                                        , value = "x"
-                                                        }
-                                                    }
-                                            }
+                                                }
+                                        }
                                     }
                             }
                 )
@@ -6736,12 +6841,15 @@ Nothing"""
                                             { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 14 } }
                                             , value =
                                                 GrenSyntax.ExpressionInfixOperation
-                                                    "+"
-                                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
-                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
-                                                    }
-                                                    { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
-                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                                    { operator = "+"
+                                                    , left =
+                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 10 } }
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "a" }
+                                                        }
+                                                    , right =
+                                                        { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 14 } }
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "b" }
+                                                        }
                                                     }
                                             }
                                         }
@@ -7664,12 +7772,15 @@ True -> 1"""
                                             { range = { end = { column = 7, row = 1 }, start = { column = 1, row = 1 } }
                                             , value =
                                                 GrenSyntax.ExpressionInfixOperation
-                                                    "|>"
-                                                    { range = { end = { column = 2, row = 1 }, start = { column = 1, row = 1 } }
-                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
-                                                    }
-                                                    { range = { end = { column = 7, row = 1 }, start = { column = 6, row = 1 } }
-                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "g" }
+                                                    { operator = "|>"
+                                                    , left =
+                                                        { range = { end = { column = 2, row = 1 }, start = { column = 1, row = 1 } }
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "f" }
+                                                        }
+                                                    , right =
+                                                        { range = { end = { column = 7, row = 1 }, start = { column = 6, row = 1 } }
+                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "g" }
+                                                        }
                                                     }
                                             }
                                         , cases =
@@ -9318,36 +9429,45 @@ bar = (x + 1) * (2 * y)
                                                             { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 24 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "*"
-                                                                    { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 14 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionParenthesized
-                                                                            { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 13 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "+"
-                                                                                    { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
-                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
-                                                                                    }
-                                                                                    { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                                    }
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 3, column = 17 }, end = { row = 3, column = 24 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionParenthesized
-                                                                            { range = { start = { row = 3, column = 18 }, end = { row = 3, column = 23 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "*"
-                                                                                    { range = { start = { row = 3, column = 18 }, end = { row = 3, column = 19 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 2
-                                                                                    }
-                                                                                    { range = { start = { row = 3, column = 22 }, end = { row = 3, column = 23 } }
-                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
-                                                                                    }
-                                                                            }
+                                                                    { operator = "*"
+                                                                    , left =
+                                                                        { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 14 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionParenthesized
+                                                                                { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 13 } }
+                                                                                , value =
+                                                                                    GrenSyntax.ExpressionInfixOperation
+                                                                                        { operator = "+"
+                                                                                        , left =
+                                                                                            { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
+                                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                                                                            }
+                                                                                        , right =
+                                                                                            { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
+                                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                                            }
+                                                                                        }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 3, column = 17 }, end = { row = 3, column = 24 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionParenthesized
+                                                                                { range = { start = { row = 3, column = 18 }, end = { row = 3, column = 23 } }
+                                                                                , value =
+                                                                                    GrenSyntax.ExpressionInfixOperation
+                                                                                        { operator = "*"
+                                                                                        , left =
+                                                                                            { range = { start = { row = 3, column = 18 }, end = { row = 3, column = 19 } }
+                                                                                            , value = GrenSyntax.ExpressionInteger 2
+                                                                                            }
+                                                                                        , right =
+                                                                                            { range = { start = { row = 3, column = 22 }, end = { row = 3, column = 23 } }
+                                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "y" }
+                                                                                            }
+                                                                                        }
+                                                                                }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9399,20 +9519,26 @@ bar = x + 1 * 2
                                                             { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 16 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "+"
-                                                                    { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
-                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
-                                                                    }
-                                                                    { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 16 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "*"
-                                                                            { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
-                                                                            }
-                                                                            { range = { start = { row = 3, column = 15 }, end = { row = 3, column = 16 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 2
-                                                                            }
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 16 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "*"
+                                                                                , left =
+                                                                                    { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 3, column = 15 }, end = { row = 3, column = 16 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                                    }
+                                                                                }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9464,20 +9590,26 @@ bar = x * 1 + 2
                                                             { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 16 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "+"
-                                                                    { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 12 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "*"
-                                                                            { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
-                                                                            }
-                                                                            { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 3, column = 15 }, end = { row = 3, column = 16 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 12 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "*"
+                                                                                , left =
+                                                                                    { range = { start = { row = 3, column = 7 }, end = { row = 3, column = 8 } }
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "x" }
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 3, column = 11 }, end = { row = 3, column = 12 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                                                    }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 3, column = 15 }, end = { row = 3, column = 16 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9535,12 +9667,15 @@ bar = -(1 * 2)
                                                                             { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 14 } }
                                                                             , value =
                                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                                    "*"
-                                                                                    { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 10 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                                    }
-                                                                                    { range = { start = { row = 3, column = 13 }, end = { row = 3, column = 14 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                                    { operator = "*"
+                                                                                    , left =
+                                                                                        { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 10 } }
+                                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                                        }
+                                                                                    , right =
+                                                                                        { range = { start = { row = 3, column = 13 }, end = { row = 3, column = 14 } }
+                                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                                        }
                                                                                     }
                                                                             }
                                                                     }
@@ -9601,12 +9736,15 @@ bar = (1 * 2).x
                                                                                 { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 13 } }
                                                                                 , value =
                                                                                     GrenSyntax.ExpressionInfixOperation
-                                                                                        "*"
-                                                                                        { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
-                                                                                        , value = GrenSyntax.ExpressionInteger 1
-                                                                                        }
-                                                                                        { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
-                                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                                        { operator = "*"
+                                                                                        , left =
+                                                                                            { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
+                                                                                            , value = GrenSyntax.ExpressionInteger 1
+                                                                                            }
+                                                                                        , right =
+                                                                                            { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
+                                                                                            , value = GrenSyntax.ExpressionInteger 2
+                                                                                            }
                                                                                         }
                                                                                 }
                                                                         }
@@ -9669,20 +9807,26 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                             { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 29 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "||"
-                                                                    { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 21 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "&&"
-                                                                            { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 13 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
-                                                                            }
-                                                                            { range = { start = { row = 3, column = 17 }, end = { row = 3, column = 21 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 3, column = 25 }, end = { row = 3, column = 29 } }
-                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                    { operator = "||"
+                                                                    , left =
+                                                                        { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 21 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "&&"
+                                                                                , left =
+                                                                                    { range = { start = { row = 3, column = 9 }, end = { row = 3, column = 13 } }
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 3, column = 17 }, end = { row = 3, column = 21 } }
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                                    }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 3, column = 25 }, end = { row = 3, column = 29 } }
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9704,20 +9848,26 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                             { range = { start = { row = 4, column = 9 }, end = { row = 4, column = 29 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "||"
-                                                                    { range = { start = { row = 4, column = 9 }, end = { row = 4, column = 13 } }
-                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
-                                                                    }
-                                                                    { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 29 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "&&"
-                                                                            { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 21 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
-                                                                            }
-                                                                            { range = { start = { row = 4, column = 25 }, end = { row = 4, column = 29 } }
-                                                                            , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
-                                                                            }
+                                                                    { operator = "||"
+                                                                    , left =
+                                                                        { range = { start = { row = 4, column = 9 }, end = { row = 4, column = 13 } }
+                                                                        , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 29 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "&&"
+                                                                                , left =
+                                                                                    { range = { start = { row = 4, column = 17 }, end = { row = 4, column = 21 } }
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 4, column = 25 }, end = { row = 4, column = 29 } }
+                                                                                    , value = GrenSyntax.ExpressionReference { qualification = [], name = "True" }
+                                                                                    }
+                                                                                }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9739,28 +9889,37 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                             { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 25 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "+"
-                                                                    { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 21 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "*"
-                                                                            { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 17 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "^"
-                                                                                    { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 13 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 21 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "*"
+                                                                                , left =
+                                                                                    { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 17 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionInfixOperation
+                                                                                            { operator = "^"
+                                                                                            , left =
+                                                                                                { range = { start = { row = 6, column = 12 }, end = { row = 6, column = 13 } }
+                                                                                                , value = GrenSyntax.ExpressionInteger 1
+                                                                                                }
+                                                                                            , right =
+                                                                                                { range = { start = { row = 6, column = 16 }, end = { row = 6, column = 17 } }
+                                                                                                , value = GrenSyntax.ExpressionInteger 2
+                                                                                                }
+                                                                                            }
                                                                                     }
-                                                                                    { range = { start = { row = 6, column = 16 }, end = { row = 6, column = 17 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                                , right =
+                                                                                    { range = { start = { row = 6, column = 20 }, end = { row = 6, column = 21 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 3
                                                                                     }
-                                                                            }
-                                                                            { range = { start = { row = 6, column = 20 }, end = { row = 6, column = 21 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 3
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 6, column = 24 }, end = { row = 6, column = 25 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 4
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 6, column = 24 }, end = { row = 6, column = 25 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 4
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9782,28 +9941,37 @@ numeric2 = 1 + 2 * 3 ^ 4
                                                             { range = { start = { row = 7, column = 12 }, end = { row = 7, column = 25 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "+"
-                                                                    { range = { start = { row = 7, column = 12 }, end = { row = 7, column = 13 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { start = { row = 7, column = 16 }, end = { row = 7, column = 25 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "*"
-                                                                            { range = { start = { row = 7, column = 16 }, end = { row = 7, column = 17 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 2
-                                                                            }
-                                                                            { range = { start = { row = 7, column = 20 }, end = { row = 7, column = 25 } }
-                                                                            , value =
-                                                                                GrenSyntax.ExpressionInfixOperation
-                                                                                    "^"
-                                                                                    { range = { start = { row = 7, column = 20 }, end = { row = 7, column = 21 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 3
+                                                                    { operator = "+"
+                                                                    , left =
+                                                                        { range = { start = { row = 7, column = 12 }, end = { row = 7, column = 13 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 7, column = 16 }, end = { row = 7, column = 25 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "*"
+                                                                                , left =
+                                                                                    { range = { start = { row = 7, column = 16 }, end = { row = 7, column = 17 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 2
                                                                                     }
-                                                                                    { range = { start = { row = 7, column = 24 }, end = { row = 7, column = 25 } }
-                                                                                    , value = GrenSyntax.ExpressionInteger 4
+                                                                                , right =
+                                                                                    { range = { start = { row = 7, column = 20 }, end = { row = 7, column = 25 } }
+                                                                                    , value =
+                                                                                        GrenSyntax.ExpressionInfixOperation
+                                                                                            { operator = "^"
+                                                                                            , left =
+                                                                                                { range = { start = { row = 7, column = 20 }, end = { row = 7, column = 21 } }
+                                                                                                , value = GrenSyntax.ExpressionInteger 3
+                                                                                                }
+                                                                                            , right =
+                                                                                                { range = { start = { row = 7, column = 24 }, end = { row = 7, column = 25 } }
+                                                                                                , value = GrenSyntax.ExpressionInteger 4
+                                                                                                }
+                                                                                            }
                                                                                     }
-                                                                            }
+                                                                                }
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9857,20 +10025,26 @@ pipeline1 = 1 |> 2 |> 3
                                                             { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 21 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "-"
-                                                                    { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 17 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "+"
-                                                                            { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
-                                                                            }
-                                                                            { range = { start = { row = 3, column = 16 }, end = { row = 3, column = 17 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 2
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 3, column = 20 }, end = { row = 3, column = 21 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 3
+                                                                    { operator = "-"
+                                                                    , left =
+                                                                        { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 17 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "+"
+                                                                                , left =
+                                                                                    { range = { start = { row = 3, column = 12 }, end = { row = 3, column = 13 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 3, column = 16 }, end = { row = 3, column = 17 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                                    }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 3, column = 20 }, end = { row = 3, column = 21 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 3
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9892,20 +10066,26 @@ pipeline1 = 1 |> 2 |> 3
                                                             { range = { start = { row = 5, column = 13 }, end = { row = 5, column = 24 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "|>"
-                                                                    { range = { start = { row = 5, column = 13 }, end = { row = 5, column = 19 } }
-                                                                    , value =
-                                                                        GrenSyntax.ExpressionInfixOperation
-                                                                            "|>"
-                                                                            { range = { start = { row = 5, column = 13 }, end = { row = 5, column = 14 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 1
-                                                                            }
-                                                                            { range = { start = { row = 5, column = 18 }, end = { row = 5, column = 19 } }
-                                                                            , value = GrenSyntax.ExpressionInteger 2
-                                                                            }
-                                                                    }
-                                                                    { range = { start = { row = 5, column = 23 }, end = { row = 5, column = 24 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 3
+                                                                    { operator = "|>"
+                                                                    , left =
+                                                                        { range = { start = { row = 5, column = 13 }, end = { row = 5, column = 19 } }
+                                                                        , value =
+                                                                            GrenSyntax.ExpressionInfixOperation
+                                                                                { operator = "|>"
+                                                                                , left =
+                                                                                    { range = { start = { row = 5, column = 13 }, end = { row = 5, column = 14 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 1
+                                                                                    }
+                                                                                , right =
+                                                                                    { range = { start = { row = 5, column = 18 }, end = { row = 5, column = 19 } }
+                                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                                    }
+                                                                                }
+                                                                        }
+                                                                    , right =
+                                                                        { range = { start = { row = 5, column = 23 }, end = { row = 5, column = 24 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 3
+                                                                        }
                                                                     }
                                                             }
                                                         }
@@ -9943,12 +10123,15 @@ pipeline1 = 1 /= 2
                                                             { range = { end = { column = 19, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "/="
-                                                                    { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 19, row = 3 }, start = { column = 18, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "/="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 19, row = 3 }, start = { column = 18, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -9970,12 +10153,15 @@ pipeline1 = 1 /= 2
                                                             { range = { end = { column = 19, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "/="
-                                                                    { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "/="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10029,12 +10215,15 @@ pipeline1 = 1 /= 2
                                                             { range = { end = { column = 20, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "/="
-                                                                    { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 20, row = 3 }, start = { column = 19, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "/="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 20, row = 3 }, start = { column = 19, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10056,12 +10245,15 @@ pipeline1 = 1 /= 2
                                                             { range = { end = { column = 19, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "/="
-                                                                    { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "/="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10115,12 +10307,15 @@ pipeline1 = 1 == 2
                                                             { range = { end = { column = 20, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "=="
-                                                                    { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 20, row = 3 }, start = { column = 19, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "=="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 20, row = 3 }, start = { column = 19, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10142,12 +10337,15 @@ pipeline1 = 1 == 2
                                                             { range = { end = { column = 19, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "=="
-                                                                    { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "=="
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 19, row = 5 }, start = { column = 18, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10201,12 +10399,15 @@ pipeline1 = 1 ^ 2
                                                             { range = { end = { column = 19, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "^"
-                                                                    { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 19, row = 3 }, start = { column = 18, row = 3 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "^"
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 19, row = 3 }, start = { column = 18, row = 3 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =
@@ -10228,12 +10429,15 @@ pipeline1 = 1 ^ 2
                                                             { range = { end = { column = 18, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    "^"
-                                                                    { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 1
-                                                                    }
-                                                                    { range = { end = { column = 18, row = 5 }, start = { column = 17, row = 5 } }
-                                                                    , value = GrenSyntax.ExpressionInteger 2
+                                                                    { operator = "^"
+                                                                    , left =
+                                                                        { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 1
+                                                                        }
+                                                                    , right =
+                                                                        { range = { end = { column = 18, row = 5 }, start = { column = 17, row = 5 } }
+                                                                        , value = GrenSyntax.ExpressionInteger 2
+                                                                        }
                                                                     }
                                                             }
                                                         , name =

@@ -4716,7 +4716,7 @@ expressionIsSpaceSeparated syntaxExpression =
                 _ :: _ :: _ ->
                     True
 
-        GrenSyntax.ExpressionInfixOperation _ _ _ ->
+        GrenSyntax.ExpressionInfixOperation _ ->
             True
 
         GrenSyntax.ExpressionReference _ ->
@@ -4816,12 +4816,12 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
                         , argument1Up = argument1Up
                         }
 
-        GrenSyntax.ExpressionInfixOperation operator left right ->
+        GrenSyntax.ExpressionInfixOperation infixOperation ->
             expressionOperation syntaxComments
                 { fullRange = syntaxExpressionNode.range
-                , operator = operator
-                , left = left
-                , right = right
+                , operator = infixOperation.operator
+                , left = infixOperation.left
+                , right = infixOperation.right
                 }
 
         GrenSyntax.ExpressionReference reference ->
@@ -5449,7 +5449,7 @@ expressionOperationExpand left operator right =
             }
         rightExpanded =
             case right.value of
-                GrenSyntax.ExpressionInfixOperation rightOperator rightLeft rightRight ->
+                GrenSyntax.ExpressionInfixOperation rightInfixOperation ->
                     let
                         rightOperationExpanded :
                             { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5462,7 +5462,10 @@ expressionOperationExpand left operator right =
                             , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
                             }
                         rightOperationExpanded =
-                            expressionOperationExpand rightLeft rightOperator rightRight
+                            expressionOperationExpand
+                                rightInfixOperation.left
+                                rightInfixOperation.operator
+                                rightInfixOperation.right
                     in
                     { beforeRightestOperatorExpressionChain =
                         { operator = operator, expression = rightOperationExpanded.leftest }
@@ -5478,7 +5481,7 @@ expressionOperationExpand left operator right =
                     }
     in
     case left.value of
-        GrenSyntax.ExpressionInfixOperation leftOperator leftLeft leftRight ->
+        GrenSyntax.ExpressionInfixOperation leftInfixOperation ->
             let
                 leftOperationExpanded :
                     { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5491,7 +5494,10 @@ expressionOperationExpand left operator right =
                     , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
                     }
                 leftOperationExpanded =
-                    expressionOperationExpand leftLeft leftOperator leftRight
+                    expressionOperationExpand
+                        leftInfixOperation.left
+                        leftInfixOperation.operator
+                        leftInfixOperation.right
             in
             { leftest = leftOperationExpanded.leftest
             , beforeRightestOperatorExpressionChain =
