@@ -1649,7 +1649,7 @@ patternIsSpaceSeparated syntaxPattern =
         GrenSyntax.PatternRecord _ ->
             False
 
-        GrenSyntax.PatternListCons _ _ ->
+        GrenSyntax.PatternListCons _ ->
             True
 
         GrenSyntax.PatternListExact _ ->
@@ -2137,8 +2137,8 @@ patternToNotParenthesized syntaxPatternNode =
         GrenSyntax.PatternRecord fields ->
             { range = syntaxPatternNode.range, value = GrenSyntax.PatternRecord fields }
 
-        GrenSyntax.PatternListCons headPattern tailPattern ->
-            { range = syntaxPatternNode.range, value = GrenSyntax.PatternListCons headPattern tailPattern }
+        GrenSyntax.PatternListCons listCons ->
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternListCons listCons }
 
         GrenSyntax.PatternListExact elementPatterns ->
             { range = syntaxPatternNode.range, value = GrenSyntax.PatternListExact elementPatterns }
@@ -2213,9 +2213,8 @@ patternNotParenthesized syntaxComments syntaxPatternNode =
             patternRecord syntaxComments
                 { fullRange = syntaxPatternNode.range, fields = fields }
 
-        GrenSyntax.PatternListCons headPattern tailPattern ->
-            patternCons syntaxComments
-                { head = headPattern, tail = tailPattern }
+        GrenSyntax.PatternListCons listCons ->
+            patternCons syntaxComments listCons
 
         GrenSyntax.PatternListExact elementPatterns ->
             patternList syntaxComments
@@ -2484,8 +2483,8 @@ patternConsExpand :
     -> List (GrenSyntax.Node GrenSyntax.Pattern)
 patternConsExpand syntaxPatternNode =
     case syntaxPatternNode.value of
-        GrenSyntax.PatternListCons headPattern tailPattern ->
-            headPattern :: patternConsExpand tailPattern
+        GrenSyntax.PatternListCons listCons ->
+            listCons.head :: patternConsExpand listCons.tail
 
         GrenSyntax.PatternIgnored ->
             [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored } ]

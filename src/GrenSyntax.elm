@@ -379,7 +379,7 @@ type Pattern
     | PatternInt Int
     | PatternHex Int
     | PatternRecord (List { name : Node String, value : Maybe (Node Pattern) })
-    | PatternListCons (Node Pattern) (Node Pattern)
+    | PatternListCons { head : Node Pattern, tail : Node Pattern }
     | PatternListExact (List (Node Pattern))
     | PatternVariable String
     | PatternVariant

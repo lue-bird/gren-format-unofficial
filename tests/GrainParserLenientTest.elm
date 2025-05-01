@@ -8090,11 +8090,14 @@ True -> 1"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
                             , value =
                                 GrenSyntax.PatternListCons
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.PatternVariable "n"
-                                    }
-                                    { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 10 } }
-                                    , value = GrenSyntax.PatternVariable "tail"
+                                    { head =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                        , value = GrenSyntax.PatternVariable "n"
+                                        }
+                                    , tail =
+                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 10 } }
+                                        , value = GrenSyntax.PatternVariable "tail"
+                                        }
                                     }
                             }
                 )
@@ -8105,18 +8108,24 @@ True -> 1"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
                             , value =
                                 GrenSyntax.PatternListCons
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                                    , value = GrenSyntax.PatternVariable "a"
-                                    }
-                                    { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 14 } }
-                                    , value =
-                                        GrenSyntax.PatternListCons
-                                            { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
-                                            , value = GrenSyntax.PatternVariable "b"
-                                            }
-                                            { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 14 } }
-                                            , value = GrenSyntax.PatternVariable "cUp"
-                                            }
+                                    { head =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
+                                        , value = GrenSyntax.PatternVariable "a"
+                                        }
+                                    , tail =
+                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 14 } }
+                                        , value =
+                                            GrenSyntax.PatternListCons
+                                                { head =
+                                                    { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 7 } }
+                                                    , value = GrenSyntax.PatternVariable "b"
+                                                    }
+                                                , tail =
+                                                    { range = { start = { row = 1, column = 11 }, end = { row = 1, column = 14 } }
+                                                    , value = GrenSyntax.PatternVariable "cUp"
+                                                    }
+                                                }
+                                        }
                                     }
                             }
                 )
@@ -8127,24 +8136,27 @@ True -> 1"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
                             , value =
                                 GrenSyntax.PatternListCons
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value =
-                                        GrenSyntax.PatternParenthesized
-                                            { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 5 } }
-                                            , value =
-                                                GrenSyntax.PatternVariant
-                                                    { qualification = []
-                                                    , name = "X"
-                                                    , value =
-                                                        Just
-                                                            { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } }
-                                                            , value = GrenSyntax.PatternVariable "x"
-                                                            }
-                                                    }
-                                            }
-                                    }
-                                    { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 12 } }
-                                    , value = GrenSyntax.PatternVariable "xs"
+                                    { head =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                        , value =
+                                            GrenSyntax.PatternParenthesized
+                                                { range = { start = { row = 1, column = 2 }, end = { row = 1, column = 5 } }
+                                                , value =
+                                                    GrenSyntax.PatternVariant
+                                                        { qualification = []
+                                                        , name = "X"
+                                                        , value =
+                                                            Just
+                                                                { range = { start = { row = 1, column = 4 }, end = { row = 1, column = 5 } }
+                                                                , value = GrenSyntax.PatternVariable "x"
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                    , tail =
+                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 12 } }
+                                        , value = GrenSyntax.PatternVariable "xs"
+                                        }
                                     }
                             }
                 )

@@ -4092,7 +4092,11 @@ pattern =
             (\consed afterCons ->
                 { comments = consed.comments |> ropePrependTo afterCons.comments
                 , syntax =
-                    GrenSyntax.nodeCombine GrenSyntax.PatternListCons
+                    GrenSyntax.nodeCombine
+                        (\head tail ->
+                            GrenSyntax.PatternListCons
+                                { head = head, tail = tail }
+                        )
                         consed.syntax
                         afterCons.syntax
                 }
