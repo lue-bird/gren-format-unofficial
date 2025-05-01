@@ -1903,7 +1903,10 @@ typeRecordOrRecordExtension =
                         , syntax =
                             case afterFirstName.syntax of
                                 RecordExtensionExpressionAfterName fields ->
-                                    GrenSyntax.TypeAnnotationRecordExtension firstNameNode fields
+                                    GrenSyntax.TypeAnnotationRecordExtension
+                                        { recordVariable = firstNameNode
+                                        , fields = fields
+                                        }
 
                                 FieldsAfterName fieldsAfterName ->
                                     GrenSyntax.TypeAnnotationRecord

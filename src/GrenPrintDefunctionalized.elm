@@ -3564,7 +3564,7 @@ typeToFunction typeNode =
         GrenSyntax.TypeAnnotationRecord _ ->
             Nothing
 
-        GrenSyntax.TypeAnnotationRecordExtension _ _ ->
+        GrenSyntax.TypeAnnotationRecordExtension _ ->
             Nothing
 
 
@@ -3590,9 +3590,9 @@ typeToNotParenthesized syntaxTypeNode =
         GrenSyntax.TypeAnnotationRecord fields ->
             { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationRecord fields }
 
-        GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode ->
+        GrenSyntax.TypeAnnotationRecordExtension extendedRecord ->
             { range = syntaxTypeNode.range
-            , value = GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode
+            , value = GrenSyntax.TypeAnnotationRecordExtension extendedRecord
             }
 
         GrenSyntax.TypeAnnotationFunction typeFunction ->
@@ -3749,7 +3749,7 @@ typeIsSpaceSeparated syntaxType =
         GrenSyntax.TypeAnnotationRecord _ ->
             False
 
-        GrenSyntax.TypeAnnotationRecordExtension _ _ ->
+        GrenSyntax.TypeAnnotationRecordExtension _ ->
             False
 
         GrenSyntax.TypeAnnotationFunction _ ->
@@ -3828,11 +3828,11 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
                 syntaxComments
                 { fullRange = syntaxTypeNode.range, fields = fields }
 
-        GrenSyntax.TypeAnnotationRecordExtension recordVariable fieldsNode ->
+        GrenSyntax.TypeAnnotationRecordExtension extendedRecord ->
             typeRecordExtension syntaxComments
                 { fullRange = syntaxTypeNode.range
-                , recordVariable = recordVariable
-                , fields = fieldsNode.value
+                , recordVariable = extendedRecord.recordVariable
+                , fields = extendedRecord.fields.value
                 }
 
         GrenSyntax.TypeAnnotationFunction typeFunction ->

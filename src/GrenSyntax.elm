@@ -341,16 +341,17 @@ type TypeAnnotation
             )
         )
     | TypeAnnotationRecordExtension
-        (Node String)
-        (Node
-            (List
-                (Node
-                    { name : Node String
-                    , value : Node TypeAnnotation
-                    }
+        { recordVariable : Node String
+        , fields :
+            Node
+                (List
+                    (Node
+                        { name : Node String
+                        , value : Node TypeAnnotation
+                        }
+                    )
                 )
-            )
-        )
+        }
     | TypeAnnotationFunction
         { input : Node TypeAnnotation
         , output : Node TypeAnnotation

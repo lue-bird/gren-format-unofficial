@@ -4024,40 +4024,42 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
                             , value =
                                 GrenSyntax.TypeAnnotationRecordExtension
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
-                                    , value =
-                                        [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                    { recordVariable = { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
+                                    , fields =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
+                                        , value =
+                                            [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                              }
+                                            , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        ]
+                                              }
+                                            ]
+                                        }
                                     }
                             }
                 )
@@ -4068,40 +4070,42 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
                             , value =
                                 GrenSyntax.TypeAnnotationRecordExtension
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
-                                    , value =
-                                        [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                    { recordVariable = { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
+                                    , fields =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
+                                        , value =
+                                            [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                              }
+                                            , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        ]
+                                              }
+                                            ]
+                                        }
                                     }
                             }
                 )
@@ -4112,40 +4116,42 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
                             , value =
                                 GrenSyntax.TypeAnnotationRecordExtension
-                                    { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
-                                    { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
-                                    , value =
-                                        [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                    { recordVariable = { range = { start = { row = 1, column = 3 }, end = { row = 1, column = 7 } }, value = "attr" }
+                                    , fields =
+                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 42 } }
+                                        , value =
+                                            [ { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 25 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 18 } }, value = "position" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
-                                          , value =
-                                                { name =
-                                                    { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
-                                                , value =
-                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                              }
+                                            , { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 42 } }
+                                              , value =
+                                                    { name =
+                                                        { range = { start = { row = 1, column = 27 }, end = { row = 1, column = 34 } }, value = "texture" }
                                                     , value =
-                                                        GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                            , value = ( [], "Vec2" )
-                                                            }
-                                                            []
+                                                        { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                        , value =
+                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                , value = ( [], "Vec2" )
+                                                                }
+                                                                []
+                                                        }
                                                     }
-                                                }
-                                          }
-                                        ]
+                                              }
+                                            ]
+                                        }
                                     }
                             }
                 )
