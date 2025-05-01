@@ -222,11 +222,7 @@ module_ =
                     |> List.concatMap .lateImports
                     |> List.map
                         (\lateImport ->
-                            GrenSyntax.Node
-                                { start = importStartLocation
-                                , end = importStartLocation
-                                }
-                                lateImport.value
+                            { range = { start = importStartLocation, end = importStartLocation }, value = lateImport.value }
                         )
                 )
                     ++ importsResult.syntax
@@ -302,7 +298,7 @@ moduleName : Parser (GrenSyntax.Node GrenSyntax.ModuleName)
 moduleName =
     ParserFast.map2WithRange
         (\range head tail ->
-            GrenSyntax.Node range (head :: tail)
+            { range = range, value = head :: tail }
         )
         nameUppercase
         (ParserFast.loopWhileSucceedsRightToLeftStackUnsafe
@@ -320,7 +316,7 @@ exposeDefinition =
                 commentsAfterExposing
                     |> ropePrependTo exposingListInnerResult.comments
             , syntax =
-                GrenSyntax.Node range exposingListInnerResult.syntax
+                { range = range, value = exposingListInnerResult.syntax }
             }
         )
         (ParserFast.symbolFollowedBy "exposing" whitespaceAndComments)
@@ -423,7 +419,7 @@ infixExpose =
     ParserFast.map2WithRange
         (\range infixName () ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.InfixExpose infixName)
+            , syntax = { range = range, value = GrenSyntax.InfixExpose infixName }
             }
         )
         (ParserFast.symbolFollowedBy "("
@@ -469,20 +465,15 @@ typeExpose =
                 Nothing ->
                     { comments = commentsBeforeMaybeOpen
                     , syntax =
-                        GrenSyntax.Node typeExposeNameNode.range
-                            (GrenSyntax.TypeOrAliasExpose typeExposeNameNode.value)
+                        { range = typeExposeNameNode.range, value = GrenSyntax.TypeOrAliasExpose typeExposeNameNode.value }
                     }
 
                 Just open ->
                     { comments = commentsBeforeMaybeOpen |> ropePrependTo open.comments
                     , syntax =
-                        GrenSyntax.Node
-                            { start = typeExposeNameNode.range.start
-                            , end = open.syntax.end
-                            }
-                            (GrenSyntax.TypeExpose
-                                { name = typeExposeNameNode.value, open = Just open.syntax }
-                            )
+                        { range = { start = typeExposeNameNode.range.start, end = open.syntax.end }
+                        , value = GrenSyntax.TypeExpose { name = typeExposeNameNode.value, open = Just open.syntax }
+                        }
                     }
         )
         nameUppercaseNode
@@ -507,7 +498,7 @@ functionExpose =
         (\range name ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.FunctionExpose name)
+                { range = range, value = GrenSyntax.FunctionExpose name }
             }
         )
 
@@ -642,14 +633,15 @@ effectModuleDefinition =
                     |> ropePrependTo commentsAfterWhereClauses
                     |> ropePrependTo exp.comments
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.EffectModule
+                { range = range
+                , value =
+                    GrenSyntax.EffectModule
                         { moduleName = name
                         , exposingList = exp.syntax
                         , command = whereClauses.syntax.command
                         , subscription = whereClauses.syntax.subscription
                         }
-                    )
+                }
             }
         )
         (ParserFast.keywordFollowedBy "effect" whitespaceAndComments)
@@ -670,12 +662,10 @@ normalModuleDefinition =
                     |> ropePrependTo commentsAfterModuleName
                     |> ropePrependTo exposingList.comments
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.NormalModule
-                        { moduleName = moduleNameNode
-                        , exposingList = exposingList.syntax
-                        }
-                    )
+                { range = range
+                , value =
+                    GrenSyntax.NormalModule { moduleName = moduleNameNode, exposingList = exposingList.syntax }
+                }
             }
         )
         (ParserFast.keywordFollowedBy "module" whitespaceAndComments)
@@ -694,8 +684,9 @@ portModuleDefinition =
                     |> ropePrependTo commentsAfterModuleName
                     |> ropePrependTo exposingList.comments
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.PortModule { moduleName = moduleNameNode, exposingList = exposingList.syntax })
+                { range = range
+                , value = GrenSyntax.PortModule { moduleName = moduleNameNode, exposingList = exposingList.syntax }
+                }
             }
         )
         (ParserFast.keywordFollowedBy "port" whitespaceAndComments)
@@ -730,11 +721,9 @@ importFollowedByWhitespaceAndComments =
                                 commentsBeforeAlias
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = moduleNameNode.range.end }
-                                    { moduleName = moduleNameNode
-                                    , moduleAlias = Nothing
-                                    , exposingList = Nothing
-                                    }
+                                { range = { start = start, end = moduleNameNode.range.end }
+                                , value = { moduleName = moduleNameNode, moduleAlias = Nothing, exposingList = Nothing }
+                                }
                             }
 
                         Just exposingListValue ->
@@ -742,11 +731,10 @@ importFollowedByWhitespaceAndComments =
                                 commentsBeforeAlias
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = exposingListValue.range.end }
-                                    { moduleName = moduleNameNode
-                                    , moduleAlias = Nothing
-                                    , exposingList = Just exposingListValue
-                                    }
+                                { range = { start = start, end = exposingListValue.range.end }
+                                , value =
+                                    { moduleName = moduleNameNode, moduleAlias = Nothing, exposingList = Just exposingListValue }
+                                }
                             }
 
                 Just moduleAliasResult ->
@@ -757,11 +745,13 @@ importFollowedByWhitespaceAndComments =
                                     |> ropePrependTo moduleAliasResult.comments
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = moduleAliasResult.syntax.range.end }
+                                { range = { start = start, end = moduleAliasResult.syntax.range.end }
+                                , value =
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Just moduleAliasResult.syntax
                                     , exposingList = Nothing
                                     }
+                                }
                             }
 
                         Just exposingListValue ->
@@ -770,11 +760,13 @@ importFollowedByWhitespaceAndComments =
                                     |> ropePrependTo moduleAliasResult.comments
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = exposingListValue.range.end }
+                                { range = { start = start, end = exposingListValue.range.end }
+                                , value =
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Just moduleAliasResult.syntax
                                     , exposingList = Just exposingListValue
                                     }
+                                }
                             }
         )
         (ParserFast.keywordFollowedBy "import" whitespaceAndComments)
@@ -790,7 +782,7 @@ importFollowedByWhitespaceAndComments =
             (ParserFast.keywordFollowedBy "as" whitespaceAndComments)
             (nameUppercaseMapWithRange
                 (\range moduleAlias ->
-                    GrenSyntax.Node range [ moduleAlias ]
+                    { range = range, value = [ moduleAlias ] }
                 )
             )
             whitespaceAndComments
@@ -813,7 +805,7 @@ importFollowedByWhitespaceAndComments =
                                 Nothing
 
                             Just exposingListInner ->
-                                Just (GrenSyntax.Node range exposingListInner)
+                                Just { range = range, value = exposingListInner }
                     }
                 )
                 (ParserFast.symbolFollowedBy "exposing" whitespaceAndComments)
@@ -893,7 +885,7 @@ documentationComment =
     -- technically making the whole parser fail on multi-line comments would be "correct"
     -- but in practice, all declaration comments allow layout before which already handles
     -- these.
-    ParserFast.nestableMultiCommentMapWithRange GrenSyntax.Node
+    ParserFast.nestableMultiCommentMapWithRange (\range value -> { range = range, value = value })
         ( '{', "-" )
         ( '-', "}" )
 
@@ -913,8 +905,9 @@ declarationWithDocumentation =
                         Just signature ->
                             { comments = afterDocumentation.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
-                                    (GrenSyntax.ValueOrFunctionDeclaration
+                                { range = { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
+                                , value =
+                                    GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature =
                                             Just
@@ -924,36 +917,41 @@ declarationWithDocumentation =
                                                     signature.typeAnnotation
                                                 )
                                         , declaration =
-                                            GrenSyntax.Node
+                                            { range =
                                                 { start = signature.implementationName.range.start
                                                 , end = functionDeclarationAfterDocumentation.expression.range.end
                                                 }
+                                            , value =
                                                 { name = signature.implementationName
                                                 , parameters = functionDeclarationAfterDocumentation.arguments
                                                 , expression = functionDeclarationAfterDocumentation.expression
                                                 }
+                                            }
                                         }
-                                    )
+                                }
                             }
 
                         Nothing ->
                             { comments = afterDocumentation.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
-                                    (GrenSyntax.ValueOrFunctionDeclaration
+                                { range = { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
+                                , value =
+                                    GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature = Nothing
                                         , declaration =
-                                            GrenSyntax.Node
+                                            { range =
                                                 { start = functionDeclarationAfterDocumentation.startName.range.start
                                                 , end = functionDeclarationAfterDocumentation.expression.range.end
                                                 }
+                                            , value =
                                                 { name = functionDeclarationAfterDocumentation.startName
                                                 , parameters = functionDeclarationAfterDocumentation.arguments
                                                 , expression = functionDeclarationAfterDocumentation.expression
                                                 }
+                                            }
                                         }
-                                    )
+                                }
                             }
 
                 TypeDeclarationAfterDocumentation typeDeclarationAfterDocumentation ->
@@ -969,8 +967,9 @@ declarationWithDocumentation =
                     in
                     { comments = afterDocumentation.comments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = end }
-                            (GrenSyntax.ChoiceTypeDeclaration
+                        { range = { start = start, end = end }
+                        , value =
+                            GrenSyntax.ChoiceTypeDeclaration
                                 { documentation = Just documentation
                                 , name = typeDeclarationAfterDocumentation.name
                                 , generics = typeDeclarationAfterDocumentation.parameters
@@ -978,20 +977,21 @@ declarationWithDocumentation =
                                     typeDeclarationAfterDocumentation.headVariant
                                         :: List.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
                                 }
-                            )
+                        }
                     }
 
                 TypeAliasDeclarationAfterDocumentation typeAliasDeclarationAfterDocumentation ->
                     { comments = afterDocumentation.comments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
-                            (GrenSyntax.AliasDeclaration
+                        { range = { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
+                        , value =
+                            GrenSyntax.AliasDeclaration
                                 { documentation = Just documentation
                                 , name = typeAliasDeclarationAfterDocumentation.name
                                 , generics = typeAliasDeclarationAfterDocumentation.parameters
                                 , typeAnnotation = typeAliasDeclarationAfterDocumentation.typeAnnotation
                                 }
-                            )
+                        }
                     }
 
                 PortDeclarationAfterDocumentation portDeclarationAfterName ->
@@ -999,15 +999,16 @@ declarationWithDocumentation =
                         ropeOne documentation
                             |> ropeFilledPrependTo afterDocumentation.comments
                     , syntax =
-                        GrenSyntax.Node
+                        { range =
                             { start = portDeclarationAfterName.startLocation
                             , end = portDeclarationAfterName.typeAnnotation.range.end
                             }
-                            (GrenSyntax.PortDeclaration
+                        , value =
+                            GrenSyntax.PortDeclaration
                                 { name = portDeclarationAfterName.name
                                 , typeAnnotation = portDeclarationAfterName.typeAnnotation
                                 }
-                            )
+                        }
                     }
         )
         documentationComment
@@ -1169,9 +1170,7 @@ functionAfterDocumentation =
                     FunctionDeclarationAfterDocumentation
                         { startName =
                             -- dummy
-                            GrenSyntax.Node
-                                { start = start, end = start }
-                                (nameNode |> GrenSyntax.nodeValue)
+                            { range = { start = start, end = start }, value = nameNode |> GrenSyntax.nodeValue }
                         , signature =
                             Just
                                 { implementationName = nameNode
@@ -1206,18 +1205,17 @@ functionDeclarationWithoutDocumentation =
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo result.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
-                                (GrenSyntax.ValueOrFunctionDeclaration
+                            { range = { start = startNameStart, end = result.syntax.range.end }
+                            , value =
+                                GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
-                                        GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
-                                            { name = startNameNode
-                                            , parameters = arguments.syntax
-                                            , expression = result.syntax
-                                            }
+                                        { range = { start = startNameStart, end = result.syntax.range.end }
+                                        , value = { name = startNameNode, parameters = arguments.syntax, expression = result.syntax }
+                                        }
                                     }
-                                )
+                            }
                         }
 
                     Just signature ->
@@ -1227,8 +1225,9 @@ functionDeclarationWithoutDocumentation =
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo result.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
-                                (GrenSyntax.ValueOrFunctionDeclaration
+                            { range = { start = startNameStart, end = result.syntax.range.end }
+                            , value =
+                                GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature =
                                         Just
@@ -1238,16 +1237,15 @@ functionDeclarationWithoutDocumentation =
                                                 signature.typeAnnotation
                                             )
                                     , declaration =
-                                        GrenSyntax.Node
-                                            { start = signature.implementationName.range.start
-                                            , end = result.syntax.range.end
-                                            }
+                                        { range = { start = signature.implementationName.range.start, end = result.syntax.range.end }
+                                        , value =
                                             { name = signature.implementationName
                                             , parameters = arguments.syntax
                                             , expression = result.syntax
                                             }
+                                        }
                                     }
-                                )
+                            }
                         }
             )
             functionNameNotInfixNode
@@ -1311,37 +1309,27 @@ functionDeclarationWithoutDocumentation =
                         |> ropePrependTo commentsAfterEqual
                         |> ropePrependTo result.comments
                 , syntax =
-                    GrenSyntax.Node
-                        { start = start
-                        , end = result.syntax |> GrenSyntax.nodeRange |> .end
-                        }
-                        (GrenSyntax.ValueOrFunctionDeclaration
+                    { range = { start = start, end = result.syntax |> GrenSyntax.nodeRange |> .end }
+                    , value =
+                        GrenSyntax.ValueOrFunctionDeclaration
                             { documentation = Nothing
                             , signature =
                                 Just
-                                    (GrenSyntax.Node
-                                        { start = start
-                                        , end = typeAnnotationResult.syntax |> GrenSyntax.nodeRange |> .end
-                                        }
-                                        { name =
-                                            -- dummy
-                                            GrenSyntax.Node
-                                                { start = start, end = start }
-                                                (nameNode |> GrenSyntax.nodeValue)
+                                    { range = { start = start, end = typeAnnotationResult.syntax |> GrenSyntax.nodeRange |> .end }
+                                    , value =
+                                        { name = { range = { start = start, end = start }, value = nameNode |> GrenSyntax.nodeValue }
                                         , typeAnnotation = typeAnnotationResult.syntax
                                         }
-                                    )
+                                    }
                             , declaration =
-                                GrenSyntax.Node
+                                { range =
                                     { start = nameNode |> GrenSyntax.nodeRange |> .start
                                     , end = result.syntax |> GrenSyntax.nodeRange |> .end
                                     }
-                                    { name = nameNode
-                                    , parameters = arguments.syntax
-                                    , expression = result.syntax
-                                    }
+                                , value = { name = nameNode, parameters = arguments.syntax, expression = result.syntax }
+                                }
                             }
-                        )
+                    }
                 }
             )
             (ParserFast.symbolFollowedBy ":" whitespaceAndComments)
@@ -1384,25 +1372,27 @@ infixDeclaration =
                     |> ropePrependTo commentsAfterOperator
                     |> ropePrependTo commentsAfterEqual
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.InfixDeclaration
+                { range = range
+                , value =
+                    GrenSyntax.InfixDeclaration
                         { direction = direction, precedence = precedence, operator = operator, function = fn }
-                    )
+                }
             }
         )
         (ParserFast.keywordFollowedBy "infix" whitespaceAndComments)
         infixDirection
         whitespaceAndComments
-        (ParserFast.integerDecimalMapWithRange GrenSyntax.Node)
+        (ParserFast.integerDecimalMapWithRange (\range value -> { range = range, value = value }))
         whitespaceAndComments
         (ParserFast.symbolFollowedBy "("
             (ParserFast.whileAtMost3WithoutLinebreakAnd2PartUtf16ValidateMapWithRangeBacktrackableFollowedBySymbol
                 (\operatorRange operator ->
-                    GrenSyntax.Node
+                    { range =
                         { start = { row = operatorRange.start.row, column = operatorRange.start.column - 1 }
                         , end = { row = operatorRange.end.row, column = operatorRange.end.column + 1 }
                         }
-                        operator
+                    , value = operator
+                    }
                 )
                 isOperatorSymbolCharAsString
                 isAllowedOperatorToken
@@ -1417,9 +1407,9 @@ infixDeclaration =
 infixDirection : Parser (GrenSyntax.Node GrenSyntax.InfixDirection)
 infixDirection =
     ParserFast.oneOf3
-        (ParserFast.mapWithRange GrenSyntax.Node (ParserFast.keyword "right" GrenSyntax.Right))
-        (ParserFast.mapWithRange GrenSyntax.Node (ParserFast.keyword "left" GrenSyntax.Left))
-        (ParserFast.mapWithRange GrenSyntax.Node (ParserFast.keyword "non" GrenSyntax.Non))
+        (ParserFast.mapWithRange (\range value -> { range = range, value = value }) (ParserFast.keyword "right" GrenSyntax.Right))
+        (ParserFast.mapWithRange (\range value -> { range = range, value = value }) (ParserFast.keyword "left" GrenSyntax.Left))
+        (ParserFast.mapWithRange (\range value -> { range = range, value = value }) (ParserFast.keyword "non" GrenSyntax.Non))
 
 
 portDeclarationAfterDocumentation : Parser (WithComments DeclarationAfterDocumentation)
@@ -1456,15 +1446,13 @@ portDeclarationWithoutDocumentation =
                     |> ropePrependTo commentsAfterColon
                     |> ropePrependTo typeAnnotationResult.comments
             , syntax =
-                GrenSyntax.Node
+                { range =
                     { start = { row = nameNode.range.start.row, column = 1 }
                     , end = typeAnnotationResult.syntax.range.end
                     }
-                    (GrenSyntax.PortDeclaration
-                        { name = nameNode
-                        , typeAnnotation = typeAnnotationResult.syntax
-                        }
-                    )
+                , value =
+                    GrenSyntax.PortDeclaration { name = nameNode, typeAnnotation = typeAnnotationResult.syntax }
+                }
             }
         )
         (ParserFast.keywordFollowedBy "port" whitespaceAndComments)
@@ -1589,8 +1577,9 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                     in
                     { comments = allComments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = end }
-                            (GrenSyntax.ChoiceTypeDeclaration
+                        { range = { start = start, end = end }
+                        , value =
+                            GrenSyntax.ChoiceTypeDeclaration
                                 { documentation = Nothing
                                 , name = typeDeclarationAfterDocumentation.name
                                 , generics = typeDeclarationAfterDocumentation.parameters
@@ -1598,20 +1587,21 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                                     typeDeclarationAfterDocumentation.headVariant
                                         :: List.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
                                 }
-                            )
+                        }
                     }
 
                 TypeAliasDeclarationWithoutDocumentation typeAliasDeclarationAfterDocumentation ->
                     { comments = allComments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
-                            (GrenSyntax.AliasDeclaration
+                        { range = { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
+                        , value =
+                            GrenSyntax.AliasDeclaration
                                 { documentation = Nothing
                                 , name = typeAliasDeclarationAfterDocumentation.name
                                 , generics = typeAliasDeclarationAfterDocumentation.parameters
                                 , typeAnnotation = typeAliasDeclarationAfterDocumentation.typeAnnotation
                                 }
-                            )
+                        }
                     }
         )
         (ParserFast.keywordFollowedBy "type" whitespaceAndComments)
@@ -1724,10 +1714,7 @@ variantDeclarationFollowedByWhitespaceAndComments =
                 commentsAfterName
                     |> ropePrependTo maybeValue.comments
             , syntax =
-                GrenSyntax.Node fullRange
-                    { name = nameNode
-                    , value = maybeValue.syntax
-                    }
+                { range = fullRange, value = { name = nameNode, value = maybeValue.syntax } }
             }
         )
         nameUppercaseNode
@@ -1837,11 +1824,9 @@ typeParenthesizedOrOldUnit =
                 (\end ->
                     { comments = ropeEmpty
                     , syntax =
-                        GrenSyntax.Node
-                            { start = { row = end.row, column = end.column - 2 }
-                            , end = end
-                            }
-                            GrenSyntax.TypeAnnotationUnit
+                        { range = { start = { row = end.row, column = end.column - 2 }, end = end }
+                        , value = GrenSyntax.TypeAnnotationUnit
+                        }
                     }
                 )
             )
@@ -1852,13 +1837,15 @@ typeParenthesizedOrOldUnit =
                             |> ropePrependTo inParens.comments
                             |> ropePrependTo commentsAfterFirstPart
                     , syntax =
-                        GrenSyntax.Node
-                            { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
+                        { range =
+                            { start =
+                                { row = rangeAfterOpeningParens.start.row
+                                , column = rangeAfterOpeningParens.start.column - 1
+                                }
                             , end = rangeAfterOpeningParens.end
                             }
-                            (GrenSyntax.TypeAnnotationParenthesized
-                                inParens.syntax
-                            )
+                        , value = GrenSyntax.TypeAnnotationParenthesized inParens.syntax
+                        }
                     }
                 )
                 whitespaceAndComments
@@ -1876,7 +1863,7 @@ typeVariable =
         (\range var ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.TypeAnnotationVariable var)
+                { range = range, value = GrenSyntax.TypeAnnotationVariable var }
             }
         )
 
@@ -1889,7 +1876,7 @@ typeRecordOrRecordExtension =
                 Nothing ->
                     { comments = commentsBefore
                     , syntax =
-                        GrenSyntax.Node range typeRecordEmpty
+                        { range = range, value = typeRecordEmpty }
                     }
 
                 Just afterCurlyResult ->
@@ -1897,7 +1884,7 @@ typeRecordOrRecordExtension =
                         commentsBefore
                             |> ropePrependTo afterCurlyResult.comments
                     , syntax =
-                        GrenSyntax.Node range afterCurlyResult.syntax
+                        { range = range, value = afterCurlyResult.syntax }
                     }
         )
         (ParserFast.symbolFollowedBy "{" whitespaceAndComments)
@@ -1943,7 +1930,7 @@ typeRecordOrRecordExtension =
                                         |> ropePrependTo tail.comments
                                 , syntax =
                                     RecordExtensionExpressionAfterName
-                                        (GrenSyntax.Node range (head.syntax :: tail.syntax))
+                                        { range = range, value = head.syntax :: tail.syntax }
                                 }
                             )
                             whitespaceAndComments
@@ -2097,7 +2084,7 @@ typeRecordFieldDefinitionFollowedByWhitespaceAndComments =
                     |> ropePrependTo commentsAfterColon
                     |> ropePrependTo value.comments
                     |> ropePrependTo commentsAfterValue
-            , syntax = GrenSyntax.Node range { name = name, value = value.syntax }
+            , syntax = { range = range, value = { name = name, value = value.syntax } }
             }
         )
         nameLowercaseNodeUnderscoreSuffixingKeywords
@@ -2129,8 +2116,7 @@ typeConstructWithoutArguments =
             in
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node range name) [])
+                { range = range, value = GrenSyntax.TypeAnnotationConstruct { range = range, value = name } [] }
             }
         )
         nameUppercase
@@ -2171,7 +2157,9 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
                 commentsAfterName
                     |> ropePrependTo argsReverse.comments
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.TypeAnnotationConstruct nameNode (List.reverse argsReverse.syntax))
+                { range = range
+                , value = GrenSyntax.TypeAnnotationConstruct nameNode (List.reverse argsReverse.syntax)
+                }
             }
         )
         (ParserFast.map2WithRange
@@ -2186,7 +2174,7 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
                             Just ( qualificationAfterStartName, unqualified ) ->
                                 ( startName :: qualificationAfterStartName, unqualified )
                 in
-                GrenSyntax.Node range name
+                { range = range, value = name }
             )
             nameUppercase
             maybeDotNamesUppercaseTuple
@@ -2261,8 +2249,9 @@ followedByMultiRecordAccess beforeRecordAccesses =
         (\fieldNode leftResult ->
             { comments = leftResult.comments
             , syntax =
-                GrenSyntax.Node { start = leftResult.syntax.range.start, end = fieldNode.range.end }
-                    (GrenSyntax.ExpressionRecordAccess leftResult.syntax fieldNode)
+                { range = { start = leftResult.syntax.range.start, end = fieldNode.range.end }
+                , value = GrenSyntax.ExpressionRecordAccess leftResult.syntax fieldNode
+                }
             }
         )
         Basics.identity
@@ -2408,18 +2397,9 @@ expressionFollowedByWhitespaceAndComments =
                         expressionResult.comments
                             |> ropePrependTo cases.comments
                     , syntax =
-                        GrenSyntax.Node
-                            { start =
-                                expressionResult.syntax
-                                    |> GrenSyntax.nodeRange
-                                    |> .start
-                            , end = cases.end
-                            }
-                            (GrenSyntax.ExpressionCaseOf
-                                { expression = expressionResult.syntax
-                                , cases = cases.cases
-                                }
-                            )
+                        { range = { start = expressionResult.syntax |> GrenSyntax.nodeRange |> .start, end = cases.end }
+                        , value = GrenSyntax.ExpressionCaseOf { expression = expressionResult.syntax, cases = cases.cases }
+                        }
                     }
         )
         (extendedSubExpressionFollowedByWhitespaceAndComments
@@ -2466,11 +2446,9 @@ expressionArray =
             (\range commentsBefore elements ->
                 { comments = commentsBefore |> ropePrependTo elements.comments
                 , syntax =
-                    GrenSyntax.Node
-                        { start = { row = range.start.row, column = range.start.column - 1 }
-                        , end = range.end
-                        }
-                        elements.syntax
+                    { range = { start = { row = range.start.row, column = range.start.column - 1 }, end = range.end }
+                    , value = elements.syntax
+                    }
                 }
             )
             whitespaceAndComments
@@ -2524,7 +2502,7 @@ expressionRecordOrRecordUpdateFollowedByRecordAccess =
                 { comments =
                     commentsBefore
                         |> ropePrependTo afterCurly.comments
-                , syntax = GrenSyntax.Node (rangeMoveStartLeftByOneColumn range) afterCurly.syntax
+                , syntax = { range = rangeMoveStartLeftByOneColumn range, value = afterCurly.syntax }
                 }
             )
             whitespaceAndComments
@@ -2559,7 +2537,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
 
                                 nameNode : GrenSyntax.Node String
                                 nameNode =
-                                    GrenSyntax.Node firstFieldNameOrExpressionRange potentialFirstFieldName
+                                    { range = firstFieldNameOrExpressionRange, value = potentialFirstFieldName }
                             in
                             Just
                                 { comments = comments
@@ -2583,18 +2561,15 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
 
                                         FieldsFirstValuePunned () ->
                                             GrenSyntax.ExpressionRecord
-                                                (GrenSyntax.Node firstFieldNameOrExpressionRange
+                                                ({ range = firstFieldNameOrExpressionRange
+                                                 , value =
                                                     { name = nameNode
                                                     , value =
-                                                        -- dummy
-                                                        GrenSyntax.Node
-                                                            { start = firstFieldNameOrExpressionRange.end
-                                                            , end = firstFieldNameOrExpressionRange.end
-                                                            }
-                                                            (GrenSyntax.ExpressionReference []
-                                                                potentialFirstFieldName
-                                                            )
+                                                        { range = { start = firstFieldNameOrExpressionRange.end, end = firstFieldNameOrExpressionRange.end }
+                                                        , value = GrenSyntax.ExpressionReference [] potentialFirstFieldName
+                                                        }
                                                     }
+                                                 }
                                                     :: tailFields.syntax
                                                 )
                                 }
@@ -2621,7 +2596,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                     let
                                                         nameNode : GrenSyntax.Node String
                                                         nameNode =
-                                                            GrenSyntax.Node potentialFirstFieldNameNode.range potentialFirstFieldName
+                                                            { range = potentialFirstFieldNameNode.range, value = potentialFirstFieldName }
 
                                                         firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
                                                         firstFieldValueNode =
@@ -2630,23 +2605,20 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                                     argument0
 
                                                                 argument1 :: argument2Up ->
-                                                                    GrenSyntax.Node
+                                                                    { range =
                                                                         { start = argument0 |> GrenSyntax.nodeRange |> .start
                                                                         , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
                                                                         }
-                                                                        (GrenSyntax.ExpressionCall
-                                                                            (argument0 :: argument1 :: argument2Up)
-                                                                        )
+                                                                    , value = GrenSyntax.ExpressionCall (argument0 :: argument1 :: argument2Up)
+                                                                    }
                                                     in
                                                     Just
                                                         { comments = comments
                                                         , syntax =
                                                             GrenSyntax.ExpressionRecord
-                                                                (GrenSyntax.Node
-                                                                    (firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange)
-                                                                    { name = nameNode
-                                                                    , value = firstFieldValueNode
-                                                                    }
+                                                                ({ range = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange
+                                                                 , value = { name = nameNode, value = firstFieldValueNode }
+                                                                 }
                                                                     :: tailFields.syntax
                                                                 )
                                                         }
@@ -2780,18 +2752,18 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                     { comments =
                         commentsAfterName |> ropePrependTo commentsAfterEquals
                     , syntax =
-                        GrenSyntax.Node range
+                        { range = range
+                        , value =
                             { name = nameNode
                             , value =
-                                -- dummy
-                                GrenSyntax.Node
+                                { range =
                                     { start = nameNode |> GrenSyntax.nodeRange |> .end
                                     , end = nameNode |> GrenSyntax.nodeRange |> .end
                                     }
-                                    (GrenSyntax.ExpressionReference []
-                                        (nameNode |> GrenSyntax.nodeValue)
-                                    )
+                                , value = GrenSyntax.ExpressionReference [] (nameNode |> GrenSyntax.nodeValue)
+                                }
                             }
+                        }
                     }
 
                 Just expressionResult ->
@@ -2800,10 +2772,7 @@ recordSetterNodeFollowedByWhitespaceAndComments =
                             |> ropePrependTo commentsAfterEquals
                             |> ropePrependTo expressionResult.comments
                     , syntax =
-                        GrenSyntax.Node range
-                            { name = nameNode
-                            , value = expressionResult.syntax
-                            }
+                        { range = range, value = { name = nameNode, value = expressionResult.syntax } }
                     }
         )
         nameLowercaseNodeUnderscoreSuffixingKeywords
@@ -2826,8 +2795,7 @@ expressionString =
         (\range stringAndLineSpread ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.ExpressionString stringAndLineSpread)
+                { range = range, value = GrenSyntax.ExpressionString stringAndLineSpread }
             }
         )
 
@@ -2838,8 +2806,7 @@ expressionChar =
         (\range char ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.ExpressionChar char)
+                { range = range, value = GrenSyntax.ExpressionChar char }
             }
         )
 
@@ -2856,15 +2823,11 @@ expressionLambdaFollowedByWhitespaceAndComments =
                     |> ropePrependTo commentsAfterArrow
                     |> ropePrependTo expressionResult.comments
             , syntax =
-                GrenSyntax.Node
-                    { start = start
-                    , end = expressionResult.syntax.range.end
-                    }
-                    (GrenSyntax.ExpressionLambda
-                        { parameters = parameter0.syntax :: parameter1Up.syntax
-                        , result = expressionResult.syntax
-                        }
-                    )
+                { range = { start = start, end = expressionResult.syntax.range.end }
+                , value =
+                    GrenSyntax.ExpressionLambda
+                        { parameters = parameter0.syntax :: parameter1Up.syntax, result = expressionResult.syntax }
+                }
             }
         )
         (ParserFast.symbolFollowedBy "\\" whitespaceAndComments)
@@ -2906,7 +2869,7 @@ expressionWhenIsFollowedByOptimisticLayout =
                     |> ropePrependTo commentsAfterOf
                     |> ropePrependTo casesResult.comments
             , syntax =
-                GrenSyntax.Node
+                { range =
                     { start = start
                     , end =
                         case lastToSecondCase of
@@ -2916,11 +2879,12 @@ expressionWhenIsFollowedByOptimisticLayout =
                             [] ->
                                 firstCase.result |> GrenSyntax.nodeRange |> .end
                     }
-                    (GrenSyntax.ExpressionCaseOf
+                , value =
+                    GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
                         , cases = firstCase :: List.reverse lastToSecondCase
                         }
-                    )
+                }
             }
         )
         (ParserFast.keywordFollowedBy "when" whitespaceAndComments)
@@ -2945,7 +2909,7 @@ expressionOldCaseOfFollowedByOptimisticLayout =
                     |> ropePrependTo commentsAfterOf
                     |> ropePrependTo casesResult.comments
             , syntax =
-                GrenSyntax.Node
+                { range =
                     { start = start
                     , end =
                         case lastToSecondCase of
@@ -2955,11 +2919,12 @@ expressionOldCaseOfFollowedByOptimisticLayout =
                             [] ->
                                 firstCase.result |> GrenSyntax.nodeRange |> .end
                     }
-                    (GrenSyntax.ExpressionCaseOf
+                , value =
+                    GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
                         , cases = firstCase :: List.reverse lastToSecondCase
                         }
-                    )
+                }
             }
         )
         (ParserFast.keywordFollowedBy "case" whitespaceAndComments)
@@ -3048,15 +3013,11 @@ letExpressionFollowedByOptimisticLayout =
                     |> ropePrependTo commentsAfterIn
                     |> ropePrependTo expressionResult.comments
             , syntax =
-                GrenSyntax.Node
-                    { start = start
-                    , end = expressionResult.syntax.range.end
-                    }
-                    (GrenSyntax.ExpressionLetIn
-                        { declarations = letDeclarationsResult.declarations
-                        , result = expressionResult.syntax
-                        }
-                    )
+                { range = { start = start, end = expressionResult.syntax.range.end }
+                , value =
+                    GrenSyntax.ExpressionLetIn
+                        { declarations = letDeclarationsResult.declarations, result = expressionResult.syntax }
+                }
             }
         )
         (ParserFast.withIndentSetToColumn
@@ -3121,8 +3082,9 @@ letDestructuringDeclarationFollowedByOptimisticLayout =
                     |> ropePrependTo commentsAfterEquals
                     |> ropePrependTo expressionResult.comments
             , syntax =
-                GrenSyntax.Node { start = patternResult.syntax.range.start, end = expressionResult.syntax.range.end }
-                    (GrenSyntax.LetDestructuring patternResult.syntax expressionResult.syntax)
+                { range = { start = patternResult.syntax.range.start, end = expressionResult.syntax.range.end }
+                , value = GrenSyntax.LetDestructuring patternResult.syntax expressionResult.syntax
+                }
             }
         )
         patternNotSpaceSeparated
@@ -3144,18 +3106,18 @@ letFunctionFollowedByOptimisticLayout =
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
-                                (GrenSyntax.LetFunction
+                            { range = { start = startNameStart, end = expressionResult.syntax.range.end }
+                            , value =
+                                GrenSyntax.LetFunction
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
-                                        GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
-                                            { name = startNameNode
-                                            , parameters = parameters.syntax
-                                            , expression = expressionResult.syntax
-                                            }
+                                        { range = { start = startNameStart, end = expressionResult.syntax.range.end }
+                                        , value =
+                                            { name = startNameNode, parameters = parameters.syntax, expression = expressionResult.syntax }
+                                        }
                                     }
-                                )
+                            }
                         }
 
                     Just signature ->
@@ -3165,8 +3127,9 @@ letFunctionFollowedByOptimisticLayout =
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
-                                (GrenSyntax.LetFunction
+                            { range = { start = startNameStart, end = expressionResult.syntax.range.end }
+                            , value =
+                                GrenSyntax.LetFunction
                                     { documentation = Nothing
                                     , signature =
                                         Just
@@ -3176,13 +3139,16 @@ letFunctionFollowedByOptimisticLayout =
                                                 signature.typeAnnotation
                                             )
                                     , declaration =
-                                        GrenSyntax.Node { start = signature.implementationName.range.start, end = expressionResult.syntax.range.end }
+                                        { range =
+                                            { start = signature.implementationName.range.start, end = expressionResult.syntax.range.end }
+                                        , value =
                                             { name = signature.implementationName
                                             , parameters = parameters.syntax
                                             , expression = expressionResult.syntax
                                             }
+                                        }
                                     }
-                                )
+                            }
                         }
             )
             nameLowercaseNodeUnderscoreSuffixingKeywords
@@ -3237,37 +3203,27 @@ letFunctionFollowedByOptimisticLayout =
                         |> ropePrependTo commentsAfterEqual
                         |> ropePrependTo result.comments
                 , syntax =
-                    GrenSyntax.Node
-                        { start = start
-                        , end = result.syntax |> GrenSyntax.nodeRange |> .end
-                        }
-                        (GrenSyntax.LetFunction
+                    { range = { start = start, end = result.syntax |> GrenSyntax.nodeRange |> .end }
+                    , value =
+                        GrenSyntax.LetFunction
                             { documentation = Nothing
                             , signature =
                                 Just
-                                    (GrenSyntax.Node
-                                        { start = start
-                                        , end = typeAnnotationResult.syntax |> GrenSyntax.nodeRange |> .end
-                                        }
-                                        { name =
-                                            -- dummy
-                                            GrenSyntax.Node
-                                                { start = start, end = start }
-                                                (nameNode |> GrenSyntax.nodeValue)
+                                    { range = { start = start, end = typeAnnotationResult.syntax |> GrenSyntax.nodeRange |> .end }
+                                    , value =
+                                        { name = { range = { start = start, end = start }, value = nameNode |> GrenSyntax.nodeValue }
                                         , typeAnnotation = typeAnnotationResult.syntax
                                         }
-                                    )
+                                    }
                             , declaration =
-                                GrenSyntax.Node
+                                { range =
                                     { start = nameNode |> GrenSyntax.nodeRange |> .start
                                     , end = result.syntax |> GrenSyntax.nodeRange |> .end
                                     }
-                                    { name = nameNode
-                                    , parameters = parameters.syntax
-                                    , expression = result.syntax
-                                    }
+                                , value = { name = nameNode, parameters = parameters.syntax, expression = result.syntax }
+                                }
                             }
-                        )
+                    }
                 }
             )
             (ParserFast.symbolFollowedBy ":" whitespaceAndComments)
@@ -3286,17 +3242,17 @@ expressionNumber =
     ParserFast.floatOrIntegerDecimalOrHexadecimalMapWithRange
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionFloat n)
+            , syntax = { range = range, value = GrenSyntax.ExpressionFloat n }
             }
         )
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionInteger n)
+            , syntax = { range = range, value = GrenSyntax.ExpressionInteger n }
             }
         )
         (\range n ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.ExpressionHex n)
+            , syntax = { range = range, value = GrenSyntax.ExpressionHex n }
             }
         )
 
@@ -3313,15 +3269,9 @@ expressionIfThenElseFollowedByOptimisticLayout =
                     |> ropePrependTo commentsAfterElse
                     |> ropePrependTo ifFalse.comments
             , syntax =
-                GrenSyntax.Node
-                    { start = start
-                    , end = ifFalse.syntax.range.end
-                    }
-                    (GrenSyntax.ExpressionIfThenElse
-                        condition.syntax
-                        ifTrue.syntax
-                        ifFalse.syntax
-                    )
+                { range = { start = start, end = ifFalse.syntax.range.end }
+                , value = GrenSyntax.ExpressionIfThenElse condition.syntax ifTrue.syntax ifFalse.syntax
+                }
             }
         )
         (ParserFast.keywordFollowedBy "if" whitespaceAndComments)
@@ -3397,14 +3347,15 @@ negationAfterMinus =
         (\subExpressionResult ->
             { comments = subExpressionResult.comments
             , syntax =
-                GrenSyntax.Node
+                { range =
                     { start =
                         { row = subExpressionResult.syntax.range.start.row
                         , column = subExpressionResult.syntax.range.start.column - 1
                         }
                     , end = subExpressionResult.syntax.range.end
                     }
-                    (GrenSyntax.ExpressionNegation subExpressionResult.syntax)
+                , value = GrenSyntax.ExpressionNegation subExpressionResult.syntax
+                }
             }
         )
         subExpression
@@ -3416,14 +3367,15 @@ expressionQualifiedOrVariantOrRecordConstructorReferenceFollowedByRecordAccess =
         (\range firstName after ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range
-                    (case after of
+                { range = range
+                , value =
+                    case after of
                         Nothing ->
                             GrenSyntax.ExpressionReference [] firstName
 
                         Just ( qualificationAfter, unqualified ) ->
                             GrenSyntax.ExpressionReference (firstName :: qualificationAfter) unqualified
-                    )
+                }
             }
         )
         nameUppercase
@@ -3462,7 +3414,7 @@ expressionUnqualifiedFunctionReferenceFollowedByRecordAccess =
         (\range unqualified ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.ExpressionReference [] unqualified)
+                { range = range, value = GrenSyntax.ExpressionReference [] unqualified }
             }
         )
         |> followedByMultiRecordAccess
@@ -3475,8 +3427,9 @@ expressionRecordAccessFunction =
             (\range field ->
                 { comments = ropeEmpty
                 , syntax =
-                    GrenSyntax.Node (range |> rangeMoveStartLeftByOneColumn)
-                        (GrenSyntax.ExpressionRecordAccessFunction ("." ++ field))
+                    { range = range |> rangeMoveStartLeftByOneColumn
+                    , value = GrenSyntax.ExpressionRecordAccessFunction ("." ++ field)
+                    }
                 }
             )
         )
@@ -3497,8 +3450,9 @@ expressionStartingWithParensOpeningIfNecessaryFollowedByRecordAccess =
                 (\end ->
                     { comments = ropeEmpty
                     , syntax =
-                        GrenSyntax.Node { start = { row = end.row, column = end.column - 2 }, end = end }
-                            GrenSyntax.ExpressionUnit
+                        { range = { start = { row = end.row, column = end.column - 2 }, end = end }
+                        , value = GrenSyntax.ExpressionUnit
+                        }
                     }
                 )
             )
@@ -3513,11 +3467,12 @@ allowedPrefixOperatorFollowedByClosingParensOneOf =
         (\operatorRange operator ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node
+                { range =
                     { start = { row = operatorRange.start.row, column = operatorRange.start.column - 1 }
                     , end = { row = operatorRange.end.row, column = operatorRange.end.column + 1 }
                     }
-                    (GrenSyntax.ExpressionOperatorFunction operator)
+                , value = GrenSyntax.ExpressionOperatorFunction operator
+                }
             }
         )
         isOperatorSymbolCharAsString
@@ -3533,11 +3488,15 @@ expressionParenthesizedOrTupleOrTripleAfterOpeningParens =
                 commentsBeforeFirstPart
                     |> ropePrependTo firstPart.comments
             , syntax =
-                GrenSyntax.Node
-                    { start = { row = rangeAfterOpeningParens.start.row, column = rangeAfterOpeningParens.start.column - 1 }
+                { range =
+                    { start =
+                        { row = rangeAfterOpeningParens.start.row
+                        , column = rangeAfterOpeningParens.start.column - 1
+                        }
                     , end = rangeAfterOpeningParens.end
                     }
-                    (GrenSyntax.ExpressionParenthesized firstPart.syntax)
+                , value = GrenSyntax.ExpressionParenthesized firstPart.syntax
+                }
             }
         )
         whitespaceAndComments
@@ -3965,10 +3924,10 @@ followedByMultiArgumentApplication appliedExpressionParser =
                         leftExpressionResult.syntax
 
                     lastArgumentNode :: _ ->
-                        GrenSyntax.Node { start = leftExpressionResult.syntax.range.start, end = lastArgumentNode.range.end }
-                            (GrenSyntax.ExpressionCall
-                                (leftExpressionResult.syntax :: List.reverse maybeArgsReverse.syntax)
-                            )
+                        { range = { start = leftExpressionResult.syntax.range.start, end = lastArgumentNode.range.end }
+                        , value =
+                            GrenSyntax.ExpressionCall (leftExpressionResult.syntax :: List.reverse maybeArgsReverse.syntax)
+                        }
             }
         )
         appliedExpressionParser
@@ -3990,11 +3949,9 @@ followedByMultiArgumentApplication appliedExpressionParser =
 
 applyExtensionRight : ExtensionRight -> GrenSyntax.Node GrenSyntax.Expression -> GrenSyntax.Node GrenSyntax.Expression
 applyExtensionRight (ExtendRightByOperation operation) leftNode =
-    GrenSyntax.Node { start = leftNode.range.start, end = operation.expression.range.end }
-        (GrenSyntax.ExpressionInfixOperation operation.symbol
-            leftNode
-            operation.expression
-        )
+    { range = { start = leftNode.range.start, end = operation.expression.range.end }
+    , value = GrenSyntax.ExpressionInfixOperation operation.symbol leftNode operation.expression
+    }
 
 
 type alias InfixOperatorInfo =
@@ -4093,15 +4050,12 @@ pattern =
                         leftMaybeConsed.comments
                             |> ropePrependTo asExtension.comments
                     , syntax =
-                        GrenSyntax.Node
+                        { range =
                             { start = leftMaybeConsed.syntax |> GrenSyntax.nodeRange |> .start
                             , end = asExtension.syntax |> GrenSyntax.nodeRange |> .end
                             }
-                            (GrenSyntax.PatternAs
-                                { pattern = leftMaybeConsed.syntax
-                                , variable = asExtension.syntax
-                                }
-                            )
+                        , value = GrenSyntax.PatternAs { pattern = leftMaybeConsed.syntax, variable = asExtension.syntax }
+                        }
                     }
         )
         (ParserFast.loopWhileSucceedsOntoResultFromParserRightToLeftStackUnsafe
@@ -4164,8 +4118,9 @@ patternParenthesizedOrOldUnit =
                     commentsBeforeHead
                         |> ropePrependTo contentResult.comments
                 , syntax =
-                    GrenSyntax.Node { start = { row = range.start.row, column = range.start.column - 1 }, end = range.end }
-                        contentResult.syntax
+                    { range = { start = { row = range.start.row, column = range.start.column - 1 }, end = range.end }
+                    , value = contentResult.syntax
+                    }
                 }
             )
             whitespaceAndComments
@@ -4195,7 +4150,7 @@ varPattern =
     nameLowercaseMapWithRange
         (\range var ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.PatternVariable var)
+            , syntax = { range = range, value = GrenSyntax.PatternVariable var }
             }
         )
 
@@ -4203,15 +4158,15 @@ varPattern =
 numberPart : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 numberPart =
     ParserFast.integerDecimalOrHexadecimalMapWithRange
-        (\range n -> { comments = ropeEmpty, syntax = GrenSyntax.Node range (GrenSyntax.PatternInt n) })
-        (\range n -> { comments = ropeEmpty, syntax = GrenSyntax.Node range (GrenSyntax.PatternHex n) })
+        (\range n -> { comments = ropeEmpty, syntax = { range = range, value = GrenSyntax.PatternInt n } })
+        (\range n -> { comments = ropeEmpty, syntax = { range = range, value = GrenSyntax.PatternHex n } })
 
 
 charPattern : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 charPattern =
     characterLiteralMapWithRange
         (\range char ->
-            { comments = ropeEmpty, syntax = GrenSyntax.Node range (GrenSyntax.PatternChar char) }
+            { comments = ropeEmpty, syntax = { range = range, value = GrenSyntax.PatternChar char } }
         )
 
 
@@ -4222,12 +4177,12 @@ listPattern =
             case maybeElements of
                 Nothing ->
                     { comments = commentsBeforeElements
-                    , syntax = GrenSyntax.Node range patternListEmpty
+                    , syntax = { range = range, value = patternListEmpty }
                     }
 
                 Just elements ->
                     { comments = commentsBeforeElements |> ropePrependTo elements.comments
-                    , syntax = GrenSyntax.Node range (GrenSyntax.PatternListExact elements.syntax)
+                    , syntax = { range = range, value = GrenSyntax.PatternListExact elements.syntax }
                     }
         )
         (ParserFast.symbolFollowedBy "[" whitespaceAndComments)
@@ -4315,7 +4270,7 @@ allPattern =
     ParserFast.symbolWithRange "_"
         (\range ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range GrenSyntax.PatternIgnored
+            , syntax = { range = range, value = GrenSyntax.PatternIgnored }
             }
         )
 
@@ -4325,7 +4280,7 @@ stringPattern =
     singleOrTripleQuotedStringLiteralMapWithRange
         (\range string ->
             { comments = ropeEmpty
-            , syntax = GrenSyntax.Node range (GrenSyntax.PatternString string)
+            , syntax = { range = range, value = GrenSyntax.PatternString string }
             }
         )
 
@@ -4346,25 +4301,27 @@ qualifiedPatternWithConsumeArgs =
             in
             { comments = afterStartName |> ropePrependTo argsReverse.comments
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.PatternVariant
+                { range = range
+                , value =
+                    GrenSyntax.PatternVariant
                         { qualification = referenceNode.value.qualification
                         , name = referenceNode.value.name
                         , value = argsReverse.syntax
                         }
-                    )
+                }
             }
         )
         (ParserFast.map2WithRange
             (\range firstName after ->
-                GrenSyntax.Node range
-                    (case after of
+                { range = range
+                , value =
+                    case after of
                         Nothing ->
                             { qualification = [], name = firstName }
 
                         Just ( qualificationAfter, unqualified ) ->
                             { qualification = firstName :: qualificationAfter, name = unqualified }
-                    )
+                }
             )
             nameUppercase
             maybeDotNamesUppercaseTuple
@@ -4388,14 +4345,12 @@ qualifiedPatternWithoutConsumeArgs =
         (\range firstName after ->
             { comments = ropeEmpty
             , syntax =
-                GrenSyntax.Node range
-                    (GrenSyntax.PatternVariant
+                { range = range
+                , value =
+                    GrenSyntax.PatternVariant
                         (case after of
                             Nothing ->
-                                { qualification = []
-                                , name = firstName
-                                , value = Nothing
-                                }
+                                { qualification = [], name = firstName, value = Nothing }
 
                             Just ( qualificationAfter, unqualified ) ->
                                 { qualification = firstName :: qualificationAfter
@@ -4403,7 +4358,7 @@ qualifiedPatternWithoutConsumeArgs =
                                 , value = Nothing
                                 }
                         )
-                    )
+                }
             }
         )
         nameUppercase
@@ -4416,7 +4371,7 @@ recordPattern =
         (\range commentsBeforeElements elements ->
             { comments = commentsBeforeElements |> ropePrependTo elements.comments
             , syntax =
-                GrenSyntax.Node range (GrenSyntax.PatternRecord elements.syntax)
+                { range = range, value = GrenSyntax.PatternRecord elements.syntax }
             }
         )
         (ParserFast.symbolFollowedBy "{" whitespaceAndComments)
@@ -4851,7 +4806,7 @@ nameLowercaseUnderscoreSuffixingKeywords =
 
 nameLowercaseNode : Parser (GrenSyntax.Node String)
 nameLowercaseNode =
-    ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak GrenSyntax.Node
+    ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak (\range value -> { range = range, value = value })
         Unicode.unicodeIsLowerFast
         Unicode.unicodeIsAlphaNumOrUnderscoreFast
         isNotReserved
@@ -4861,8 +4816,7 @@ nameLowercaseNodeUnderscoreSuffixingKeywords : Parser (GrenSyntax.Node String)
 nameLowercaseNodeUnderscoreSuffixingKeywords =
     ParserFast.ifFollowedByWhileMapWithRangeWithoutLinebreak
         (\range name ->
-            GrenSyntax.Node range
-                (name |> ifKeywordUnderscoreSuffix)
+            { range = range, value = name |> ifKeywordUnderscoreSuffix }
         )
         Unicode.unicodeIsLowerFast
         Unicode.unicodeIsAlphaNumOrUnderscoreFast
@@ -4879,7 +4833,7 @@ nameLowercaseMapWithRange rangeAndNameToResult =
 
 functionNameNotInfixNode : Parser (GrenSyntax.Node String)
 functionNameNotInfixNode =
-    ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak GrenSyntax.Node
+    ParserFast.ifFollowedByWhileValidateMapWithRangeWithoutLinebreak (\range value -> { range = range, value = value })
         Unicode.unicodeIsLowerFast
         Unicode.unicodeIsAlphaNumOrUnderscoreFast
         (\name ->
@@ -4911,7 +4865,7 @@ nameUppercaseMapWithRange rangeAndNameToRes =
 
 nameUppercaseNode : Parser (GrenSyntax.Node String)
 nameUppercaseNode =
-    ParserFast.ifFollowedByWhileMapWithRangeWithoutLinebreak GrenSyntax.Node
+    ParserFast.ifFollowedByWhileMapWithRangeWithoutLinebreak (\range value -> { range = range, value = value })
         Unicode.unicodeIsUpperFast
         Unicode.unicodeIsAlphaNumOrUnderscoreFast
 
@@ -5063,14 +5017,12 @@ singleLineComment =
                         not (Unicode.isUtf16Surrogate c)
             )
             (\range content ->
-                GrenSyntax.Node
+                { range =
                     { start = { row = range.start.row, column = range.start.column - 2 }
-                    , end =
-                        { row = range.start.row
-                        , column = range.end.column
-                        }
+                    , end = { row = range.start.row, column = range.end.column }
                     }
-                    ("--" ++ content)
+                , value = "--" ++ content
+                }
             )
         )
 
@@ -5093,7 +5045,7 @@ multiLineComment =
 
 multiLineCommentNoCheck : Parser (GrenSyntax.Node String)
 multiLineCommentNoCheck =
-    ParserFast.nestableMultiCommentMapWithRange GrenSyntax.Node
+    ParserFast.nestableMultiCommentMapWithRange (\range value -> { range = range, value = value })
         ( '{', "-" )
         ( '-', "}" )
 

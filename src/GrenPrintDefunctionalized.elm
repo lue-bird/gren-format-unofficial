@@ -631,8 +631,7 @@ exposesCombine syntaxExposes =
             case exposeCompare expose0Node.value expose1Node.value of
                 EQ ->
                     exposesCombine
-                        (GrenSyntax.Node expose0Node.range
-                            (exposeMerge expose0Node.value expose1Node.value)
+                        ({ range = expose0Node.range, value = exposeMerge expose0Node.value expose1Node.value }
                             :: expose2Up
                         )
 
@@ -1064,14 +1063,12 @@ importsCombine syntaxImports =
                     == (import1Node.value.moduleName |> GrenSyntax.nodeValue)
             then
                 importsCombine
-                    (GrenSyntax.Node import1Node.range
-                        (importsMerge import0Node.value import1Node.value)
+                    ({ range = import1Node.range, value = importsMerge import0Node.value import1Node.value }
                         :: import2Up
                     )
 
             else
-                GrenSyntax.Node import0Node.range
-                    (import0Node.value |> importToNormal)
+                { range = import0Node.range, value = import0Node.value |> importToNormal }
                     :: importsCombine (import1Node :: import2Up)
 
 
@@ -1086,9 +1083,7 @@ importToNormal syntaxImport =
 
             Just syntaxExposingNode ->
                 Just
-                    (GrenSyntax.Node syntaxExposingNode.range
-                        (syntaxExposingNode.value |> exposingToNormal)
-                    )
+                    { range = syntaxExposingNode.range, value = syntaxExposingNode.value |> exposingToNormal }
     }
 
 
@@ -1127,9 +1122,7 @@ exposingCombine a b =
             case aExposingNode.value of
                 GrenSyntax.All allRange ->
                     Just
-                        (GrenSyntax.Node aExposingNode.range
-                            (GrenSyntax.All allRange)
-                        )
+                        { range = aExposingNode.range, value = GrenSyntax.All allRange }
 
                 GrenSyntax.Explicit earlierExposeSet ->
                     Just
@@ -1137,24 +1130,21 @@ exposingCombine a b =
                             Just bExposingNode ->
                                 case bExposingNode.value of
                                     GrenSyntax.All allRange ->
-                                        GrenSyntax.Node bExposingNode.range (GrenSyntax.All allRange)
+                                        { range = bExposingNode.range, value = GrenSyntax.All allRange }
 
                                     GrenSyntax.Explicit laterExposeSet ->
-                                        GrenSyntax.Node
-                                            (case lineSpreadInRange aExposingNode.range of
+                                        { range =
+                                            case lineSpreadInRange aExposingNode.range of
                                                 Print.MultipleLines ->
                                                     aExposingNode.range
 
                                                 Print.SingleLine ->
                                                     bExposingNode.range
-                                            )
-                                            (GrenSyntax.Explicit
-                                                (earlierExposeSet ++ laterExposeSet |> exposeListToNormal)
-                                            )
+                                        , value = GrenSyntax.Explicit (earlierExposeSet ++ laterExposeSet |> exposeListToNormal)
+                                        }
 
                             Nothing ->
-                                GrenSyntax.Node aExposingNode.range
-                                    (GrenSyntax.Explicit earlierExposeSet)
+                                { range = aExposingNode.range, value = GrenSyntax.Explicit earlierExposeSet }
                         )
 
         Nothing ->
@@ -2124,40 +2114,40 @@ patternToNotParenthesized syntaxPatternNode =
             inParens |> patternToNotParenthesized
 
         GrenSyntax.PatternIgnored ->
-            GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternIgnored
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored }
 
         GrenSyntax.PatternUnit ->
-            GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternUnit
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternUnit }
 
         GrenSyntax.PatternVariable name ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariable name)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternVariable name }
 
         GrenSyntax.PatternChar char ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternChar char)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternChar char }
 
         GrenSyntax.PatternString string ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternString string)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternString string }
 
         GrenSyntax.PatternInt int ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternInt int)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternInt int }
 
         GrenSyntax.PatternHex int ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternHex int)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternHex int }
 
         GrenSyntax.PatternRecord fields ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternRecord fields)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternRecord fields }
 
         GrenSyntax.PatternListCons headPattern tailPattern ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListCons headPattern tailPattern)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternListCons headPattern tailPattern }
 
         GrenSyntax.PatternListExact elementPatterns ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListExact elementPatterns)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternListExact elementPatterns }
 
         GrenSyntax.PatternVariant syntaxPatternVariant ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariant syntaxPatternVariant)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternVariant syntaxPatternVariant }
 
         GrenSyntax.PatternAs syntaxPatternAs ->
-            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternAs syntaxPatternAs)
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternAs syntaxPatternAs }
 
 
 {-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
@@ -2498,40 +2488,40 @@ patternConsExpand syntaxPatternNode =
             headPattern :: patternConsExpand tailPattern
 
         GrenSyntax.PatternIgnored ->
-            [ GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternIgnored ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored } ]
 
         GrenSyntax.PatternUnit ->
-            [ GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternUnit ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternUnit } ]
 
         GrenSyntax.PatternChar char ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternChar char) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternChar char } ]
 
         GrenSyntax.PatternString string ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternString string) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternString string } ]
 
         GrenSyntax.PatternInt int ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternInt int) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternInt int } ]
 
         GrenSyntax.PatternHex int ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternHex int) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternHex int } ]
 
         GrenSyntax.PatternRecord fields ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternRecord fields) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternRecord fields } ]
 
         GrenSyntax.PatternListExact elements ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListExact elements) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternListExact elements } ]
 
         GrenSyntax.PatternVariable variableName ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariable variableName) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternVariable variableName } ]
 
         GrenSyntax.PatternVariant syntaxPatternVariant ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariant syntaxPatternVariant) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternVariant syntaxPatternVariant } ]
 
         GrenSyntax.PatternAs syntaxPatternAs ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternAs syntaxPatternAs) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternAs syntaxPatternAs } ]
 
         GrenSyntax.PatternParenthesized inParens ->
-            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternParenthesized inParens) ]
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternParenthesized inParens } ]
 
 
 patternAs :
@@ -3582,25 +3572,27 @@ typeToNotParenthesized :
 typeToNotParenthesized syntaxTypeNode =
     case syntaxTypeNode.value of
         GrenSyntax.TypeAnnotationVariable name ->
-            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationVariable name)
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationVariable name }
 
         GrenSyntax.TypeAnnotationConstruct reference arguments ->
-            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationConstruct reference arguments)
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationConstruct reference arguments }
 
         GrenSyntax.TypeAnnotationUnit ->
-            GrenSyntax.Node syntaxTypeNode.range GrenSyntax.TypeAnnotationUnit
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationUnit }
 
         GrenSyntax.TypeAnnotationParenthesized inParens ->
             typeToNotParenthesized inParens
 
         GrenSyntax.TypeAnnotationRecord fields ->
-            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationRecord fields)
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationRecord fields }
 
         GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode ->
-            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode)
+            { range = syntaxTypeNode.range
+            , value = GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode
+            }
 
         GrenSyntax.TypeAnnotationFunction inType outType ->
-            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationFunction inType outType)
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationFunction inType outType }
 
 
 typeFunctionExpand :
@@ -4921,7 +4913,7 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
 
         GrenSyntax.ExpressionLambda syntaxLambda ->
             expressionLambda syntaxComments
-                (GrenSyntax.Node syntaxExpressionNode.range syntaxLambda)
+                { range = syntaxExpressionNode.range, value = syntaxLambda }
 
         GrenSyntax.ExpressionRecord fields ->
             recordLiteral
@@ -4976,9 +4968,7 @@ printExpressionNegation syntaxComments negated =
                 printExactlyMinus
                     |> Print.followedBy
                         (expressionParenthesized syntaxComments
-                            (GrenSyntax.Node negatedNotParenthesized.range
-                                (GrenSyntax.ExpressionNegation doublyNegated)
-                            )
+                            { range = negatedNotParenthesized.range, value = GrenSyntax.ExpressionNegation doublyNegated }
                         )
 
             _ ->
@@ -6457,7 +6447,7 @@ expressionToNotParenthesized syntaxExpressionNode =
             inParens |> expressionToNotParenthesized
 
         syntaxExpressionNotParenthesized ->
-            GrenSyntax.Node syntaxExpressionNode.range syntaxExpressionNotParenthesized
+            { range = syntaxExpressionNode.range, value = syntaxExpressionNotParenthesized }
 
 
 {-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)

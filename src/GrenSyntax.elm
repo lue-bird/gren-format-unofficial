@@ -144,6 +144,7 @@ type Declaration
     type Color
         = Blue
         | Red
+
 -}
 type alias ChoiceTypeDeclarationInfo =
     { documentation : Maybe (Node String)
@@ -386,7 +387,7 @@ type Pattern
     | PatternParenthesized (Node Pattern)
 
 
-{-|  An element of the AST (Abstract Syntax Tree).
+{-| An element of the AST (Abstract Syntax Tree).
 
 The purpose of this type is to add the information of the [`Range`](#Range), i.e. where in the source code the
 element of the tree was found.
@@ -400,9 +401,7 @@ type alias Node a =
 -}
 nodeCombine : (Node a -> Node b -> c) -> Node a -> Node b -> Node c
 nodeCombine f a b =
-    Node
-        { start = a.range.start, end = b.range.end }
-        (f a b)
+    { range = { start = a.range.start, end = b.range.end }, value = f a b }
 
 
 {-| Map the value within a node leaving the range untouched
