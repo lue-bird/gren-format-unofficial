@@ -333,7 +333,10 @@ type LetDeclaration
 -}
 type TypeAnnotation
     = TypeAnnotationVariable String
-    | TypeAnnotationConstruct (Node { qualification : ModuleName, name : String }) (List (Node TypeAnnotation))
+    | TypeAnnotationConstruct
+        { reference : Node { qualification : ModuleName, name : String }
+        , arguments : List (Node TypeAnnotation)
+        }
     | TypeAnnotationUnit
     | TypeAnnotationParenthesized (Node TypeAnnotation)
     | TypeAnnotationRecord

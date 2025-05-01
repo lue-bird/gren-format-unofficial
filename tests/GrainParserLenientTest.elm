@@ -1017,10 +1017,12 @@ b = 2
                                                     { range = { start = { row = 4, column = 16 }, end = { row = 4, column = 17 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 4, column = 16 }, end = { row = 4, column = 17 } }
-                                                            , value = { qualification = [], name = "A" }
+                                                            { reference =
+                                                                { range = { start = { row = 4, column = 16 }, end = { row = 4, column = 17 } }
+                                                                , value = { qualification = [], name = "A" }
+                                                                }
+                                                            , arguments = []
                                                             }
-                                                            []
                                                     }
                                                 }
                                       }
@@ -1037,10 +1039,12 @@ b = 2
                                                                 { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 8 } }
                                                                 , value =
                                                                     GrenSyntax.TypeAnnotationConstruct
-                                                                        { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 8 } }
-                                                                        , value = { qualification = [], name = "Int" }
+                                                                        { reference =
+                                                                            { range = { start = { row = 5, column = 5 }, end = { row = 5, column = 8 } }
+                                                                            , value = { qualification = [], name = "Int" }
+                                                                            }
+                                                                        , arguments = []
                                                                         }
-                                                                        []
                                                                 }
                                                             }
                                                         }
@@ -2116,22 +2120,27 @@ port sendResponse : String -> Cmd msg
                                                             { range = { start = { row = 8, column = 21 }, end = { row = 8, column = 27 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { start = { row = 8, column = 21 }, end = { row = 8, column = 27 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { start = { row = 8, column = 21 }, end = { row = 8, column = 27 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         , output =
                                                             { range = { start = { row = 8, column = 31 }, end = { row = 8, column = 38 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { start = { row = 8, column = 31 }, end = { row = 8, column = 34 } }
-                                                                    , value = { qualification = [], name = "Cmd" }
+                                                                    { reference =
+                                                                        { range = { start = { row = 8, column = 31 }, end = { row = 8, column = 34 } }
+                                                                        , value = { qualification = [], name = "Cmd" }
+                                                                        }
+                                                                    , arguments =
+                                                                        [ { range = { start = { row = 8, column = 35 }, end = { row = 8, column = 38 } }
+                                                                          , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                          }
+                                                                        ]
                                                                     }
-                                                                    [ { range = { start = { row = 8, column = 35 }, end = { row = 8, column = 38 } }
-                                                                      , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                                      }
-                                                                    ]
                                                             }
                                                         }
                                                 }
@@ -2224,22 +2233,27 @@ port sendResponse : String -> Cmd msg
                                                             { range = { end = { column = 27, row = 4 }, start = { column = 21, row = 4 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { end = { column = 27, row = 4 }, start = { column = 21, row = 4 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { end = { column = 27, row = 4 }, start = { column = 21, row = 4 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         , output =
                                                             { range = { end = { column = 38, row = 4 }, start = { column = 31, row = 4 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { end = { column = 34, row = 4 }, start = { column = 31, row = 4 } }
-                                                                    , value = { qualification = [], name = "Cmd" }
+                                                                    { reference =
+                                                                        { range = { end = { column = 34, row = 4 }, start = { column = 31, row = 4 } }
+                                                                        , value = { qualification = [], name = "Cmd" }
+                                                                        }
+                                                                    , arguments =
+                                                                        [ { range = { end = { column = 38, row = 4 }, start = { column = 35, row = 4 } }
+                                                                          , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                          }
+                                                                        ]
                                                                     }
-                                                                    [ { range = { end = { column = 38, row = 4 }, start = { column = 35, row = 4 } }
-                                                                      , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                                      }
-                                                                    ]
                                                             }
                                                         }
                                                 }
@@ -2780,23 +2794,28 @@ foo = bar"""
                                                             { range = { end = { column = 30, row = 1 }, start = { column = 24, row = 1 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { end = { column = 30, row = 1 }, start = { column = 24, row = 1 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { end = { column = 30, row = 1 }, start = { column = 24, row = 1 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                     }
                                                 , output =
                                                     { range = { end = { column = 51, row = 1 }, start = { column = 44, row = 1 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { end = { column = 47, row = 1 }, start = { column = 44, row = 1 } }
-                                                            , value = { qualification = [], name = "Cmd" }
+                                                            { reference =
+                                                                { range = { end = { column = 47, row = 1 }, start = { column = 44, row = 1 } }
+                                                                , value = { qualification = [], name = "Cmd" }
+                                                                }
+                                                            , arguments =
+                                                                [ { range = { end = { column = 51, row = 1 }, start = { column = 48, row = 1 } }
+                                                                  , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                  }
+                                                                ]
                                                             }
-                                                            [ { range = { end = { column = 51, row = 1 }, start = { column = 48, row = 1 } }
-                                                              , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                              }
-                                                            ]
                                                     }
                                                 }
                                         }
@@ -2827,10 +2846,12 @@ foo = bar"""
                                                                         { range = { end = { column = 20, row = 1 }, start = { column = 16, row = 1 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { end = { column = 20, row = 1 }, start = { column = 16, row = 1 } }
-                                                                                , value = { qualification = [], name = "Move" }
+                                                                                { reference =
+                                                                                    { range = { end = { column = 20, row = 1 }, start = { column = 16, row = 1 } }
+                                                                                    , value = { qualification = [], name = "Move" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     , output =
                                                                         { range = { end = { column = 27, row = 1 }, start = { column = 24, row = 1 } }
@@ -2843,13 +2864,16 @@ foo = bar"""
                                                     { range = { end = { column = 39, row = 1 }, start = { column = 32, row = 1 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { end = { column = 35, row = 1 }, start = { column = 32, row = 1 } }
-                                                            , value = { qualification = [], name = "Sub" }
+                                                            { reference =
+                                                                { range = { end = { column = 35, row = 1 }, start = { column = 32, row = 1 } }
+                                                                , value = { qualification = [], name = "Sub" }
+                                                                }
+                                                            , arguments =
+                                                                [ { range = { end = { column = 39, row = 1 }, start = { column = 36, row = 1 } }
+                                                                  , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                  }
+                                                                ]
                                                             }
-                                                            [ { range = { end = { column = 39, row = 1 }, start = { column = 36, row = 1 } }
-                                                              , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                              }
-                                                            ]
                                                     }
                                                 }
                                         }
@@ -2938,13 +2962,16 @@ main =
                                                     { range = { end = { column = 16, row = 1 }, start = { column = 8, row = 1 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { end = { column = 12, row = 1 }, start = { column = 8, row = 1 } }
-                                                            , value = { qualification = [], name = "Html" }
+                                                            { reference =
+                                                                { range = { end = { column = 12, row = 1 }, start = { column = 8, row = 1 } }
+                                                                , value = { qualification = [], name = "Html" }
+                                                                }
+                                                            , arguments =
+                                                                [ { range = { end = { column = 16, row = 1 }, start = { column = 13, row = 1 } }
+                                                                  , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                  }
+                                                                ]
                                                             }
-                                                            [ { range = { end = { column = 16, row = 1 }, start = { column = 13, row = 1 } }
-                                                              , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                              }
-                                                            ]
                                                     }
                                                 }
                                             }
@@ -2993,13 +3020,16 @@ main =
                                                     { range = { end = { column = 11, row = 1 }, start = { column = 3, row = 1 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { end = { column = 7, row = 1 }, start = { column = 3, row = 1 } }
-                                                            , value = { qualification = [], name = "Html" }
+                                                            { reference =
+                                                                { range = { end = { column = 7, row = 1 }, start = { column = 3, row = 1 } }
+                                                                , value = { qualification = [], name = "Html" }
+                                                                }
+                                                            , arguments =
+                                                                [ { range = { end = { column = 11, row = 1 }, start = { column = 8, row = 1 } }
+                                                                  , value = GrenSyntax.TypeAnnotationVariable "msg"
+                                                                  }
+                                                                ]
                                                             }
-                                                            [ { range = { end = { column = 11, row = 1 }, start = { column = 8, row = 1 } }
-                                                              , value = GrenSyntax.TypeAnnotationVariable "msg"
-                                                              }
-                                                            ]
                                                     }
                                                 }
                                             }
@@ -3249,10 +3279,12 @@ update msg model =
                                                     { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
-                                                            , value = { qualification = [], name = "Model" }
+                                                            { reference =
+                                                                { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
+                                                                , value = { qualification = [], name = "Model" }
+                                                                }
+                                                            , arguments = []
                                                             }
-                                                            []
                                                     }
                                                 }
                                             }
@@ -3301,10 +3333,12 @@ update msg model =
                                                             { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 32 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 32 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 32 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         }
                                                   }
@@ -3341,10 +3375,12 @@ type alias Foo = {color: String }"""
                                                             { range = { start = { row = 2, column = 26 }, end = { row = 2, column = 32 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { start = { row = 2, column = 26 }, end = { row = 2, column = 32 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { start = { row = 2, column = 26 }, end = { row = 2, column = 32 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         }
                                                   }
@@ -3376,10 +3412,12 @@ type alias Foo = {color: String }"""
                                                             { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } }
-                                                                    , value = { qualification = [], name = "String" }
+                                                                    { reference =
+                                                                        { range = { start = { row = 1, column = 24 }, end = { row = 1, column = 30 } }
+                                                                        , value = { qualification = [], name = "String" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         }
                                                   }
@@ -3441,10 +3479,12 @@ type alias Foo = {color: String }"""
                                                         { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "String" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "String" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                 }
                                           }
@@ -3487,10 +3527,12 @@ type alias Foo = {color: String }"""
                                                         { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "String" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "String" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                 }
                                           }
@@ -3533,10 +3575,12 @@ type alias Foo = {color: String }"""
                                                         { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "String" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "String" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                 }
                                           }
@@ -3584,10 +3628,12 @@ type Color = Blue String | Red | Green"""
                                                         { range = { start = { row = 2, column = 19 }, end = { row = 2, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 2, column = 19 }, end = { row = 2, column = 25 } }
-                                                                , value = { qualification = [], name = "String" }
+                                                                { reference =
+                                                                    { range = { start = { row = 2, column = 19 }, end = { row = 2, column = 25 } }
+                                                                    , value = { qualification = [], name = "String" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                 }
                                           }
@@ -3770,10 +3816,12 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
-                                    , value = { qualification = [ "Foo" ], name = "Bar" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
+                                        , value = { qualification = [ "Foo" ], name = "Bar" }
+                                        }
+                                    , arguments = []
                                     }
-                                    []
                             }
                 )
             , Test.test "typeAnnotationNoFn"
@@ -3783,10 +3831,12 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = { qualification = [], name = "Bar" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                        , value = { qualification = [], name = "Bar" }
+                                        }
+                                    , arguments = []
                                     }
-                                    []
                             }
                 )
             , Test.test "typedTypeReference 1"
@@ -3796,24 +3846,29 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = { qualification = [], name = "Foo" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                        , value = { qualification = [], name = "Foo" }
+                                        }
+                                    , arguments =
+                                        [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
+                                          , value = GrenSyntax.TypeAnnotationUnit
+                                          }
+                                        , { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } }
+                                          , value = GrenSyntax.TypeAnnotationVariable "a"
+                                          }
+                                        , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                          , value =
+                                                GrenSyntax.TypeAnnotationConstruct
+                                                    { reference =
+                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                                        , value = { qualification = [], name = "Bar" }
+                                                        }
+                                                    , arguments = []
+                                                    }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
-                                      , value = GrenSyntax.TypeAnnotationUnit
-                                      }
-                                    , { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } }
-                                      , value = GrenSyntax.TypeAnnotationVariable "a"
-                                      }
-                                    , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                      , value =
-                                            GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                                , value = { qualification = [], name = "Bar" }
-                                                }
-                                                []
-                                      }
-                                    ]
                             }
                 )
             , Test.test "typedTypeReference 2"
@@ -3823,24 +3878,29 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                    , value = { qualification = [], name = "Foo" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                        , value = { qualification = [], name = "Foo" }
+                                        }
+                                    , arguments =
+                                        [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
+                                          , value = GrenSyntax.TypeAnnotationUnit
+                                          }
+                                        , { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } }
+                                          , value = GrenSyntax.TypeAnnotationVariable "a"
+                                          }
+                                        , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                          , value =
+                                                GrenSyntax.TypeAnnotationConstruct
+                                                    { reference =
+                                                        { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
+                                                        , value = { qualification = [], name = "Bar" }
+                                                        }
+                                                    , arguments = []
+                                                    }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 5 }, end = { row = 1, column = 7 } }
-                                      , value = GrenSyntax.TypeAnnotationUnit
-                                      }
-                                    , { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 9 } }
-                                      , value = GrenSyntax.TypeAnnotationVariable "a"
-                                      }
-                                    , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                      , value =
-                                            GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 13 } }
-                                                , value = { qualification = [], name = "Bar" }
-                                                }
-                                                []
-                                      }
-                                    ]
                             }
                 )
             , Test.test "recordTypeReference empty"
@@ -3866,10 +3926,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = { qualification = [], name = "String" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
+                                                            , value = { qualification = [], name = "String" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3891,10 +3953,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = { qualification = [], name = "String" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
+                                                            , value = { qualification = [], name = "String" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3916,10 +3980,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
-                                                        , value = { qualification = [], name = "String" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 15 } }
+                                                            , value = { qualification = [], name = "String" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3941,10 +4007,12 @@ Nothing"""
                                                 { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3956,10 +4024,12 @@ Nothing"""
                                                 { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3980,10 +4050,12 @@ Nothing"""
                                                 { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -3995,10 +4067,12 @@ Nothing"""
                                                 { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4019,10 +4093,12 @@ Nothing"""
                                                 { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4034,10 +4110,12 @@ Nothing"""
                                                 { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { end = { column = 21, row = 1 }, start = { column = 18, row = 1 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4063,10 +4141,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4078,10 +4158,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4109,10 +4191,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4124,10 +4208,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4155,10 +4241,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 21 }, end = { row = 1, column = 25 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4170,10 +4258,12 @@ Nothing"""
                                                         { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
                                                         , value =
                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
-                                                                , value = { qualification = [], name = "Vec2" }
+                                                                { reference =
+                                                                    { range = { start = { row = 1, column = 37 }, end = { row = 1, column = 41 } }
+                                                                    , value = { qualification = [], name = "Vec2" }
+                                                                    }
+                                                                , arguments = []
                                                                 }
-                                                                []
                                                         }
                                                     }
                                               }
@@ -4210,10 +4300,12 @@ Nothing"""
                                                                     { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
-                                                                            { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
-                                                                            , value = { qualification = [], name = "Int" }
+                                                                            { reference =
+                                                                                { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 17 } }
+                                                                                , value = { qualification = [], name = "Int" }
+                                                                                }
+                                                                            , arguments = []
                                                                             }
-                                                                            []
                                                                     }
                                                                 }
                                                           }
@@ -4225,10 +4317,12 @@ Nothing"""
                                                                     { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 25 } }
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
-                                                                            { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 25 } }
-                                                                            , value = { qualification = [], name = "Int" }
+                                                                            { reference =
+                                                                                { range = { start = { row = 1, column = 22 }, end = { row = 1, column = 25 } }
+                                                                                , value = { qualification = [], name = "Int" }
+                                                                                }
+                                                                            , arguments = []
                                                                             }
-                                                                            []
                                                                     }
                                                                 }
                                                           }
@@ -4240,10 +4334,12 @@ Nothing"""
                                                                     { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 33 } }
                                                                     , value =
                                                                         GrenSyntax.TypeAnnotationConstruct
-                                                                            { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 33 } }
-                                                                            , value = { qualification = [], name = "Int" }
+                                                                            { reference =
+                                                                                { range = { start = { row = 1, column = 30 }, end = { row = 1, column = 33 } }
+                                                                                , value = { qualification = [], name = "Int" }
+                                                                                }
+                                                                            , arguments = []
                                                                             }
-                                                                            []
                                                                     }
                                                                 }
                                                           }
@@ -4269,10 +4365,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4284,10 +4382,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 23 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 23 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 20 }, end = { row = 1, column = 23 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4299,10 +4399,12 @@ Nothing"""
                                                 { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 34 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 34 } }
-                                                        , value = { qualification = [], name = "Int" }
+                                                        { reference =
+                                                            { range = { start = { row = 1, column = 31 }, end = { row = 1, column = 34 } }
+                                                            , value = { qualification = [], name = "Int" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                       }
@@ -4340,19 +4442,23 @@ Nothing"""
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = { qualification = [], name = "Foo" }
+                                                { reference =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                                    , value = { qualification = [], name = "Foo" }
+                                                    }
+                                                , arguments = []
                                                 }
-                                                []
                                         }
                                     , output =
                                         { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                , value = { qualification = [], name = "Bar" }
+                                                { reference =
+                                                    { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
+                                                    , value = { qualification = [], name = "Bar" }
+                                                    }
+                                                , arguments = []
                                                 }
-                                                []
                                         }
                                     }
                             }
@@ -4368,10 +4474,12 @@ Nothing"""
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = { qualification = [], name = "Foo" }
+                                                { reference =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                                    , value = { qualification = [], name = "Foo" }
+                                                    }
+                                                , arguments = []
                                                 }
-                                                []
                                         }
                                     , output =
                                         { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 18 } }
@@ -4381,10 +4489,12 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                            , value = { qualification = [], name = "Bar" }
+                                                            { reference =
+                                                                { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
+                                                                , value = { qualification = [], name = "Bar" }
+                                                                }
+                                                            , arguments = []
                                                             }
-                                                            []
                                                     }
                                                 , output =
                                                     { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 18 } }
@@ -4406,10 +4516,12 @@ Nothing"""
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
-                                                , value = { qualification = [], name = "Foo" }
+                                                { reference =
+                                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
+                                                    , value = { qualification = [], name = "Foo" }
+                                                    }
+                                                , arguments = []
                                                 }
-                                                []
                                         }
                                     , output =
                                         { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 18 } }
@@ -4419,10 +4531,12 @@ Nothing"""
                                                     { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
-                                                            , value = { qualification = [], name = "Bar" }
+                                                            { reference =
+                                                                { range = { start = { row = 1, column = 8 }, end = { row = 1, column = 11 } }
+                                                                , value = { qualification = [], name = "Bar" }
+                                                                }
+                                                            , arguments = []
                                                             }
-                                                            []
                                                     }
                                                 , output =
                                                     { range = { start = { row = 1, column = 15 }, end = { row = 1, column = 18 } }
@@ -4472,10 +4586,12 @@ Nothing"""
                                         { range = { end = { column = 4, row = 1 }, start = { column = 1, row = 1 } }
                                         , value =
                                             GrenSyntax.TypeAnnotationConstruct
-                                                { range = { end = { column = 4, row = 1 }, start = { column = 1, row = 1 } }
-                                                , value = { qualification = [], name = "Msg" }
+                                                { reference =
+                                                    { range = { end = { column = 4, row = 1 }, start = { column = 1, row = 1 } }
+                                                    , value = { qualification = [], name = "Msg" }
+                                                    }
+                                                , arguments = []
                                                 }
-                                                []
                                         }
                                     , output =
                                         { range = { end = { column = 33, row = 1 }, start = { column = 8, row = 1 } }
@@ -4485,10 +4601,12 @@ Nothing"""
                                                     { range = { end = { column = 13, row = 1 }, start = { column = 8, row = 1 } }
                                                     , value =
                                                         GrenSyntax.TypeAnnotationConstruct
-                                                            { range = { end = { column = 13, row = 1 }, start = { column = 8, row = 1 } }
-                                                            , value = { qualification = [], name = "Model" }
+                                                            { reference =
+                                                                { range = { end = { column = 13, row = 1 }, start = { column = 8, row = 1 } }
+                                                                , value = { qualification = [], name = "Model" }
+                                                                }
+                                                            , arguments = []
                                                             }
-                                                            []
                                                     }
                                                 , output =
                                                     { range = { end = { column = 33, row = 1 }, start = { column = 17, row = 1 } }
@@ -4501,27 +4619,34 @@ Nothing"""
                                                                         { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }
-                                                                                , value = { qualification = [], name = "Model" }
+                                                                                { reference =
+                                                                                    { range = { end = { column = 23, row = 1 }, start = { column = 18, row = 1 } }
+                                                                                    , value = { qualification = [], name = "Model" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     , output =
                                                                         { range = { end = { column = 32, row = 1 }, start = { column = 25, row = 1 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { end = { column = 28, row = 1 }, start = { column = 25, row = 1 } }
-                                                                                , value = { qualification = [], name = "Cmd" }
+                                                                                { reference =
+                                                                                    { range = { end = { column = 28, row = 1 }, start = { column = 25, row = 1 } }
+                                                                                    , value = { qualification = [], name = "Cmd" }
+                                                                                    }
+                                                                                , arguments =
+                                                                                    [ { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
+                                                                                      , value =
+                                                                                            GrenSyntax.TypeAnnotationConstruct
+                                                                                                { reference =
+                                                                                                    { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
+                                                                                                    , value = { qualification = [], name = "Msg" }
+                                                                                                    }
+                                                                                                , arguments = []
+                                                                                                }
+                                                                                      }
+                                                                                    ]
                                                                                 }
-                                                                                [ { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
-                                                                                  , value =
-                                                                                        GrenSyntax.TypeAnnotationConstruct
-                                                                                            { range = { end = { column = 32, row = 1 }, start = { column = 29, row = 1 } }
-                                                                                            , value = { qualification = [], name = "Msg" }
-                                                                                            }
-                                                                                            []
-                                                                                  }
-                                                                                ]
                                                                         }
                                                                     }
                                                             }
@@ -4587,19 +4712,23 @@ Nothing"""
                                                 { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
-                                                        , value = { qualification = [], name = "Foo" }
+                                                        { reference =
+                                                            { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
+                                                            , value = { qualification = [], name = "Foo" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             , output =
                                                 { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
                                                 , value =
                                                     GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                        , value = { qualification = [], name = "Bar" }
+                                                        { reference =
+                                                            { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
+                                                            , value = { qualification = [], name = "Bar" }
+                                                            }
+                                                        , arguments = []
                                                         }
-                                                        []
                                                 }
                                             }
                                     }
@@ -4623,19 +4752,23 @@ Nothing"""
                                                             { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
-                                                                    , value = { qualification = [], name = "Foo" }
+                                                                    { reference =
+                                                                        { range = { end = { column = 5, row = 1 }, start = { column = 2, row = 1 } }
+                                                                        , value = { qualification = [], name = "Foo" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         , output =
                                                             { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
                                                             , value =
                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                    { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
-                                                                    , value = { qualification = [], name = "Bar" }
+                                                                    { reference =
+                                                                        { range = { end = { column = 12, row = 1 }, start = { column = 9, row = 1 } }
+                                                                        , value = { qualification = [], name = "Bar" }
+                                                                        }
+                                                                    , arguments = []
                                                                     }
-                                                                    []
                                                             }
                                                         }
                                                 }
@@ -4659,13 +4792,16 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 3 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                                    , value = { qualification = [], name = "Maybe" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                                        , value = { qualification = [], name = "Maybe" }
+                                        }
+                                    , arguments =
+                                        [ { range = { start = { row = 2, column = 2 }, end = { row = 2, column = 3 } }
+                                          , value = GrenSyntax.TypeAnnotationVariable "a"
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 2, column = 2 }, end = { row = 2, column = 3 } }
-                                      , value = GrenSyntax.TypeAnnotationVariable "a"
-                                      }
-                                    ]
                             }
                 )
             , Test.test "issue #5 - no spaces between type and generic with parens"
@@ -4675,22 +4811,27 @@ Nothing"""
                             { range = { end = { column = 13, row = 1 }, start = { column = 1, row = 1 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { end = { column = 5, row = 1 }, start = { column = 1, row = 1 } }
-                                    , value = { qualification = [], name = "List" }
+                                    { reference =
+                                        { range = { end = { column = 5, row = 1 }, start = { column = 1, row = 1 } }
+                                        , value = { qualification = [], name = "List" }
+                                        }
+                                    , arguments =
+                                        [ { range = { end = { column = 13, row = 1 }, start = { column = 5, row = 1 } }
+                                          , value =
+                                                GrenSyntax.TypeAnnotationParenthesized
+                                                    { range = { end = { column = 12, row = 1 }, start = { column = 6, row = 1 } }
+                                                    , value =
+                                                        GrenSyntax.TypeAnnotationConstruct
+                                                            { reference =
+                                                                { range = { end = { column = 12, row = 1 }, start = { column = 6, row = 1 } }
+                                                                , value = { qualification = [], name = "String" }
+                                                                }
+                                                            , arguments = []
+                                                            }
+                                                    }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { end = { column = 13, row = 1 }, start = { column = 5, row = 1 } }
-                                      , value =
-                                            GrenSyntax.TypeAnnotationParenthesized
-                                                { range = { end = { column = 12, row = 1 }, start = { column = 6, row = 1 } }
-                                                , value =
-                                                    GrenSyntax.TypeAnnotationConstruct
-                                                        { range = { end = { column = 12, row = 1 }, start = { column = 6, row = 1 } }
-                                                        , value = { qualification = [], name = "String" }
-                                                        }
-                                                        []
-                                                }
-                                      }
-                                    ]
                             }
                 )
             , Test.test "parse type with multiple params"
@@ -4700,26 +4841,33 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
-                                    { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
-                                    , value = { qualification = [], name = "Dict" }
+                                    { reference =
+                                        { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
+                                        , value = { qualification = [], name = "Dict" }
+                                        }
+                                    , arguments =
+                                        [ { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
+                                          , value =
+                                                GrenSyntax.TypeAnnotationConstruct
+                                                    { reference =
+                                                        { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
+                                                        , value = { qualification = [], name = "String" }
+                                                        }
+                                                    , arguments = []
+                                                    }
+                                          }
+                                        , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 16 } }
+                                          , value =
+                                                GrenSyntax.TypeAnnotationConstruct
+                                                    { reference =
+                                                        { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 16 } }
+                                                        , value = { qualification = [], name = "Int" }
+                                                        }
+                                                    , arguments = []
+                                                    }
+                                          }
+                                        ]
                                     }
-                                    [ { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
-                                      , value =
-                                            GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 6 }, end = { row = 1, column = 12 } }
-                                                , value = { qualification = [], name = "String" }
-                                                }
-                                                []
-                                      }
-                                    , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 16 } }
-                                      , value =
-                                            GrenSyntax.TypeAnnotationConstruct
-                                                { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 16 } }
-                                                , value = { qualification = [], name = "Int" }
-                                                }
-                                                []
-                                      }
-                                    ]
                             }
                 )
             ]
@@ -7075,10 +7223,12 @@ Nothing"""
                                                                         { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
-                                                                                , value = { qualification = [], name = "Int" }
+                                                                                { reference =
+                                                                                    { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
+                                                                                    , value = { qualification = [], name = "Int" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     }
                                                                 }
@@ -7132,10 +7282,12 @@ Nothing"""
                                                                         { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
-                                                                                , value = { qualification = [], name = "Int" }
+                                                                                { reference =
+                                                                                    { range = { start = { row = 2, column = 11 }, end = { row = 2, column = 14 } }
+                                                                                    , value = { qualification = [], name = "Int" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     }
                                                                 }
@@ -7187,10 +7339,12 @@ Nothing"""
                                                                         { range = { start = { row = 2, column = 7 }, end = { row = 2, column = 10 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { start = { row = 2, column = 7 }, end = { row = 2, column = 10 } }
-                                                                                , value = { qualification = [], name = "Int" }
+                                                                                { reference =
+                                                                                    { range = { start = { row = 2, column = 7 }, end = { row = 2, column = 10 } }
+                                                                                    , value = { qualification = [], name = "Int" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     }
                                                                 }
@@ -8933,10 +9087,12 @@ bar = 1
                                                                 { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 10 } }
                                                                 , value =
                                                                     GrenSyntax.TypeAnnotationConstruct
-                                                                        { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 10 } }
-                                                                        , value = { qualification = [], name = "Int" }
+                                                                        { reference =
+                                                                            { range = { start = { row = 7, column = 7 }, end = { row = 7, column = 10 } }
+                                                                            , value = { qualification = [], name = "Int" }
+                                                                            }
+                                                                        , arguments = []
                                                                         }
-                                                                        []
                                                                 }
                                                             }
                                                         }
@@ -9194,10 +9350,12 @@ type alias Foo
                                                                         { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 21 } }
                                                                         , value =
                                                                             GrenSyntax.TypeAnnotationConstruct
-                                                                                { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 21 } }
-                                                                                , value = { qualification = [], name = "String" }
+                                                                                { reference =
+                                                                                    { range = { start = { row = 7, column = 15 }, end = { row = 7, column = 21 } }
+                                                                                    , value = { qualification = [], name = "String" }
+                                                                                    }
+                                                                                , arguments = []
                                                                                 }
-                                                                                []
                                                                         }
                                                                     }
                                                               }
@@ -9337,19 +9495,23 @@ log a =
                                                                             { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } }
                                                                             , value =
                                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                                    { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } }
-                                                                                    , value = { qualification = [], name = "Int" }
+                                                                                    { reference =
+                                                                                        { range = { start = { row = 4, column = 7 }, end = { row = 4, column = 10 } }
+                                                                                        , value = { qualification = [], name = "Int" }
+                                                                                        }
+                                                                                    , arguments = []
                                                                                     }
-                                                                                    []
                                                                             }
                                                                         , output =
                                                                             { range = { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } }
                                                                             , value =
                                                                                 GrenSyntax.TypeAnnotationConstruct
-                                                                                    { range = { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } }
-                                                                                    , value = { qualification = [], name = "Int" }
+                                                                                    { reference =
+                                                                                        { range = { start = { row = 4, column = 14 }, end = { row = 4, column = 17 } }
+                                                                                        , value = { qualification = [], name = "Int" }
+                                                                                        }
+                                                                                    , arguments = []
                                                                                     }
-                                                                                    []
                                                                             }
                                                                         }
                                                                 }

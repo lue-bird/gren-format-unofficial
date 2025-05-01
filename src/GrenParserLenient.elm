@@ -2127,8 +2127,9 @@ typeConstructWithoutArguments =
                 { range = range
                 , value =
                     GrenSyntax.TypeAnnotationConstruct
-                        { range = range, value = name }
-                        []
+                        { reference = { range = range, value = name }
+                        , arguments = []
+                        }
                 }
             }
         )
@@ -2171,7 +2172,11 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
                     |> ropePrependTo argsReverse.comments
             , syntax =
                 { range = range
-                , value = GrenSyntax.TypeAnnotationConstruct nameNode (List.reverse argsReverse.syntax)
+                , value =
+                    GrenSyntax.TypeAnnotationConstruct
+                        { reference = nameNode
+                        , arguments = List.reverse argsReverse.syntax
+                        }
                 }
             }
         )

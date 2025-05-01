@@ -3552,7 +3552,7 @@ typeToFunction typeNode =
         GrenSyntax.TypeAnnotationVariable _ ->
             Nothing
 
-        GrenSyntax.TypeAnnotationConstruct _ _ ->
+        GrenSyntax.TypeAnnotationConstruct _ ->
             Nothing
 
         GrenSyntax.TypeAnnotationUnit ->
@@ -3578,8 +3578,8 @@ typeToNotParenthesized syntaxTypeNode =
         GrenSyntax.TypeAnnotationVariable name ->
             { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationVariable name }
 
-        GrenSyntax.TypeAnnotationConstruct reference arguments ->
-            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationConstruct reference arguments }
+        GrenSyntax.TypeAnnotationConstruct typeConstruct ->
+            { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationConstruct typeConstruct }
 
         GrenSyntax.TypeAnnotationUnit ->
             { range = syntaxTypeNode.range, value = GrenSyntax.TypeAnnotationUnit }
@@ -3732,8 +3732,8 @@ typeIsSpaceSeparated syntaxType =
         GrenSyntax.TypeAnnotationVariable _ ->
             False
 
-        GrenSyntax.TypeAnnotationConstruct _ arguments ->
-            case arguments of
+        GrenSyntax.TypeAnnotationConstruct typeConstruct ->
+            case typeConstruct.arguments of
                 [] ->
                     False
 
@@ -3771,7 +3771,7 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
         GrenSyntax.TypeAnnotationVariable name ->
             Print.exactly name
 
-        GrenSyntax.TypeAnnotationConstruct referenceNode arguments ->
+        GrenSyntax.TypeAnnotationConstruct typeConstruct ->
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     typeParenthesizedIfSpaceSeparated
@@ -3780,8 +3780,8 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
                 syntaxComments
                 { fullRange = syntaxTypeNode.range
                 , start =
-                    qualifiedReference referenceNode.value
-                , arguments = arguments
+                    qualifiedReference typeConstruct.reference.value
+                , arguments = typeConstruct.arguments
                 }
 
         GrenSyntax.TypeAnnotationParenthesized inParens ->
