@@ -255,7 +255,7 @@ type Expression
     | ExpressionHex Int
     | ExpressionFloat Float
     | ExpressionNegation (Node Expression)
-    | ExpressionString { content : String, lineSpread : StringQuotingStyle }
+    | ExpressionString { content : String, quotingStyle : StringQuotingStyle }
     | ExpressionChar Char
     | ExpressionParenthesized (Node Expression)
     | ExpressionLetIn
@@ -375,7 +375,7 @@ type Pattern
     = PatternIgnored
     | PatternUnit
     | PatternChar Char
-    | PatternString { content : String, lineSpread : StringQuotingStyle }
+    | PatternString { content : String, quotingStyle : StringQuotingStyle }
     | PatternInt Int
     | PatternHex Int
     | PatternRecord (List { name : Node String, value : Maybe (Node Pattern) })

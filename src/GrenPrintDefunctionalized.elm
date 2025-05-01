@@ -1667,9 +1667,9 @@ patternIsSpaceSeparated syntaxPattern =
             True
 
 
-stringLiteral : { content : String, lineSpread : GrenSyntax.StringQuotingStyle } -> Print
+stringLiteral : { content : String, quotingStyle : GrenSyntax.StringQuotingStyle } -> Print
 stringLiteral string =
-    case string.lineSpread of
+    case string.quotingStyle of
         GrenSyntax.StringTripleQuoted ->
             printExactlyDoubleQuoteDoubleQuoteDoubleQuote
                 |> Print.followedBy

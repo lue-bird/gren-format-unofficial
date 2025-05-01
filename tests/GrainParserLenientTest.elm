@@ -2853,7 +2853,7 @@ foo = bar"""
                                                         , { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 23 } }
                                                           , value =
                                                                 GrenSyntax.ExpressionString
-                                                                    { lineSpread = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
+                                                                    { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
                                                           }
                                                         ]
                                                 }
@@ -2885,7 +2885,7 @@ main =
                                                         , { range = { end = { column = 23, row = 3 }, start = { column = 8, row = 3 } }
                                                           , value =
                                                                 GrenSyntax.ExpressionString
-                                                                    { lineSpread = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
+                                                                    { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
                                                           }
                                                         ]
                                                 }
@@ -2940,7 +2940,7 @@ main =
                                                         , { range = { end = { column = 23, row = 3 }, start = { column = 8, row = 3 } }
                                                           , value =
                                                                 GrenSyntax.ExpressionString
-                                                                    { lineSpread = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
+                                                                    { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
                                                           }
                                                         ]
                                                 }
@@ -2998,7 +2998,7 @@ main =
                                                         , { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 23 } }
                                                           , value =
                                                                 GrenSyntax.ExpressionString
-                                                                    { lineSpread = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
+                                                                    { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Hello, World!" }
                                                           }
                                                         ]
                                                 }
@@ -4759,7 +4759,7 @@ Nothing"""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
                             , value =
-                                GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "Bar" }
+                                GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Bar" }
                             }
                 )
             , Test.test "multiline string"
@@ -4767,14 +4767,14 @@ Nothing"""
                     "\"\"\"Bar foo \n a\"\"\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
-                        |> Expect.equal (Just (GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringTripleQuoted, content = "Bar foo \n a" }))
+                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = "Bar foo \n a" }))
                 )
             , Test.test "multiline string escape"
                 (\() ->
                     """\"\"\" \\\"\"\" \"\"\""""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
-                        |> Expect.equal (Just (GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringTripleQuoted, content = """ \"\"\" """ }))
+                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = """ \"\"\" """ }))
                 )
             , Test.test "character escaped"
                 (\() ->
@@ -4809,14 +4809,14 @@ Nothing"""
                     "\"\\\"\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
-                        |> Expect.equal (Just (GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "\"" }))
+                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "\"" }))
                 )
             , Test.test "string escaped"
                 (\() ->
                     "\"foo\\\\\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
-                        |> Expect.equal (Just (GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "foo\\" }))
+                        |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "foo\\" }))
                 )
             , Test.test "character escaped 3"
                 (\() ->
@@ -4852,7 +4852,7 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 6 } }
                             , value =
                                 GrenSyntax.ExpressionString
-                                    { lineSpread = GrenSyntax.StringTripleQuoted, content = "Bar foo \n a" }
+                                    { quotingStyle = GrenSyntax.StringTripleQuoted, content = "Bar foo \n a" }
                             }
                 )
             , Test.test "Regression test for multiline strings with backslashes"
@@ -4866,7 +4866,7 @@ Nothing"""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
                             , value =
-                                GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringTripleQuoted, content = "\\{\\}" }
+                                GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = "\\{\\}" }
                             }
                 )
             , Test.test "Regression test 3 for multiline strings with backslashes"
@@ -4876,7 +4876,7 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 24 } }
                             , value =
                                 GrenSyntax.ExpressionString
-                                    { lineSpread = GrenSyntax.StringTripleQuoted, content = "\\a-blablabla-\\b" }
+                                    { quotingStyle = GrenSyntax.StringTripleQuoted, content = "\\a-blablabla-\\b" }
                             }
                 )
             , Test.test "Type expression for upper case"
@@ -5308,7 +5308,7 @@ Nothing"""
                                                   , value = GrenSyntax.ExpressionReference [] "class"
                                                   }
                                                 , { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
-                                                  , value = GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "a" }
+                                                  , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "a" }
                                                   }
                                                 ]
                                       }
@@ -5320,7 +5320,7 @@ Nothing"""
                                                   }
                                                 , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 24 } }
                                                   , value =
-                                                        GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "Foo" }
+                                                        GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Foo" }
                                                   }
                                                 ]
                                       }
@@ -5341,7 +5341,7 @@ Nothing"""
                                                   , value = GrenSyntax.ExpressionReference [] "class"
                                                   }
                                                 , { range = { start = { row = 1, column = 9 }, end = { row = 1, column = 12 } }
-                                                  , value = GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "a" }
+                                                  , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "a" }
                                                   }
                                                 ]
                                       }
@@ -5353,7 +5353,7 @@ Nothing"""
                                                   }
                                                 , { range = { start = { row = 1, column = 19 }, end = { row = 1, column = 24 } }
                                                   , value =
-                                                        GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "Foo" }
+                                                        GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Foo" }
                                                   }
                                                 ]
                                       }
@@ -7715,7 +7715,7 @@ True -> 1"""
                                                     { range = { start = { row = 2, column = 9 }, end = { row = 2, column = 39 } }
                                                     , value =
                                                         GrenSyntax.PatternString
-                                                            { lineSpread = GrenSyntax.StringTripleQuoted, content = "single line triple quote" }
+                                                            { quotingStyle = GrenSyntax.StringTripleQuoted, content = "single line triple quote" }
                                                     }
                                               , result =
                                                     { range = { start = { row = 3, column = 13 }, end = { row = 3, column = 14 } }
@@ -7726,7 +7726,7 @@ True -> 1"""
                                                     { range = { start = { row = 4, column = 9 }, end = { row = 5, column = 28 } }
                                                     , value =
                                                         GrenSyntax.PatternString
-                                                            { lineSpread = GrenSyntax.StringTripleQuoted
+                                                            { quotingStyle = GrenSyntax.StringTripleQuoted
                                                             , content = "multi line\n            triple quote"
                                                             }
                                                     }
@@ -8035,7 +8035,7 @@ True -> 1"""
                     "\"Foo\""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
-                            , value = GrenSyntax.PatternString { lineSpread = GrenSyntax.StringSingleQuoted, content = "Foo" }
+                            , value = GrenSyntax.PatternString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "Foo" }
                             }
                 )
             , Test.test "Char"
@@ -9150,7 +9150,7 @@ log a =
                                                                       , value = GrenSyntax.ExpressionReference [ "Debug" ] "log"
                                                                       }
                                                                     , { range = { start = { row = 6, column = 15 }, end = { row = 6, column = 19 } }
-                                                                      , value = GrenSyntax.ExpressionString { lineSpread = GrenSyntax.StringSingleQuoted, content = "ok" }
+                                                                      , value = GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "ok" }
                                                                       }
                                                                     , { range = { start = { row = 6, column = 20 }, end = { row = 6, column = 21 } }
                                                                       , value = GrenSyntax.ExpressionReference [] "a"

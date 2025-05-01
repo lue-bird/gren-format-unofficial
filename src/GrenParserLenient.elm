@@ -4712,7 +4712,10 @@ characterLiteralMapWithRange rangeAndCharToRes =
 
 
 singleOrTripleQuotedStringLiteralMapWithRange :
-    (GrenSyntax.Range -> { content : String, lineSpread : GrenSyntax.StringQuotingStyle } -> res)
+    (GrenSyntax.Range
+     -> { content : String, quotingStyle : GrenSyntax.StringQuotingStyle }
+     -> res
+    )
     -> Parser res
 singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
     ParserFast.symbolFollowedBy "\""
@@ -4722,7 +4725,7 @@ singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
                     { start = { row = startRow, column = startColumn - 1 }
                     , end = { row = endRow, column = endColumn }
                     }
-                    { content = string, lineSpread = GrenSyntax.StringTripleQuoted }
+                    { content = string, quotingStyle = GrenSyntax.StringTripleQuoted }
             )
             (ParserFast.symbolFollowedBy "\"\""
                 tripleQuotedStringLiteralOfterTripleDoubleQuote
@@ -4732,7 +4735,7 @@ singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
                     { start = { row = startRow, column = startColumn - 1 }
                     , end = { row = endRow, column = endColumn }
                     }
-                    { content = string, lineSpread = GrenSyntax.StringSingleQuoted }
+                    { content = string, quotingStyle = GrenSyntax.StringSingleQuoted }
             )
             singleQuotedStringLiteralAfterDoubleQuote
         )
