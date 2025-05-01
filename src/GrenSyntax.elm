@@ -317,7 +317,10 @@ type StringQuotingStyle
 -}
 type LetDeclaration
     = LetFunction ValueOrFunctionDeclarationInfo
-    | LetDestructuring (Node Pattern) (Node Expression)
+    | LetDestructuring
+        { pattern : Node Pattern
+        , expression : Node Expression
+        }
 
 
 {-| Custom type for different type annotations. For example:

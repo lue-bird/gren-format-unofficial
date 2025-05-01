@@ -6406,24 +6406,24 @@ expressionLetDeclaration syntaxComments letDeclaration =
                             )
                         |> Print.followedBy implementationPrint
 
-        GrenSyntax.LetDestructuring destructuringPattern destructuredExpression ->
+        GrenSyntax.LetDestructuring destructuring ->
             let
                 commentsBeforeDestructuredExpression : List String
                 commentsBeforeDestructuredExpression =
                     commentsInRange
-                        { start = destructuringPattern |> GrenSyntax.nodeRange |> .end
-                        , end = destructuredExpression |> GrenSyntax.nodeRange |> .start
+                        { start = destructuring.pattern |> GrenSyntax.nodeRange |> .end
+                        , end = destructuring.expression |> GrenSyntax.nodeRange |> .start
                         }
                         syntaxComments
 
                 destructuringPatternPrint : Print
                 destructuringPatternPrint =
-                    patternParenthesizedIfSpaceSeparated syntaxComments destructuringPattern
+                    patternParenthesizedIfSpaceSeparated syntaxComments destructuring.pattern
 
                 destructuredExpressionPrint : Print
                 destructuredExpressionPrint =
                     expressionNotParenthesized syntaxComments
-                        destructuredExpression
+                        destructuring.expression
             in
             destructuringPatternPrint
                 |> Print.followedBy

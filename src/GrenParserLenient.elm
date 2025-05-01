@@ -3136,7 +3136,11 @@ letDestructuringDeclarationFollowedByOptimisticLayout =
                     |> ropePrependTo expressionResult.comments
             , syntax =
                 { range = { start = patternResult.syntax.range.start, end = expressionResult.syntax.range.end }
-                , value = GrenSyntax.LetDestructuring patternResult.syntax expressionResult.syntax
+                , value =
+                    GrenSyntax.LetDestructuring
+                        { pattern = patternResult.syntax
+                        , expression = expressionResult.syntax
+                        }
                 }
             }
         )
@@ -3232,7 +3236,7 @@ letFunctionFollowedByOptimisticLayout =
             |> ParserFast.validate
                 (\letDeclarationResult ->
                     case letDeclarationResult.syntax.value of
-                        GrenSyntax.LetDestructuring _ _ ->
+                        GrenSyntax.LetDestructuring _ ->
                             True
 
                         GrenSyntax.LetFunction letFunctionDeclaration ->
