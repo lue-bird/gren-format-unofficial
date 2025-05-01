@@ -8,7 +8,7 @@ module ParserFast exposing
     , map, validate, mapOrFail, lazy
     , map2, map2WithStartLocation, map2WithRange, map3, map3WithStartLocation, map3WithRange, map4, map4WithStartLocation, map4WithRange, map5, map5WithStartLocation, map5WithRange, map6, map6WithStartLocation, map7, map7WithRange, map8WithStartLocation, map9WithRange
     , loopWhileSucceeds, loopWhileSucceedsOntoResultFromParser, loopWhileSucceedsOntoResultFromParserRightToLeftStackUnsafe, loopWhileSucceedsRightToLeftStackUnsafe, loopUntil
-    , orSucceed, mapOrSucceed, map2OrSucceed, map2WithRangeOrSucceed, map3OrSucceed, map4OrSucceed, oneOf2, oneOf2Map, oneOf2MapWithStartRowColumnAndEndRowColumn, oneOf2OrSucceed, oneOf3, oneOf4, oneOf5, oneOf7, oneOf9
+    , orSucceed, orSucceedWithLocation, mapOrSucceed, map2OrSucceed, map2WithRangeOrSucceed, map3OrSucceed, map4OrSucceed, oneOf2, oneOf2Map, oneOf2MapWithStartRowColumnAndEndRowColumn, oneOf2OrSucceed, oneOf3, oneOf4, oneOf5, oneOf7, oneOf9
     , withIndentSetToColumn, columnIndentAndThen, validateEndColumnIndentation
     , mapWithRange, offsetSourceAndThen, offsetSourceAndThenOrSucceed
     , problem
@@ -109,7 +109,7 @@ sample of what that code might look like:
 This parser will keep trying down the list of parsers until one of them starts committing.
 Once a path is chosen, it does not come back and try the others.
 
-@docs orSucceed, mapOrSucceed, map2OrSucceed, map2WithRangeOrSucceed, map3OrSucceed, map4OrSucceed, oneOf2, oneOf2Map, oneOf2MapWithStartRowColumnAndEndRowColumn, oneOf2OrSucceed, oneOf3, oneOf4, oneOf5, oneOf7, oneOf9
+@docs orSucceed, orSucceedWithLocation, mapOrSucceed, map2OrSucceed, map2WithRangeOrSucceed, map3OrSucceed, map4OrSucceed, oneOf2, oneOf2Map, oneOf2MapWithStartRowColumnAndEndRowColumn, oneOf2OrSucceed, oneOf3, oneOf4, oneOf5, oneOf7, oneOf9
 
 
 # Indentation, Locations and source
@@ -962,6 +962,23 @@ orSucceed (Parser attempt) fallbackResult =
 
                     else
                         Good fallbackResult s
+        )
+
+
+orSucceedWithLocation : Parser a -> (GrenSyntax.Location -> a) -> Parser a
+orSucceedWithLocation (Parser attempt) fallbackResult =
+    Parser
+        (\s ->
+            case attempt s of
+                (Good _ _) as firstGood ->
+                    firstGood
+
+                (Bad firstCommitted _) as firstBad ->
+                    if firstCommitted then
+                        firstBad
+
+                    else
+                        Good (fallbackResult { row = s.row, column = s.col }) s
         )
 
 

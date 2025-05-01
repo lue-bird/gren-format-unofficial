@@ -359,7 +359,7 @@ type TypeAnnotation
 
 {-| Custom type for all patterns such as:
 
-  - `PatternIgnored`: `_`
+  - `PatternIgnored`: `_` or `_name`
   - `PatternUnit`: `()`
   - `PatternChar`: `'c'`
   - `PatternString`: `"hello"`
@@ -376,7 +376,7 @@ type TypeAnnotation
 
 -}
 type Pattern
-    = PatternIgnored
+    = PatternIgnored (Maybe String)
     | PatternUnit
     | PatternChar Char
     | PatternString { content : String, quotingStyle : StringQuotingStyle }

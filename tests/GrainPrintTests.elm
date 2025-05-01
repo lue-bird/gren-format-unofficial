@@ -3501,13 +3501,13 @@ a =
             , Test.test "char emoji (multiple codes, SymbolOther)"
                 (\() ->
                     """module A exposing (..)
-a = '🟩' """
+a = '\u{D83D}\u{DFE9}' """
                         |> expectPrintedAs
                             """module A exposing (..)
 
 
 a =
-    '🟩'
+    '\u{D83D}\u{DFE9}'
 """
                 )
             , Test.test "single double quote string without escapes"
@@ -3561,13 +3561,13 @@ a =
             , Test.test "single double quote string with emoji (multiple codes, SymbolOther)"
                 (\() ->
                     """module A exposing (..)
-a = "🟩" """
+a = "\u{D83D}\u{DFE9}" """
                         |> expectPrintedAs
                             """module A exposing (..)
 
 
 a =
-    "🟩"
+    "\u{D83D}\u{DFE9}"
 """
                 )
             , Test.test "triple double quote string single-line without escapes"
@@ -3585,13 +3585,13 @@ a =
             , Test.test "triple double quote string single-line with emoji (multiple codes, SymbolOther)"
                 (\() ->
                     """module A exposing (..)
-a = \"\"\"🟩\"\"\" """
+a = \"\"\"\u{D83D}\u{DFE9}\"\"\" """
                         |> expectPrintedAs
                             """module A exposing (..)
 
 
 a =
-    \"\"\"🟩\"\"\"
+    \"\"\"\u{D83D}\u{DFE9}\"\"\"
 """
                 )
             , Test.test "triple double quote string with unicode escape ansi hide cursor"
@@ -3882,7 +3882,33 @@ a =
                 )
             ]
         , Test.describe "pattern"
-            [ Test.test "parenthesized with comments only before"
+            [ Test.test "ignored pattern without name"
+                (\() ->
+                    """module A exposing (..)
+a _ =
+    0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a _ =
+    0
+"""
+                )
+            , Test.test "ignored pattern with name"
+                (\() ->
+                    """module A exposing (..)
+a _name_ =
+    0"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+
+a _name_ =
+    0
+"""
+                )
+            , Test.test "parenthesized with comments only before"
                 (\() ->
                     """module A exposing (..)
 a ({--}_ as argument) =

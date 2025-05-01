@@ -1622,7 +1622,7 @@ patternParenthesized syntaxComments patternNode =
 patternIsSpaceSeparated : GrenSyntax.Pattern -> Bool
 patternIsSpaceSeparated syntaxPattern =
     case syntaxPattern of
-        GrenSyntax.PatternIgnored ->
+        GrenSyntax.PatternIgnored _ ->
             False
 
         GrenSyntax.PatternUnit ->
@@ -2113,8 +2113,8 @@ patternToNotParenthesized syntaxPatternNode =
         GrenSyntax.PatternParenthesized inParens ->
             inParens |> patternToNotParenthesized
 
-        GrenSyntax.PatternIgnored ->
-            { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored }
+        GrenSyntax.PatternIgnored maybeName ->
+            { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored maybeName }
 
         GrenSyntax.PatternUnit ->
             { range = syntaxPatternNode.range, value = GrenSyntax.PatternUnit }
@@ -2159,8 +2159,13 @@ patternNotParenthesized :
 patternNotParenthesized syntaxComments syntaxPatternNode =
     -- IGNORE TCO
     case syntaxPatternNode.value of
-        GrenSyntax.PatternIgnored ->
-            printExactlyUnderscore
+        GrenSyntax.PatternIgnored maybeName ->
+            case maybeName of
+                Nothing ->
+                    printExactlyUnderscore
+
+                Just name ->
+                    Print.exactly ("_" ++ name)
 
         GrenSyntax.PatternUnit ->
             printExactlyCurlyBraceOpeningCurlyBraceClosing
@@ -2486,8 +2491,8 @@ patternConsExpand syntaxPatternNode =
         GrenSyntax.PatternListCons listCons ->
             listCons.head :: patternConsExpand listCons.tail
 
-        GrenSyntax.PatternIgnored ->
-            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored } ]
+        GrenSyntax.PatternIgnored maybeName ->
+            [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternIgnored maybeName } ]
 
         GrenSyntax.PatternUnit ->
             [ { range = syntaxPatternNode.range, value = GrenSyntax.PatternUnit } ]

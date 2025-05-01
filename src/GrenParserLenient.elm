@@ -4285,11 +4285,29 @@ patternNotSpaceSeparated =
 
 allPattern : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 allPattern =
-    ParserFast.symbolWithRange "_"
-        (\range ->
-            { comments = ropeEmpty
-            , syntax = { range = range, value = GrenSyntax.PatternIgnored }
-            }
+    ParserFast.symbolFollowedBy "_"
+        (ParserFast.orSucceedWithLocation
+            (nameLowercaseMapWithRange
+                (\range name ->
+                    { comments = ropeEmpty
+                    , syntax =
+                        { range = range |> rangeMoveStartLeftByOneColumn
+                        , value = GrenSyntax.PatternIgnored (Just name)
+                        }
+                    }
+                )
+            )
+            (\endLocation ->
+                { comments = ropeEmpty
+                , syntax =
+                    { range =
+                        { start = { row = endLocation.row, column = endLocation.column - 1 }
+                        , end = endLocation
+                        }
+                    , value = GrenSyntax.PatternIgnored Nothing
+                    }
+                }
+            )
         )
 
 

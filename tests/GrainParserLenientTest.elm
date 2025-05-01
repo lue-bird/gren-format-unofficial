@@ -6175,7 +6175,7 @@ Nothing"""
                                     , cases =
                                         [ { pattern =
                                                 { range = { start = { row = 2, column = 5 }, end = { row = 2, column = 6 } }
-                                                , value = GrenSyntax.PatternIgnored
+                                                , value = GrenSyntax.PatternIgnored Nothing
                                                 }
                                           , result =
                                                 { range = { start = { row = 2, column = 8 }, end = { row = 2, column = 10 } }
@@ -7246,7 +7246,7 @@ Nothing"""
                                               , value =
                                                     GrenSyntax.LetDestructuring
                                                         { range = { start = { row = 2, column = 5 }, end = { row = 2, column = 6 } }
-                                                        , value = GrenSyntax.PatternIgnored
+                                                        , value = GrenSyntax.PatternIgnored Nothing
                                                         }
                                                         { range = { start = { row = 2, column = 9 }, end = { row = 2, column = 10 } }
                                                         , value = GrenSyntax.ExpressionReference [] "b"
@@ -7296,7 +7296,7 @@ Nothing"""
                                                                         , value =
                                                                             Just
                                                                                 { range = { start = { row = 5, column = 11 }, end = { row = 5, column = 12 } }
-                                                                                , value = GrenSyntax.PatternIgnored
+                                                                                , value = GrenSyntax.PatternIgnored Nothing
                                                                                 }
                                                                         }
                                                                 }
@@ -7463,7 +7463,7 @@ Nothing"""
                                                 GrenSyntax.ExpressionLambda
                                                     { parameters =
                                                         [ { range = { start = { row = 3, column = 8 }, end = { row = 3, column = 9 } }
-                                                          , value = GrenSyntax.PatternIgnored
+                                                          , value = GrenSyntax.PatternIgnored Nothing
                                                           }
                                                         ]
                                                     , result =
@@ -7568,7 +7568,7 @@ True -> 1"""
                                         { cases =
                                             [ { pattern =
                                                     { range = { end = { column = 6, row = 2 }, start = { column = 5, row = 2 } }
-                                                    , value = GrenSyntax.PatternIgnored
+                                                    , value = GrenSyntax.PatternIgnored Nothing
                                                     }
                                               , result =
                                                     { range = { end = { column = 11, row = 2 }, start = { column = 10, row = 2 } }
@@ -7594,7 +7594,7 @@ True -> 1"""
                                         { cases =
                                             [ { pattern =
                                                     { range = { end = { column = 6, row = 2 }, start = { column = 5, row = 2 } }
-                                                    , value = GrenSyntax.PatternIgnored
+                                                    , value = GrenSyntax.PatternIgnored Nothing
                                                     }
                                               , result =
                                                     { range = { end = { column = 11, row = 2 }, start = { column = 10, row = 2 } }
@@ -7820,7 +7820,7 @@ True -> 1"""
                                               }
                                             , { pattern =
                                                     { range = { start = { row = 7, column = 9 }, end = { row = 7, column = 10 } }
-                                                    , value = GrenSyntax.PatternIgnored
+                                                    , value = GrenSyntax.PatternIgnored Nothing
                                                     }
                                               , result =
                                                     { range = { start = { row = 7, column = 14 }, end = { row = 7, column = 15 } }
@@ -8134,7 +8134,15 @@ True -> 1"""
                     "_"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
-                            , value = GrenSyntax.PatternIgnored
+                            , value = GrenSyntax.PatternIgnored Nothing
+                            }
+                )
+            , Test.test "Wildcard with custom name"
+                (\() ->
+                    "_name"
+                        |> expectSyntaxWithoutComments GrenParserLenient.pattern
+                            { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
+                            , value = GrenSyntax.PatternIgnored (Just "name")
                             }
                 )
             , Test.test "Parenthesized"
