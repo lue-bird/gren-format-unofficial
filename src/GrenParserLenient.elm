@@ -171,8 +171,8 @@ module_ =
                 importStartLocation : GrenSyntax.Location
                 importStartLocation =
                     case importsResult.syntax of
-                        (GrenSyntax.Node import0Range _) :: _ ->
-                            import0Range.start
+                        import0 :: _ ->
+                            import0.range.start
 
                         [] ->
                             case declarationsResult.syntax of
@@ -221,12 +221,12 @@ module_ =
                 (declarationsResult.syntax
                     |> List.concatMap .lateImports
                     |> List.map
-                        (\(GrenSyntax.Node _ lateImport) ->
+                        (\lateImport ->
                             GrenSyntax.Node
                                 { start = importStartLocation
                                 , end = importStartLocation
                                 }
-                                lateImport
+                                lateImport.value
                         )
                 )
                     ++ importsResult.syntax
@@ -464,22 +464,25 @@ infixExpose =
 typeExpose : Parser (WithComments (GrenSyntax.Node GrenSyntax.TopLevelExpose))
 typeExpose =
     ParserFast.map3
-        (\(GrenSyntax.Node typeNameRange typeExposeName) commentsBeforeMaybeOpen maybeOpen ->
+        (\typeExposeNameNode commentsBeforeMaybeOpen maybeOpen ->
             case maybeOpen of
                 Nothing ->
                     { comments = commentsBeforeMaybeOpen
                     , syntax =
-                        GrenSyntax.Node typeNameRange (GrenSyntax.TypeOrAliasExpose typeExposeName)
+                        GrenSyntax.Node typeExposeNameNode.range
+                            (GrenSyntax.TypeOrAliasExpose typeExposeNameNode.value)
                     }
 
                 Just open ->
                     { comments = commentsBeforeMaybeOpen |> ropePrependTo open.comments
                     , syntax =
                         GrenSyntax.Node
-                            { start = typeNameRange.start
+                            { start = typeExposeNameNode.range.start
                             , end = open.syntax.end
                             }
-                            (GrenSyntax.TypeExpose { name = typeExposeName, open = Just open.syntax })
+                            (GrenSyntax.TypeExpose
+                                { name = typeExposeNameNode.value, open = Just open.syntax }
+                            )
                     }
         )
         nameUppercaseNode
@@ -723,15 +726,11 @@ importFollowedByWhitespaceAndComments =
                 Nothing ->
                     case maybeExposingResult.syntax of
                         Nothing ->
-                            let
-                                (GrenSyntax.Node moduleNameRange _) =
-                                    moduleNameNode
-                            in
                             { comments =
                                 commentsBeforeAlias
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = moduleNameRange.end }
+                                GrenSyntax.Node { start = start, end = moduleNameNode.range.end }
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Nothing
                                     , exposingList = Nothing
@@ -739,15 +738,11 @@ importFollowedByWhitespaceAndComments =
                             }
 
                         Just exposingListValue ->
-                            let
-                                (GrenSyntax.Node exposingRange _) =
-                                    exposingListValue
-                            in
                             { comments =
                                 commentsBeforeAlias
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = exposingRange.end }
+                                GrenSyntax.Node { start = start, end = exposingListValue.range.end }
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Nothing
                                     , exposingList = Just exposingListValue
@@ -757,16 +752,12 @@ importFollowedByWhitespaceAndComments =
                 Just moduleAliasResult ->
                     case maybeExposingResult.syntax of
                         Nothing ->
-                            let
-                                (GrenSyntax.Node aliasRange _) =
-                                    moduleAliasResult.syntax
-                            in
                             { comments =
                                 commentsBeforeAlias
                                     |> ropePrependTo moduleAliasResult.comments
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = aliasRange.end }
+                                GrenSyntax.Node { start = start, end = moduleAliasResult.syntax.range.end }
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Just moduleAliasResult.syntax
                                     , exposingList = Nothing
@@ -774,16 +765,12 @@ importFollowedByWhitespaceAndComments =
                             }
 
                         Just exposingListValue ->
-                            let
-                                (GrenSyntax.Node exposingRange _) =
-                                    exposingListValue
-                            in
                             { comments =
                                 commentsBeforeAlias
                                     |> ropePrependTo moduleAliasResult.comments
                                     |> ropePrependTo maybeExposingResult.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = exposingRange.end }
+                                GrenSyntax.Node { start = start, end = exposingListValue.range.end }
                                     { moduleName = moduleNameNode
                                     , moduleAlias = Just moduleAliasResult.syntax
                                     , exposingList = Just exposingListValue
@@ -924,16 +911,9 @@ declarationWithDocumentation =
                 FunctionDeclarationAfterDocumentation functionDeclarationAfterDocumentation ->
                     case functionDeclarationAfterDocumentation.signature of
                         Just signature ->
-                            let
-                                (GrenSyntax.Node implementationNameRange _) =
-                                    signature.implementationName
-
-                                (GrenSyntax.Node expressionRange _) =
-                                    functionDeclarationAfterDocumentation.expression
-                            in
                             { comments = afterDocumentation.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = expressionRange.end }
+                                GrenSyntax.Node { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
                                     (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature =
@@ -945,8 +925,8 @@ declarationWithDocumentation =
                                                 )
                                         , declaration =
                                             GrenSyntax.Node
-                                                { start = implementationNameRange.start
-                                                , end = expressionRange.end
+                                                { start = signature.implementationName.range.start
+                                                , end = functionDeclarationAfterDocumentation.expression.range.end
                                                 }
                                                 { name = signature.implementationName
                                                 , parameters = functionDeclarationAfterDocumentation.arguments
@@ -957,21 +937,17 @@ declarationWithDocumentation =
                             }
 
                         Nothing ->
-                            let
-                                (GrenSyntax.Node startNameRange _) =
-                                    functionDeclarationAfterDocumentation.startName
-
-                                (GrenSyntax.Node expressionRange _) =
-                                    functionDeclarationAfterDocumentation.expression
-                            in
                             { comments = afterDocumentation.comments
                             , syntax =
-                                GrenSyntax.Node { start = start, end = expressionRange.end }
+                                GrenSyntax.Node { start = start, end = functionDeclarationAfterDocumentation.expression.range.end }
                                     (GrenSyntax.ValueOrFunctionDeclaration
                                         { documentation = Just documentation
                                         , signature = Nothing
                                         , declaration =
-                                            GrenSyntax.Node { start = startNameRange.start, end = expressionRange.end }
+                                            GrenSyntax.Node
+                                                { start = functionDeclarationAfterDocumentation.startName.range.start
+                                                , end = functionDeclarationAfterDocumentation.expression.range.end
+                                                }
                                                 { name = functionDeclarationAfterDocumentation.startName
                                                 , parameters = functionDeclarationAfterDocumentation.arguments
                                                 , expression = functionDeclarationAfterDocumentation.expression
@@ -985,15 +961,11 @@ declarationWithDocumentation =
                         end : GrenSyntax.Location
                         end =
                             case typeDeclarationAfterDocumentation.tailVariantsReverse of
-                                (GrenSyntax.Node range _) :: _ ->
-                                    range.end
+                                lastVariant :: _ ->
+                                    lastVariant.range.end
 
                                 [] ->
-                                    let
-                                        (GrenSyntax.Node headVariantRange _) =
-                                            typeDeclarationAfterDocumentation.headVariant
-                                    in
-                                    headVariantRange.end
+                                    typeDeclarationAfterDocumentation.headVariant.range.end
                     in
                     { comments = afterDocumentation.comments
                     , syntax =
@@ -1010,13 +982,9 @@ declarationWithDocumentation =
                     }
 
                 TypeAliasDeclarationAfterDocumentation typeAliasDeclarationAfterDocumentation ->
-                    let
-                        (GrenSyntax.Node typeAnnotationRange _) =
-                            typeAliasDeclarationAfterDocumentation.typeAnnotation
-                    in
                     { comments = afterDocumentation.comments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = typeAnnotationRange.end }
+                        GrenSyntax.Node { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
                             (GrenSyntax.AliasDeclaration
                                 { documentation = Just documentation
                                 , name = typeAliasDeclarationAfterDocumentation.name
@@ -1027,17 +995,13 @@ declarationWithDocumentation =
                     }
 
                 PortDeclarationAfterDocumentation portDeclarationAfterName ->
-                    let
-                        (GrenSyntax.Node typeAnnotationRange _) =
-                            portDeclarationAfterName.typeAnnotation
-                    in
                     { comments =
                         ropeOne documentation
                             |> ropeFilledPrependTo afterDocumentation.comments
                     , syntax =
                         GrenSyntax.Node
                             { start = portDeclarationAfterName.startLocation
-                            , end = typeAnnotationRange.end
+                            , end = portDeclarationAfterName.typeAnnotation.range.end
                             }
                             (GrenSyntax.PortDeclaration
                                 { name = portDeclarationAfterName.name
@@ -1056,28 +1020,15 @@ declarationWithDocumentation =
         )
         |> ParserFast.validate
             (\result ->
-                let
-                    (GrenSyntax.Node _ decl) =
-                        result.syntax
-                in
-                case decl of
+                case result.syntax.value of
                     GrenSyntax.ValueOrFunctionDeclaration letFunctionDeclaration ->
                         case letFunctionDeclaration.signature of
                             Nothing ->
                                 True
 
-                            Just (GrenSyntax.Node _ signature) ->
-                                let
-                                    (GrenSyntax.Node _ implementationName) =
-                                        implementation.name
-
-                                    (GrenSyntax.Node _ implementation) =
-                                        letFunctionDeclaration.declaration
-
-                                    (GrenSyntax.Node _ signatureName) =
-                                        signature.name
-                                in
-                                implementationName == signatureName
+                            Just signatureNode ->
+                                letFunctionDeclaration.declaration.value.name.value
+                                    == signatureNode.value.name.value
 
                     GrenSyntax.AliasDeclaration _ ->
                         True
@@ -1247,10 +1198,6 @@ functionDeclarationWithoutDocumentation =
     ParserFast.oneOf2
         (ParserFast.map6WithStartLocation
             (\startNameStart startNameNode commentsAfterStartName maybeSignature arguments commentsAfterEqual result ->
-                let
-                    (GrenSyntax.Node expressionRange _) =
-                        result.syntax
-                in
                 case maybeSignature of
                     Nothing ->
                         { comments =
@@ -1259,12 +1206,12 @@ functionDeclarationWithoutDocumentation =
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo result.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                            GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
                                 (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
-                                        GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                                        GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
                                             { name = startNameNode
                                             , parameters = arguments.syntax
                                             , expression = result.syntax
@@ -1274,17 +1221,13 @@ functionDeclarationWithoutDocumentation =
                         }
 
                     Just signature ->
-                        let
-                            (GrenSyntax.Node implementationNameRange _) =
-                                signature.implementationName
-                        in
                         { comments =
                             (commentsAfterStartName |> ropePrependTo signature.comments)
                                 |> ropePrependTo arguments.comments
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo result.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                            GrenSyntax.Node { start = startNameStart, end = result.syntax.range.end }
                                 (GrenSyntax.ValueOrFunctionDeclaration
                                     { documentation = Nothing
                                     , signature =
@@ -1296,8 +1239,8 @@ functionDeclarationWithoutDocumentation =
                                             )
                                     , declaration =
                                         GrenSyntax.Node
-                                            { start = implementationNameRange.start
-                                            , end = expressionRange.end
+                                            { start = signature.implementationName.range.start
+                                            , end = result.syntax.range.end
                                             }
                                             { name = signature.implementationName
                                             , parameters = arguments.syntax
@@ -1334,28 +1277,15 @@ functionDeclarationWithoutDocumentation =
             expressionFollowedByWhitespaceAndComments
             |> ParserFast.validate
                 (\result ->
-                    let
-                        (GrenSyntax.Node _ decl) =
-                            result.syntax
-                    in
-                    case decl of
+                    case result.syntax.value of
                         GrenSyntax.ValueOrFunctionDeclaration letFunctionDeclaration ->
                             case letFunctionDeclaration.signature of
                                 Nothing ->
                                     True
 
-                                Just (GrenSyntax.Node _ signature) ->
-                                    let
-                                        (GrenSyntax.Node _ implementationName) =
-                                            implementation.name
-
-                                        (GrenSyntax.Node _ implementation) =
-                                            letFunctionDeclaration.declaration
-
-                                        (GrenSyntax.Node _ signatureName) =
-                                            signature.name
-                                    in
-                                    implementationName == signatureName
+                                Just signatureNode ->
+                                    letFunctionDeclaration.declaration.value.name.value
+                                        == signatureNode.value.name.value
 
                         GrenSyntax.AliasDeclaration _ ->
                             True
@@ -1496,10 +1426,6 @@ portDeclarationAfterDocumentation : Parser (WithComments DeclarationAfterDocumen
 portDeclarationAfterDocumentation =
     ParserFast.map5
         (\commentsAfterPort nameNode commentsAfterName commentsAfterColon typeAnnotationResult ->
-            let
-                (GrenSyntax.Node nameRange _) =
-                    nameNode
-            in
             { comments =
                 commentsAfterPort
                     |> ropePrependTo commentsAfterName
@@ -1507,7 +1433,7 @@ portDeclarationAfterDocumentation =
                     |> ropePrependTo commentsAfterColon
             , syntax =
                 PortDeclarationAfterDocumentation
-                    { startLocation = { row = nameRange.start.row, column = 1 }
+                    { startLocation = { row = nameNode.range.start.row, column = 1 }
                     , name = nameNode
                     , typeAnnotation = typeAnnotationResult.syntax
                     }
@@ -1524,13 +1450,6 @@ portDeclarationWithoutDocumentation : Parser (WithComments (GrenSyntax.Node Gren
 portDeclarationWithoutDocumentation =
     ParserFast.map5
         (\commentsAfterPort nameNode commentsAfterName commentsAfterColon typeAnnotationResult ->
-            let
-                (GrenSyntax.Node nameRange _) =
-                    nameNode
-
-                (GrenSyntax.Node typeRange _) =
-                    typeAnnotationResult.syntax
-            in
             { comments =
                 commentsAfterPort
                     |> ropePrependTo commentsAfterName
@@ -1538,8 +1457,8 @@ portDeclarationWithoutDocumentation =
                     |> ropePrependTo typeAnnotationResult.comments
             , syntax =
                 GrenSyntax.Node
-                    { start = { row = nameRange.start.row, column = 1 }
-                    , end = typeRange.end
+                    { start = { row = nameNode.range.start.row, column = 1 }
+                    , end = typeAnnotationResult.syntax.range.end
                     }
                     (GrenSyntax.PortDeclaration
                         { name = nameNode
@@ -1662,15 +1581,11 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                         end : GrenSyntax.Location
                         end =
                             case typeDeclarationAfterDocumentation.tailVariantsReverse of
-                                (GrenSyntax.Node range _) :: _ ->
-                                    range.end
+                                lastVariantNode :: _ ->
+                                    lastVariantNode.range.end
 
                                 [] ->
-                                    let
-                                        (GrenSyntax.Node headVariantRange _) =
-                                            typeDeclarationAfterDocumentation.headVariant
-                                    in
-                                    headVariantRange.end
+                                    typeDeclarationAfterDocumentation.headVariant.range.end
                     in
                     { comments = allComments
                     , syntax =
@@ -1687,13 +1602,9 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                     }
 
                 TypeAliasDeclarationWithoutDocumentation typeAliasDeclarationAfterDocumentation ->
-                    let
-                        (GrenSyntax.Node typeAnnotationRange _) =
-                            typeAliasDeclarationAfterDocumentation.typeAnnotation
-                    in
                     { comments = allComments
                     , syntax =
-                        GrenSyntax.Node { start = start, end = typeAnnotationRange.end }
+                        GrenSyntax.Node { start = start, end = typeAliasDeclarationAfterDocumentation.typeAnnotation.range.end }
                             (GrenSyntax.AliasDeclaration
                                 { documentation = Nothing
                                 , name = typeAliasDeclarationAfterDocumentation.name
@@ -1800,17 +1711,14 @@ variantDeclarationFollowedByWhitespaceAndComments =
     ParserFast.map3
         (\nameNode commentsAfterName maybeValue ->
             let
-                (GrenSyntax.Node nameRange _) =
-                    nameNode
-
                 fullRange : GrenSyntax.Range
                 fullRange =
                     case maybeValue.syntax of
-                        Just (GrenSyntax.Node lastArgRange _) ->
-                            { start = nameRange.start, end = lastArgRange.end }
+                        Just valueNode ->
+                            { start = nameNode.range.start, end = valueNode.range.end }
 
                         Nothing ->
-                            nameRange
+                            nameNode.range
             in
             { comments =
                 commentsAfterName
@@ -2250,17 +2158,14 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
     ParserFast.map3
         (\nameNode commentsAfterName argsReverse ->
             let
-                (GrenSyntax.Node nameRange _) =
-                    nameNode
-
                 range : GrenSyntax.Range
                 range =
                     case argsReverse.syntax of
                         [] ->
-                            nameRange
+                            nameNode.range
 
-                        (GrenSyntax.Node lastArgRange _) :: _ ->
-                            { start = nameRange.start, end = lastArgRange.end }
+                        lastArgumentNode :: _ ->
+                            { start = nameNode.range.start, end = lastArgumentNode.range.end }
             in
             { comments =
                 commentsAfterName
@@ -2354,16 +2259,9 @@ followedByMultiRecordAccess beforeRecordAccesses =
         )
         beforeRecordAccesses
         (\fieldNode leftResult ->
-            let
-                (GrenSyntax.Node fieldRange _) =
-                    fieldNode
-
-                (GrenSyntax.Node leftRange _) =
-                    leftResult.syntax
-            in
             { comments = leftResult.comments
             , syntax =
-                GrenSyntax.Node { start = leftRange.start, end = fieldRange.end }
+                GrenSyntax.Node { start = leftResult.syntax.range.start, end = fieldNode.range.end }
                     (GrenSyntax.ExpressionRecordAccess leftResult.syntax fieldNode)
             }
         )
@@ -2717,39 +2615,44 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
 
                                 FieldsFirstValuePunned () ->
                                     case updatedRecordExpression of
-                                        GrenSyntax.ExpressionCall ((GrenSyntax.Node firstFieldNameRange (GrenSyntax.ExpressionReference [] potentialFirstFieldName)) :: argument0 :: argument1Up) ->
-                                            let
-                                                nameNode : GrenSyntax.Node String
-                                                nameNode =
-                                                    GrenSyntax.Node firstFieldNameRange potentialFirstFieldName
+                                        GrenSyntax.ExpressionCall (potentialFirstFieldNameNode :: argument0 :: argument1Up) ->
+                                            case potentialFirstFieldNameNode.value of
+                                                GrenSyntax.ExpressionReference [] potentialFirstFieldName ->
+                                                    let
+                                                        nameNode : GrenSyntax.Node String
+                                                        nameNode =
+                                                            GrenSyntax.Node potentialFirstFieldNameNode.range potentialFirstFieldName
 
-                                                firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
-                                                firstFieldValueNode =
-                                                    case argument1Up of
-                                                        [] ->
-                                                            argument0
+                                                        firstFieldValueNode : GrenSyntax.Node GrenSyntax.Expression
+                                                        firstFieldValueNode =
+                                                            case argument1Up of
+                                                                [] ->
+                                                                    argument0
 
-                                                        argument1 :: argument2Up ->
-                                                            GrenSyntax.Node
-                                                                { start = argument0 |> GrenSyntax.nodeRange |> .start
-                                                                , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
-                                                                }
-                                                                (GrenSyntax.ExpressionCall
-                                                                    (argument0 :: argument1 :: argument2Up)
+                                                                argument1 :: argument2Up ->
+                                                                    GrenSyntax.Node
+                                                                        { start = argument0 |> GrenSyntax.nodeRange |> .start
+                                                                        , end = firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange |> .end
+                                                                        }
+                                                                        (GrenSyntax.ExpressionCall
+                                                                            (argument0 :: argument1 :: argument2Up)
+                                                                        )
+                                                    in
+                                                    Just
+                                                        { comments = comments
+                                                        , syntax =
+                                                            GrenSyntax.ExpressionRecord
+                                                                (GrenSyntax.Node
+                                                                    (firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange)
+                                                                    { name = nameNode
+                                                                    , value = firstFieldValueNode
+                                                                    }
+                                                                    :: tailFields.syntax
                                                                 )
-                                            in
-                                            Just
-                                                { comments = comments
-                                                , syntax =
-                                                    GrenSyntax.ExpressionRecord
-                                                        (GrenSyntax.Node
-                                                            (firstFieldNameOrExpression.syntax |> GrenSyntax.nodeRange)
-                                                            { name = nameNode
-                                                            , value = firstFieldValueNode
-                                                            }
-                                                            :: tailFields.syntax
-                                                        )
-                                                }
+                                                        }
+
+                                                _ ->
+                                                    Nothing
 
                                         _ ->
                                             Nothing
@@ -2945,10 +2848,6 @@ expressionLambdaFollowedByWhitespaceAndComments : Parser (WithComments (GrenSynt
 expressionLambdaFollowedByWhitespaceAndComments =
     ParserFast.map6WithStartLocation
         (\start commentsAfterBackslash parameter0 commentsAfterParameter0 parameter1Up commentsAfterArrow expressionResult ->
-            let
-                (GrenSyntax.Node expressionRange _) =
-                    expressionResult.syntax
-            in
             { comments =
                 commentsAfterBackslash
                     |> ropePrependTo parameter0.comments
@@ -2959,7 +2858,7 @@ expressionLambdaFollowedByWhitespaceAndComments =
             , syntax =
                 GrenSyntax.Node
                     { start = start
-                    , end = expressionRange.end
+                    , end = expressionResult.syntax.range.end
                     }
                     (GrenSyntax.ExpressionLambda
                         { parameters = parameter0.syntax :: parameter1Up.syntax
@@ -3144,10 +3043,6 @@ letExpressionFollowedByOptimisticLayout : Parser (WithComments (GrenSyntax.Node 
 letExpressionFollowedByOptimisticLayout =
     ParserFast.map3WithStartLocation
         (\start letDeclarationsResult commentsAfterIn expressionResult ->
-            let
-                (GrenSyntax.Node expressionRange _) =
-                    expressionResult.syntax
-            in
             { comments =
                 letDeclarationsResult.comments
                     |> ropePrependTo commentsAfterIn
@@ -3155,7 +3050,7 @@ letExpressionFollowedByOptimisticLayout =
             , syntax =
                 GrenSyntax.Node
                     { start = start
-                    , end = expressionRange.end
+                    , end = expressionResult.syntax.range.end
                     }
                     (GrenSyntax.ExpressionLetIn
                         { declarations = letDeclarationsResult.declarations
@@ -3220,20 +3115,13 @@ letDestructuringDeclarationFollowedByOptimisticLayout : Parser (WithComments (Gr
 letDestructuringDeclarationFollowedByOptimisticLayout =
     ParserFast.map4
         (\patternResult commentsAfterPattern commentsAfterEquals expressionResult ->
-            let
-                (GrenSyntax.Node patternRange _) =
-                    patternResult.syntax
-
-                (GrenSyntax.Node destructuredExpressionRange _) =
-                    expressionResult.syntax
-            in
             { comments =
                 patternResult.comments
                     |> ropePrependTo commentsAfterPattern
                     |> ropePrependTo commentsAfterEquals
                     |> ropePrependTo expressionResult.comments
             , syntax =
-                GrenSyntax.Node { start = patternRange.start, end = destructuredExpressionRange.end }
+                GrenSyntax.Node { start = patternResult.syntax.range.start, end = expressionResult.syntax.range.end }
                     (GrenSyntax.LetDestructuring patternResult.syntax expressionResult.syntax)
             }
         )
@@ -3250,22 +3138,18 @@ letFunctionFollowedByOptimisticLayout =
             (\startNameStart startNameNode commentsAfterStartName maybeSignature parameters commentsAfterEqual expressionResult ->
                 case maybeSignature of
                     Nothing ->
-                        let
-                            (GrenSyntax.Node expressionRange _) =
-                                expressionResult.syntax
-                        in
                         { comments =
                             commentsAfterStartName
                                 |> ropePrependTo parameters.comments
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                            GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
                                 (GrenSyntax.LetFunction
                                     { documentation = Nothing
                                     , signature = Nothing
                                     , declaration =
-                                        GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                                        GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
                                             { name = startNameNode
                                             , parameters = parameters.syntax
                                             , expression = expressionResult.syntax
@@ -3275,20 +3159,13 @@ letFunctionFollowedByOptimisticLayout =
                         }
 
                     Just signature ->
-                        let
-                            (GrenSyntax.Node implementationNameRange _) =
-                                signature.implementationName
-
-                            (GrenSyntax.Node expressionRange _) =
-                                expressionResult.syntax
-                        in
                         { comments =
                             (commentsAfterStartName |> ropePrependTo signature.comments)
                                 |> ropePrependTo parameters.comments
                                 |> ropePrependTo commentsAfterEqual
                                 |> ropePrependTo expressionResult.comments
                         , syntax =
-                            GrenSyntax.Node { start = startNameStart, end = expressionRange.end }
+                            GrenSyntax.Node { start = startNameStart, end = expressionResult.syntax.range.end }
                                 (GrenSyntax.LetFunction
                                     { documentation = Nothing
                                     , signature =
@@ -3299,7 +3176,7 @@ letFunctionFollowedByOptimisticLayout =
                                                 signature.typeAnnotation
                                             )
                                     , declaration =
-                                        GrenSyntax.Node { start = implementationNameRange.start, end = expressionRange.end }
+                                        GrenSyntax.Node { start = signature.implementationName.range.start, end = expressionResult.syntax.range.end }
                                             { name = signature.implementationName
                                             , parameters = parameters.syntax
                                             , expression = expressionResult.syntax
@@ -3334,12 +3211,8 @@ letFunctionFollowedByOptimisticLayout =
             whitespaceAndComments
             expressionFollowedByWhitespaceAndComments
             |> ParserFast.validate
-                (\result ->
-                    let
-                        (GrenSyntax.Node _ letDeclaration) =
-                            result.syntax
-                    in
-                    case letDeclaration of
+                (\letDeclarationResult ->
+                    case letDeclarationResult.syntax.value of
                         GrenSyntax.LetDestructuring _ _ ->
                             True
 
@@ -3348,18 +3221,9 @@ letFunctionFollowedByOptimisticLayout =
                                 Nothing ->
                                     True
 
-                                Just (GrenSyntax.Node _ signature) ->
-                                    let
-                                        (GrenSyntax.Node _ implementationName) =
-                                            implementation.name
-
-                                        (GrenSyntax.Node _ implementation) =
-                                            letFunctionDeclaration.declaration
-
-                                        (GrenSyntax.Node _ signatureName) =
-                                            signature.name
-                                    in
-                                    implementationName == signatureName
+                                Just signatureNode ->
+                                    letFunctionDeclaration.declaration.value.name.value
+                                        == signatureNode.value.name.value
                 )
         )
         (ParserFast.map8WithStartLocation
@@ -3441,10 +3305,6 @@ expressionIfThenElseFollowedByOptimisticLayout : Parser (WithComments (GrenSynta
 expressionIfThenElseFollowedByOptimisticLayout =
     ParserFast.map6WithStartLocation
         (\start commentsAfterIf condition commentsAfterThen ifTrue commentsAfterElse ifFalse ->
-            let
-                (GrenSyntax.Node ifFalseRange _) =
-                    ifFalse.syntax
-            in
             { comments =
                 commentsAfterIf
                     |> ropePrependTo condition.comments
@@ -3455,7 +3315,7 @@ expressionIfThenElseFollowedByOptimisticLayout =
             , syntax =
                 GrenSyntax.Node
                     { start = start
-                    , end = ifFalseRange.end
+                    , end = ifFalse.syntax.range.end
                     }
                     (GrenSyntax.ExpressionIfThenElse
                         condition.syntax
@@ -3535,18 +3395,14 @@ negationAfterMinus : Parser (WithComments (GrenSyntax.Node GrenSyntax.Expression
 negationAfterMinus =
     ParserFast.map
         (\subExpressionResult ->
-            let
-                (GrenSyntax.Node subExpressionRange _) =
-                    subExpressionResult.syntax
-            in
             { comments = subExpressionResult.comments
             , syntax =
                 GrenSyntax.Node
                     { start =
-                        { row = subExpressionRange.start.row
-                        , column = subExpressionRange.start.column - 1
+                        { row = subExpressionResult.syntax.range.start.row
+                        , column = subExpressionResult.syntax.range.start.column - 1
                         }
-                    , end = subExpressionRange.end
+                    , end = subExpressionResult.syntax.range.end
                     }
                     (GrenSyntax.ExpressionNegation subExpressionResult.syntax)
             }
@@ -4108,12 +3964,8 @@ followedByMultiArgumentApplication appliedExpressionParser =
                     [] ->
                         leftExpressionResult.syntax
 
-                    (GrenSyntax.Node lastArgRange _) :: _ ->
-                        let
-                            (GrenSyntax.Node leftRange _) =
-                                leftExpressionResult.syntax
-                        in
-                        GrenSyntax.Node { start = leftRange.start, end = lastArgRange.end }
+                    lastArgumentNode :: _ ->
+                        GrenSyntax.Node { start = leftExpressionResult.syntax.range.start, end = lastArgumentNode.range.end }
                             (GrenSyntax.ExpressionCall
                                 (leftExpressionResult.syntax :: List.reverse maybeArgsReverse.syntax)
                             )
@@ -4138,14 +3990,7 @@ followedByMultiArgumentApplication appliedExpressionParser =
 
 applyExtensionRight : ExtensionRight -> GrenSyntax.Node GrenSyntax.Expression -> GrenSyntax.Node GrenSyntax.Expression
 applyExtensionRight (ExtendRightByOperation operation) leftNode =
-    let
-        (GrenSyntax.Node leftRange _) =
-            leftNode
-
-        (GrenSyntax.Node rightExpressionRange _) =
-            operation.expression
-    in
-    GrenSyntax.Node { start = leftRange.start, end = rightExpressionRange.end }
+    GrenSyntax.Node { start = leftNode.range.start, end = operation.expression.range.end }
         (GrenSyntax.ExpressionInfixOperation operation.symbol
             leftNode
             operation.expression
@@ -4488,23 +4333,23 @@ stringPattern =
 qualifiedPatternWithConsumeArgs : Parser (WithComments (GrenSyntax.Node GrenSyntax.Pattern))
 qualifiedPatternWithConsumeArgs =
     ParserFast.map3
-        (\(GrenSyntax.Node referenceRange reference) afterStartName argsReverse ->
+        (\referenceNode afterStartName argsReverse ->
             let
                 range : GrenSyntax.Range
                 range =
                     case argsReverse.syntax of
                         Nothing ->
-                            referenceRange
+                            referenceNode.range
 
-                        Just (GrenSyntax.Node lastArgRange _) ->
-                            { start = referenceRange.start, end = lastArgRange.end }
+                        Just lastArgumentNode ->
+                            { start = referenceNode.range.start, end = lastArgumentNode.range.end }
             in
             { comments = afterStartName |> ropePrependTo argsReverse.comments
             , syntax =
                 GrenSyntax.Node range
                     (GrenSyntax.PatternVariant
-                        { qualification = reference.qualification
-                        , name = reference.name
+                        { qualification = referenceNode.value.qualification
+                        , name = referenceNode.value.name
                         , value = argsReverse.syntax
                         }
                     )

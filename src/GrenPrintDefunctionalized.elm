@@ -57,9 +57,9 @@ module_ syntaxModule =
                 Nothing ->
                     Nothing
 
-                Just (GrenSyntax.Node _ syntaxModuleDocumentation) ->
+                Just syntaxModuleDocumentationNode ->
                     Just
-                        (syntaxModuleDocumentation
+                        (syntaxModuleDocumentationNode.value
                             |> moduleDocumentationParse
                         )
 
@@ -76,8 +76,8 @@ module_ syntaxModule =
         lastSyntaxLocationBeforeDeclarations : GrenSyntax.Location
         lastSyntaxLocationBeforeDeclarations =
             case syntaxModule.imports of
-                (GrenSyntax.Node firstImportRange _) :: _ ->
-                    firstImportRange.end
+                firstImport :: _ ->
+                    firstImport.range.end
 
                 [] ->
                     syntaxModule.moduleDefinition
@@ -91,10 +91,10 @@ module_ syntaxModule =
                     -- invalid syntax
                     []
 
-                (GrenSyntax.Node declaration0Range _) :: _ ->
+                declaration0 :: _ ->
                     commentsInRange
                         { start = lastSyntaxLocationBeforeDeclarations
-                        , end = declaration0Range.start
+                        , end = declaration0.range.start
                         }
                         commentsAndPortDocumentationComments.remainingComments
     in
@@ -125,14 +125,14 @@ module_ syntaxModule =
                                 _ :: _ ->
                                     Print.empty
 
-                (GrenSyntax.Node import0Range import0) :: import1Up ->
+                import0Node :: import1Up ->
                     (case
                         commentsInRange
                             { start =
                                 syntaxModule.moduleDefinition
                                     |> GrenSyntax.nodeRange
                                     |> .end
-                            , end = import0Range.start
+                            , end = import0Node.range.start
                             }
                             commentsAndPortDocumentationComments.remainingComments
                      of
@@ -146,7 +146,7 @@ module_ syntaxModule =
                     )
                         |> Print.followedBy Print.linebreak
                         |> Print.followedBy
-                            ((GrenSyntax.Node import0Range import0 :: import1Up)
+                            ((import0Node :: import1Up)
                                 |> imports commentsAndPortDocumentationComments.remainingComments
                             )
                         |> Print.followedBy printLinebreakLinebreak
@@ -279,13 +279,13 @@ moduleDocumentation ast =
         cutOffLine : Int
         cutOffLine =
             case ast.imports of
-                (GrenSyntax.Node firstImportRange _) :: _ ->
-                    firstImportRange.start.row
+                firstImportNode :: _ ->
+                    firstImportNode.range.start.row
 
                 [] ->
                     case ast.declarations of
-                        (GrenSyntax.Node firstDeclarationRange _) :: _ ->
-                            firstDeclarationRange.start.row
+                        firstDeclarationNode :: _ ->
+                            firstDeclarationNode.range.start.row
 
                         [] ->
                             -- Should not happen, as every module should have at least one declaration
@@ -300,16 +300,12 @@ moduleDocumentationBeforeCutOffLine cutOffLine allComments =
         [] ->
             Nothing
 
-        headComment :: restOfComments ->
-            let
-                (GrenSyntax.Node range content) =
-                    headComment
-            in
-            if range.start.row > cutOffLine then
+        headCommentNode :: restOfComments ->
+            if headCommentNode.range.start.row > cutOffLine then
                 Nothing
 
-            else if String.startsWith "{-|" content then
-                Just headComment
+            else if String.startsWith "{-|" headCommentNode.value then
+                Just headCommentNode
 
             else
                 moduleDocumentationBeforeCutOffLine cutOffLine restOfComments
@@ -385,16 +381,16 @@ commentsAfter end sortedComments =
         [] ->
             []
 
-        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
-            case locationCompareFast headCommentRange.start end of
+        headCommentNode :: tailComments ->
+            case locationCompareFast headCommentNode.range.start end of
                 LT ->
                     commentsAfter end tailComments
 
                 GT ->
-                    headComment :: (tailComments |> List.map GrenSyntax.nodeValue)
+                    headCommentNode.value :: (tailComments |> List.map GrenSyntax.nodeValue)
 
                 EQ ->
-                    headComment :: (tailComments |> List.map GrenSyntax.nodeValue)
+                    headCommentNode.value :: (tailComments |> List.map GrenSyntax.nodeValue)
 
 
 moduleLevelCommentsBeforeDeclaration : { comment0 : String, comment1Up : List String } -> Print
@@ -420,11 +416,7 @@ commentNodesInRange range sortedComments =
             []
 
         headCommentNode :: tailComments ->
-            let
-                (GrenSyntax.Node headCommentRange _) =
-                    headCommentNode
-            in
-            case locationCompareFast headCommentRange.start range.start of
+            case locationCompareFast headCommentNode.range.start range.start of
                 LT ->
                     commentNodesInRange range tailComments
 
@@ -432,7 +424,7 @@ commentNodesInRange range sortedComments =
                     headCommentNode :: commentNodesInRange range tailComments
 
                 GT ->
-                    case locationCompareFast headCommentRange.end range.end of
+                    case locationCompareFast headCommentNode.range.end range.end of
                         GT ->
                             []
 
@@ -449,24 +441,24 @@ commentsInRange range sortedComments =
         [] ->
             []
 
-        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
-            case locationCompareFast headCommentRange.start range.start of
+        headCommentNode :: tailComments ->
+            case locationCompareFast headCommentNode.range.start range.start of
                 LT ->
                     commentsInRange range tailComments
 
                 EQ ->
-                    headComment :: commentsInRange range tailComments
+                    headCommentNode.value :: commentsInRange range tailComments
 
                 GT ->
-                    case locationCompareFast headCommentRange.end range.end of
+                    case locationCompareFast headCommentNode.range.end range.end of
                         GT ->
                             []
 
                         LT ->
-                            headComment :: commentsInRange range tailComments
+                            headCommentNode.value :: commentsInRange range tailComments
 
                         EQ ->
-                            headComment :: commentsInRange range tailComments
+                            headCommentNode.value :: commentsInRange range tailComments
 
 
 lineSpreadInRange : GrenSyntax.Range -> Print.LineSpread
@@ -511,8 +503,8 @@ exposingMulti syntaxComments syntaxExposing =
         |> Print.followedBy
             ((syntaxExposing.expose0 :: syntaxExposing.expose1Up)
                 |> Print.listMapAndIntersperseAndFlatten
-                    (\(GrenSyntax.Node _ syntaxExpose) ->
-                        Print.exactly (expose syntaxExpose)
+                    (\syntaxExposeNode ->
+                        Print.exactly (expose syntaxExposeNode.value)
                     )
                     (Print.emptyOrLinebreakIndented lineSpread
                         |> Print.followedBy printExactlyCommaSpace
@@ -618,8 +610,8 @@ exposeListToNormal :
 exposeListToNormal syntaxExposeList =
     syntaxExposeList
         |> List.sortWith
-            (\(GrenSyntax.Node _ a) (GrenSyntax.Node _ b) ->
-                exposeCompare a b
+            (\a b ->
+                exposeCompare a.value b.value
             )
         |> exposesCombine
 
@@ -636,18 +628,11 @@ exposesCombine syntaxExposes =
             onlyExposeList
 
         expose0Node :: (expose1Node :: expose2Up) ->
-            let
-                (GrenSyntax.Node _ expose1) =
-                    expose1Node
-
-                (GrenSyntax.Node expose0Range expose0) =
-                    expose0Node
-            in
-            case exposeCompare expose0 expose1 of
+            case exposeCompare expose0Node.value expose1Node.value of
                 EQ ->
                     exposesCombine
-                        (GrenSyntax.Node expose0Range
-                            (exposeMerge expose0 expose1)
+                        (GrenSyntax.Node expose0Node.range
+                            (exposeMerge expose0Node.value expose1Node.value)
                             :: expose2Up
                         )
 
@@ -701,8 +686,8 @@ moduleExposing :
     { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
-moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
-    case syntaxExposing of
+moduleExposing context syntaxExposingNode =
+    case syntaxExposingNode.value of
         GrenSyntax.All _ ->
             printExactlyParensOpeningDotDotParensClosing
 
@@ -711,11 +696,11 @@ moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
                 [] ->
                     printExactlyCurlyBraceOpeningCurlyBraceClosing
 
-                [ GrenSyntax.Node _ onlySyntaxExpose ] ->
+                [ onlySyntaxExposeNode ] ->
                     let
                         containedComments : List String
                         containedComments =
-                            commentsInRange exposingRange context.comments
+                            commentsInRange syntaxExposingNode.range context.comments
 
                         lineSpread : Print.LineSpread
                         lineSpread =
@@ -734,7 +719,7 @@ moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
                             Print.MultipleLines ->
                                 "( "
                          )
-                            ++ expose onlySyntaxExpose
+                            ++ expose onlySyntaxExposeNode.value
                             ++ ""
                         )
                         |> Print.followedBy (Print.emptyOrLinebreakIndented lineSpread)
@@ -794,7 +779,7 @@ moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
                             of
                                 [] ->
                                     exposingMulti context.comments
-                                        { fullRange = exposingRange
+                                        { fullRange = syntaxExposingNode.range
                                         , expose0 = expose0
                                         , expose1Up = expose1 :: expose2Up
                                         }
@@ -835,7 +820,7 @@ moduleExposing context (GrenSyntax.Node exposingRange syntaxExposing) =
 
                         [] ->
                             exposingMulti context.comments
-                                { fullRange = exposingRange
+                                { fullRange = syntaxExposingNode.range
                                 , expose0 = expose0
                                 , expose1Up = expose1 :: expose2Up
                                 }
@@ -984,14 +969,14 @@ moduleHeader context syntaxModuleHeader =
                             Nothing ->
                                 Nothing
 
-                            Just (GrenSyntax.Node _ name) ->
-                                Just ("command = " ++ name)
+                            Just nameNode ->
+                                Just ("command = " ++ nameNode.value)
                         , case effectModuleData.subscription of
                             Nothing ->
                                 Nothing
 
-                            Just (GrenSyntax.Node _ name) ->
-                                Just ("subscription = " ++ name)
+                            Just nameNode ->
+                                Just ("subscription = " ++ nameNode.value)
                         ]
                             |> List.filterMap identity
                             |> String.join ", "
@@ -1017,21 +1002,24 @@ imports syntaxComments syntaxImports =
         [] ->
             Print.empty
 
-        (GrenSyntax.Node import0Range import0) :: imports1Up ->
+        import0Node :: imports1Up ->
             let
                 commentsBetweenImports : List String
                 commentsBetweenImports =
-                    (GrenSyntax.Node import0Range import0 :: imports1Up)
+                    (import0Node :: imports1Up)
                         |> List.foldl
-                            (\(GrenSyntax.Node importRange _) soFar ->
-                                { previousImportRange = importRange
+                            (\importNode soFar ->
+                                { previousImportRange = importNode.range
                                 , commentsBetweenImports =
                                     soFar.commentsBetweenImports
-                                        ++ commentsInRange { start = soFar.previousImportRange.end, end = importRange.start }
+                                        ++ commentsInRange
+                                            { start = soFar.previousImportRange.end
+                                            , end = importNode.range.start
+                                            }
                                             syntaxComments
                                 }
                             )
-                            { previousImportRange = import0Range
+                            { previousImportRange = import0Node.range
                             , commentsBetweenImports = []
                             }
                         |> .commentsBetweenImports
@@ -1045,10 +1033,12 @@ imports syntaxComments syntaxImports =
                         |> Print.followedBy Print.linebreak
             )
                 |> Print.followedBy
-                    ((GrenSyntax.Node import0Range import0 :: imports1Up)
+                    ((import0Node :: imports1Up)
                         |> List.sortWith
-                            (\(GrenSyntax.Node _ a) (GrenSyntax.Node _ b) ->
-                                compare (a.moduleName |> GrenSyntax.nodeValue) (b.moduleName |> GrenSyntax.nodeValue)
+                            (\a b ->
+                                compare
+                                    (a.value.moduleName |> GrenSyntax.nodeValue)
+                                    (b.value.moduleName |> GrenSyntax.nodeValue)
                             )
                         |> importsCombine
                         |> Print.listMapAndIntersperseAndFlatten
@@ -1068,17 +1058,21 @@ importsCombine syntaxImports =
         [ onlyImport ] ->
             [ onlyImport |> GrenSyntax.nodeMap importToNormal ]
 
-        (GrenSyntax.Node import0Range import0) :: (GrenSyntax.Node import1Range import1) :: import2Up ->
-            if (import0.moduleName |> GrenSyntax.nodeValue) == (import1.moduleName |> GrenSyntax.nodeValue) then
+        import0Node :: import1Node :: import2Up ->
+            if
+                (import0Node.value.moduleName |> GrenSyntax.nodeValue)
+                    == (import1Node.value.moduleName |> GrenSyntax.nodeValue)
+            then
                 importsCombine
-                    (GrenSyntax.Node import1Range
-                        (importsMerge import0 import1)
+                    (GrenSyntax.Node import1Node.range
+                        (importsMerge import0Node.value import1Node.value)
                         :: import2Up
                     )
 
             else
-                GrenSyntax.Node import0Range (import0 |> importToNormal)
-                    :: importsCombine (GrenSyntax.Node import1Range import1 :: import2Up)
+                GrenSyntax.Node import0Node.range
+                    (import0Node.value |> importToNormal)
+                    :: importsCombine (import1Node :: import2Up)
 
 
 importToNormal : GrenSyntax.Import -> GrenSyntax.Import
@@ -1090,10 +1084,10 @@ importToNormal syntaxImport =
             Nothing ->
                 Nothing
 
-            Just (GrenSyntax.Node exposingRange syntaxExposing) ->
+            Just syntaxExposingNode ->
                 Just
-                    (GrenSyntax.Node exposingRange
-                        (syntaxExposing |> exposingToNormal)
+                    (GrenSyntax.Node syntaxExposingNode.range
+                        (syntaxExposingNode.value |> exposingToNormal)
                     )
     }
 
@@ -1129,31 +1123,39 @@ exposingCombine :
     -> Maybe (GrenSyntax.Node GrenSyntax.Exposing)
 exposingCombine a b =
     case a of
-        Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)) ->
-            Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange))
+        Just aExposingNode ->
+            case aExposingNode.value of
+                GrenSyntax.All allRange ->
+                    Just
+                        (GrenSyntax.Node aExposingNode.range
+                            (GrenSyntax.All allRange)
+                        )
 
-        Just (GrenSyntax.Node earlierExposingExplicitRange (GrenSyntax.Explicit earlierExposeSet)) ->
-            Just
-                (case b of
-                    Just (GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)) ->
-                        GrenSyntax.Node exposingAllRange (GrenSyntax.All allRange)
+                GrenSyntax.Explicit earlierExposeSet ->
+                    Just
+                        (case b of
+                            Just bExposingNode ->
+                                case bExposingNode.value of
+                                    GrenSyntax.All allRange ->
+                                        GrenSyntax.Node bExposingNode.range (GrenSyntax.All allRange)
 
-                    Just (GrenSyntax.Node laterExposingExplicitRange (GrenSyntax.Explicit laterExposeSet)) ->
-                        GrenSyntax.Node
-                            (case lineSpreadInRange earlierExposingExplicitRange of
-                                Print.MultipleLines ->
-                                    earlierExposingExplicitRange
+                                    GrenSyntax.Explicit laterExposeSet ->
+                                        GrenSyntax.Node
+                                            (case lineSpreadInRange aExposingNode.range of
+                                                Print.MultipleLines ->
+                                                    aExposingNode.range
 
-                                Print.SingleLine ->
-                                    laterExposingExplicitRange
-                            )
-                            (GrenSyntax.Explicit
-                                (earlierExposeSet ++ laterExposeSet |> exposeListToNormal)
-                            )
+                                                Print.SingleLine ->
+                                                    bExposingNode.range
+                                            )
+                                            (GrenSyntax.Explicit
+                                                (earlierExposeSet ++ laterExposeSet |> exposeListToNormal)
+                                            )
 
-                    Nothing ->
-                        GrenSyntax.Node earlierExposingExplicitRange (GrenSyntax.Explicit earlierExposeSet)
-                )
+                            Nothing ->
+                                GrenSyntax.Node aExposingNode.range
+                                    (GrenSyntax.Explicit earlierExposeSet)
+                        )
 
         Nothing ->
             b
@@ -1165,29 +1167,28 @@ import_ :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Import
     -> Print
-import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
+import_ syntaxComments syntaxImportNode =
     let
         importRange : GrenSyntax.Range
         importRange =
-            case syntaxImport.exposingList of
+            case syntaxImportNode.value.exposingList of
                 Nothing ->
-                    incorrectImportRange
+                    syntaxImportNode.range
 
-                Just (GrenSyntax.Node syntaxExposingRange _) ->
-                    { start = incorrectImportRange.start, end = syntaxExposingRange.end }
-
-        (GrenSyntax.Node moduleNameRange syntaxModuleName) =
-            syntaxImport.moduleName
+                Just syntaxExposingNode ->
+                    { start = syntaxImportNode.range.start
+                    , end = syntaxExposingNode.range.end
+                    }
     in
     printExactImport
         |> Print.followedBy
-            (case syntaxImport.moduleAlias of
+            (case syntaxImportNode.value.moduleAlias of
                 Nothing ->
-                    case commentsInRange { start = importRange.start, end = moduleNameRange.start } syntaxComments of
+                    case commentsInRange { start = importRange.start, end = syntaxImportNode.value.moduleName.range.start } syntaxComments of
                         [] ->
                             Print.exactly
                                 (" "
-                                    ++ moduleName syntaxModuleName
+                                    ++ moduleName syntaxImportNode.value.moduleName.value
                                 )
 
                         comment0 :: comment1Up ->
@@ -1196,17 +1197,20 @@ import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
                                     |> Print.followedBy (comments (comment0 :: comment1Up))
                                     |> Print.followedBy Print.linebreakIndented
                                     |> Print.followedBy
-                                        (Print.exactly (moduleName syntaxModuleName))
+                                        (Print.exactly (moduleName syntaxImportNode.value.moduleName.value))
                                 )
 
-                Just (GrenSyntax.Node moduleAliasRange moduleAlias) ->
-                    case commentsInRange { start = moduleNameRange.end, end = moduleAliasRange.start } syntaxComments of
+                Just moduleAliasNode ->
+                    case
+                        commentsInRange { start = syntaxImportNode.value.moduleName.range.end, end = moduleAliasNode.range.start }
+                            syntaxComments
+                    of
                         [] ->
-                            (case commentsInRange { start = importRange.start, end = moduleNameRange.start } syntaxComments of
+                            (case commentsInRange { start = importRange.start, end = syntaxImportNode.value.moduleName.range.start } syntaxComments of
                                 [] ->
                                     Print.exactly
                                         (" "
-                                            ++ moduleName syntaxModuleName
+                                            ++ moduleName syntaxImportNode.value.moduleName.value
                                         )
 
                                 moduleNameComment0 :: moduleNameComment1Up ->
@@ -1214,23 +1218,23 @@ import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
                                         (Print.linebreakIndented
                                             |> Print.followedBy (comments (moduleNameComment0 :: moduleNameComment1Up))
                                             |> Print.followedBy Print.linebreakIndented
-                                            |> Print.followedBy (Print.exactly (moduleName syntaxModuleName))
+                                            |> Print.followedBy (Print.exactly (moduleName syntaxImportNode.value.moduleName.value))
                                         )
                             )
-                                |> Print.followedBy (Print.exactly (" as " ++ moduleName moduleAlias))
+                                |> Print.followedBy (Print.exactly (" as " ++ moduleName moduleAliasNode.value))
 
                         aliasComment0 :: aliasComment1Up ->
                             Print.withIndentAtNextMultipleOf4
                                 (Print.linebreakIndented
                                     |> Print.followedBy
-                                        (case commentsInRange { start = importRange.start, end = moduleNameRange.start } syntaxComments of
+                                        (case commentsInRange { start = importRange.start, end = syntaxImportNode.value.moduleName.range.start } syntaxComments of
                                             [] ->
-                                                Print.exactly (moduleName syntaxModuleName)
+                                                Print.exactly (moduleName syntaxImportNode.value.moduleName.value)
 
                                             moduleNameComment0 :: moduleNameComment1Up ->
                                                 comments (moduleNameComment0 :: moduleNameComment1Up)
                                                     |> Print.followedBy Print.linebreakIndented
-                                                    |> Print.followedBy (Print.exactly (moduleName syntaxModuleName))
+                                                    |> Print.followedBy (Print.exactly (moduleName syntaxImportNode.value.moduleName.value))
                                         )
                                     |> Print.followedBy
                                         (Print.withIndentAtNextMultipleOf4
@@ -1241,7 +1245,7 @@ import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
                                                             |> Print.followedBy (comments (aliasComment0 :: aliasComment1Up))
                                                             |> Print.followedBy Print.linebreakIndented
                                                             |> Print.followedBy
-                                                                (Print.exactly (moduleName moduleAlias))
+                                                                (Print.exactly (moduleName moduleAliasNode.value))
                                                         )
                                                     )
                                             )
@@ -1249,7 +1253,7 @@ import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
                                 )
             )
         |> Print.followedBy
-            (case syntaxImport.exposingList of
+            (case syntaxImportNode.value.exposingList of
                 Nothing ->
                     Print.empty
 
@@ -1261,12 +1265,12 @@ import_ syntaxComments (GrenSyntax.Node incorrectImportRange syntaxImport) =
 
                         exposingPartStart : GrenSyntax.Location
                         exposingPartStart =
-                            case syntaxImport.moduleAlias of
+                            case syntaxImportNode.value.moduleAlias of
                                 Nothing ->
-                                    moduleNameRange.end
+                                    syntaxImportNode.value.moduleName.range.end
 
-                                Just (GrenSyntax.Node moduleAliasRange _) ->
-                                    moduleAliasRange.end
+                                Just moduleAliasNode ->
+                                    moduleAliasNode.range.end
                     in
                     case commentsInRange { start = exposingPartStart, end = importRange.end } syntaxComments of
                         [] ->
@@ -1308,8 +1312,8 @@ importExposing :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
-importExposing syntaxComments (GrenSyntax.Node exposingRange syntaxExposing) =
-    case syntaxExposing of
+importExposing syntaxComments syntaxExposingNode =
+    case syntaxExposingNode.value of
         GrenSyntax.All _ ->
             printExactlyParensOpeningDotDotParensClosing
 
@@ -1321,7 +1325,10 @@ importExposing syntaxComments (GrenSyntax.Node exposingRange syntaxExposing) =
 
                 expose0 :: expose1Up ->
                     exposingMulti syntaxComments
-                        { fullRange = exposingRange, expose0 = expose0, expose1Up = expose1Up }
+                        { fullRange = syntaxExposingNode.range
+                        , expose0 = expose0
+                        , expose1Up = expose1Up
+                        }
 
 
 {-| Print `--` or `{- -}` comments placed _within a declaration_.
@@ -1646,8 +1653,8 @@ patternIsSpaceSeparated syntaxPattern =
         GrenSyntax.PatternHex _ ->
             False
 
-        GrenSyntax.PatternParenthesized (GrenSyntax.Node _ inParens) ->
-            patternIsSpaceSeparated inParens
+        GrenSyntax.PatternParenthesized inParensNode ->
+            patternIsSpaceSeparated inParensNode.value
 
         GrenSyntax.PatternRecord _ ->
             False
@@ -2110,47 +2117,47 @@ stringResizePadLeftWith0s length unpaddedString =
 patternToNotParenthesized :
     GrenSyntax.Node GrenSyntax.Pattern
     -> GrenSyntax.Node GrenSyntax.Pattern
-patternToNotParenthesized (GrenSyntax.Node fullRange syntaxPattern) =
+patternToNotParenthesized syntaxPatternNode =
     -- IGNORE TCO
-    case syntaxPattern of
+    case syntaxPatternNode.value of
         GrenSyntax.PatternParenthesized inParens ->
             inParens |> patternToNotParenthesized
 
         GrenSyntax.PatternIgnored ->
-            GrenSyntax.Node fullRange GrenSyntax.PatternIgnored
+            GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternIgnored
 
         GrenSyntax.PatternUnit ->
-            GrenSyntax.Node fullRange GrenSyntax.PatternUnit
+            GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternUnit
 
         GrenSyntax.PatternVariable name ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternVariable name)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariable name)
 
         GrenSyntax.PatternChar char ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternChar char)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternChar char)
 
         GrenSyntax.PatternString string ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternString string)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternString string)
 
         GrenSyntax.PatternInt int ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternInt int)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternInt int)
 
         GrenSyntax.PatternHex int ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternHex int)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternHex int)
 
         GrenSyntax.PatternRecord fields ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternRecord fields)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternRecord fields)
 
         GrenSyntax.PatternListCons headPattern tailPattern ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternListCons headPattern tailPattern)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListCons headPattern tailPattern)
 
         GrenSyntax.PatternListExact elementPatterns ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternListExact elementPatterns)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListExact elementPatterns)
 
         GrenSyntax.PatternVariant syntaxPatternVariant ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternVariant syntaxPatternVariant)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariant syntaxPatternVariant)
 
         GrenSyntax.PatternAs syntaxPatternAs ->
-            GrenSyntax.Node fullRange (GrenSyntax.PatternAs syntaxPatternAs)
+            GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternAs syntaxPatternAs)
 
 
 {-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
@@ -2159,9 +2166,9 @@ patternNotParenthesized :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
-patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern) =
+patternNotParenthesized syntaxComments syntaxPatternNode =
     -- IGNORE TCO
-    case syntaxPattern of
+    case syntaxPatternNode.value of
         GrenSyntax.PatternIgnored ->
             printExactlyUnderscore
 
@@ -2187,11 +2194,19 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
-                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
+                    commentsInRange
+                        { start = syntaxPatternNode.range.start
+                        , end = inParens |> GrenSyntax.nodeRange |> .start
+                        }
+                        syntaxComments
 
                 commentsAfterInParens : List String
                 commentsAfterInParens =
-                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
+                    commentsInRange
+                        { start = inParens |> GrenSyntax.nodeRange |> .end
+                        , end = syntaxPatternNode.range.end
+                        }
+                        syntaxComments
             in
             case ( commentsBeforeInParens, commentsAfterInParens ) of
                 ( [], [] ) ->
@@ -2200,13 +2215,13 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                 _ ->
                     parenthesized patternNotParenthesized
                         { notParenthesized = inParens |> patternToNotParenthesized
-                        , fullRange = fullRange
+                        , fullRange = syntaxPatternNode.range
                         }
                         syntaxComments
 
         GrenSyntax.PatternRecord fields ->
             patternRecord syntaxComments
-                { fullRange = fullRange, fields = fields }
+                { fullRange = syntaxPatternNode.range, fields = fields }
 
         GrenSyntax.PatternListCons headPattern tailPattern ->
             patternCons syntaxComments
@@ -2214,7 +2229,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
 
         GrenSyntax.PatternListExact elementPatterns ->
             patternList syntaxComments
-                { fullRange = fullRange, elements = elementPatterns }
+                { fullRange = syntaxPatternNode.range, elements = elementPatterns }
 
         GrenSyntax.PatternVariant syntaxPatternVariant ->
             construct
@@ -2223,7 +2238,7 @@ patternNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxPattern)
                 , lineSpreadMinimum = Print.SingleLine
                 }
                 syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxPatternNode.range
                 , start =
                     qualifiedReference
                         { qualification = syntaxPatternVariant.qualification
@@ -2284,18 +2299,18 @@ patternList syntaxComments syntaxList =
                         |> List.foldl
                             (\elementNode soFar ->
                                 let
-                                    (GrenSyntax.Node elementRange _) =
-                                        elementNode
-
                                     elementPrint : Print
                                     elementPrint =
                                         patternNotParenthesized syntaxComments
                                             elementNode
                                 in
-                                { endLocation = elementRange.end
+                                { endLocation = elementNode.range.end
                                 , reverse =
                                     (case
-                                        commentsInRange { start = soFar.endLocation, end = elementRange.start }
+                                        commentsInRange
+                                            { start = soFar.endLocation
+                                            , end = elementNode.range.start
+                                            }
                                             syntaxComments
                                      of
                                         [] ->
@@ -2403,9 +2418,6 @@ patternCons syntaxComments syntaxCons =
                 |> List.foldl
                     (\tailPatternNode soFar ->
                         let
-                            (GrenSyntax.Node tailPatternRange _) =
-                                tailPatternNode
-
                             print : Print
                             print =
                                 patternParenthesizedIfSpaceSeparated syntaxComments
@@ -2413,7 +2425,10 @@ patternCons syntaxComments syntaxCons =
                         in
                         { reverse =
                             (case
-                                commentsInRange { start = soFar.endLocation, end = tailPatternRange.start }
+                                commentsInRange
+                                    { start = soFar.endLocation
+                                    , end = tailPatternNode.range.start
+                                    }
                                     syntaxComments
                              of
                                 [] ->
@@ -2436,7 +2451,7 @@ patternCons syntaxComments syntaxCons =
                                         |> Print.followedBy print
                             )
                                 :: soFar.reverse
-                        , endLocation = tailPatternRange.end
+                        , endLocation = tailPatternNode.range.end
                         }
                     )
                     { reverse = []
@@ -2477,46 +2492,46 @@ patternCons syntaxComments syntaxCons =
 patternConsExpand :
     GrenSyntax.Node GrenSyntax.Pattern
     -> List (GrenSyntax.Node GrenSyntax.Pattern)
-patternConsExpand (GrenSyntax.Node fulRange syntaxPattern) =
-    case syntaxPattern of
+patternConsExpand syntaxPatternNode =
+    case syntaxPatternNode.value of
         GrenSyntax.PatternListCons headPattern tailPattern ->
             headPattern :: patternConsExpand tailPattern
 
         GrenSyntax.PatternIgnored ->
-            [ GrenSyntax.Node fulRange GrenSyntax.PatternIgnored ]
+            [ GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternIgnored ]
 
         GrenSyntax.PatternUnit ->
-            [ GrenSyntax.Node fulRange GrenSyntax.PatternUnit ]
+            [ GrenSyntax.Node syntaxPatternNode.range GrenSyntax.PatternUnit ]
 
         GrenSyntax.PatternChar char ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternChar char) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternChar char) ]
 
         GrenSyntax.PatternString string ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternString string) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternString string) ]
 
         GrenSyntax.PatternInt int ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternInt int) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternInt int) ]
 
         GrenSyntax.PatternHex int ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternHex int) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternHex int) ]
 
         GrenSyntax.PatternRecord fields ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternRecord fields) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternRecord fields) ]
 
         GrenSyntax.PatternListExact elements ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternListExact elements) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternListExact elements) ]
 
         GrenSyntax.PatternVariable variableName ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariable variableName) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariable variableName) ]
 
         GrenSyntax.PatternVariant syntaxPatternVariant ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternVariant syntaxPatternVariant) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternVariant syntaxPatternVariant) ]
 
         GrenSyntax.PatternAs syntaxPatternAs ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternAs syntaxPatternAs) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternAs syntaxPatternAs) ]
 
         GrenSyntax.PatternParenthesized inParens ->
-            [ GrenSyntax.Node fulRange (GrenSyntax.PatternParenthesized inParens) ]
+            [ GrenSyntax.Node syntaxPatternNode.range (GrenSyntax.PatternParenthesized inParens) ]
 
 
 patternAs :
@@ -2647,17 +2662,14 @@ patternRecord syntaxComments syntaxRecord =
 
                                     Just fieldValueNode ->
                                         let
-                                            (GrenSyntax.Node fieldValueRange _) =
-                                                fieldValueNode
-
                                             fieldValuePrint : Print
                                             fieldValuePrint =
                                                 fieldValueNode
                                                     |> patternNotParenthesized syntaxComments
                                         in
-                                        { endLocation = fieldValueRange.end
+                                        { endLocation = fieldValueNode.range.end
                                         , reverse =
-                                            (case commentsInRange { start = soFar.endLocation, end = fieldValueRange.start } syntaxComments of
+                                            (case commentsInRange { start = soFar.endLocation, end = fieldValueNode.range.start } syntaxComments of
                                                 [] ->
                                                     Print.exactly ((field.name |> GrenSyntax.nodeValue) ++ " =")
                                                         |> Print.followedBy
@@ -2794,30 +2806,26 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         fieldPrintsAndComments =
             syntaxRecordExtension.fields
                 |> List.foldl
-                    (\(GrenSyntax.Node _ field) soFar ->
+                    (\fieldNode soFar ->
                         let
-                            (GrenSyntax.Node fieldNameRange fieldName) =
-                                field.name
-
-                            (GrenSyntax.Node fieldValueRange _) =
-                                field.value
-
                             commentsBeforeName : List String
                             commentsBeforeName =
                                 commentsInRange
-                                    { start = soFar.endLocation, end = fieldNameRange.start }
+                                    { start = soFar.endLocation, end = fieldNode.value.name.range.start }
                                     syntaxComments
 
                             commentsBetweenNameAndValue : List String
                             commentsBetweenNameAndValue =
                                 commentsInRange
-                                    { start = fieldNameRange.start, end = fieldValueRange.start }
+                                    { start = fieldNode.value.name.range.start
+                                    , end = fieldNode.value.value.range.start
+                                    }
                                     syntaxComments
                         in
-                        { endLocation = fieldValueRange.end
+                        { endLocation = fieldNode.value.value.range.end
                         , reverse =
-                            { syntax = field
-                            , valuePrint = typeNotParenthesized syntaxComments field.value
+                            { syntax = fieldNode.value
+                            , valuePrint = typeNotParenthesized syntaxComments fieldNode.value.value
                             , maybeCommentsBeforeName =
                                 case commentsBeforeName of
                                     [] ->
@@ -2923,13 +2931,10 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                             |> Print.listReverseAndMapAndIntersperseAndFlatten
                                 (\field ->
                                     let
-                                        (GrenSyntax.Node fieldNameRange fieldName) =
-                                            field.syntax.name
-
                                         lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                         lineSpreadBetweenNameAndValueNotConsideringComments () =
                                             lineSpreadInRange
-                                                { start = fieldNameRange.start
+                                                { start = field.syntax.name.range.start
                                                 , end = field.syntax.value |> GrenSyntax.nodeRange |> .end
                                                 }
                                                 |> Print.lineSpreadMergeWith
@@ -2938,7 +2943,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                     Print.withIndentIncreasedBy 2
                                         ((case field.maybeCommentsBeforeName of
                                             Nothing ->
-                                                Print.exactly (fieldName ++ " :")
+                                                Print.exactly (field.syntax.name.value ++ " :")
 
                                             Just commentsBeforeName ->
                                                 commentsBeforeName.print
@@ -2946,7 +2951,10 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                                         (Print.spaceOrLinebreakIndented
                                                             commentsBeforeName.lineSpread
                                                         )
-                                                    |> Print.followedBy (Print.exactly (fieldName ++ " :"))
+                                                    |> Print.followedBy
+                                                        (Print.exactly
+                                                            (field.syntax.name.value ++ " :")
+                                                        )
                                          )
                                             |> Print.followedBy
                                                 (Print.withIndentAtNextMultipleOf4
@@ -3142,30 +3150,26 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 fieldPrintsAndComments =
                     (field0 :: field1Up)
                         |> List.foldl
-                            (\(GrenSyntax.Node _ field) soFar ->
+                            (\fieldNode soFar ->
                                 let
-                                    (GrenSyntax.Node fieldNameRange fieldName) =
-                                        field.name
-
-                                    (GrenSyntax.Node fieldValueRange _) =
-                                        field.value
-
                                     commentsBeforeName : List String
                                     commentsBeforeName =
                                         commentsInRange
-                                            { start = soFar.endLocation, end = fieldNameRange.start }
+                                            { start = soFar.endLocation, end = fieldNode.value.name.range.start }
                                             syntaxComments
 
                                     commentsBetweenNameAndValue : List String
                                     commentsBetweenNameAndValue =
                                         commentsInRange
-                                            { start = fieldNameRange.start, end = fieldValueRange.start }
+                                            { start = fieldNode.value.name.range.start, end = fieldNode.value.value.range.start }
                                             syntaxComments
                                 in
-                                { endLocation = fieldValueRange.end
+                                { endLocation = fieldNode.value.value.range.end
                                 , reverse =
-                                    { syntax = field
-                                    , valuePrint = fieldSpecific.printValueNotParenthesized syntaxComments field.value
+                                    { syntax = fieldNode.value
+                                    , valuePrint =
+                                        fieldSpecific.printValueNotParenthesized syntaxComments
+                                            fieldNode.value.value
                                     , maybeCommentsBeforeName =
                                         case commentsBeforeName of
                                             [] ->
@@ -3245,13 +3249,10 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                     field =
                                         fieldPrintAndComment.syntax
 
-                                    (GrenSyntax.Node fieldNameRange fieldName) =
-                                        field.name
-
                                     lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
                                     lineSpreadBetweenNameAndValueNotConsideringComments () =
                                         lineSpreadInRange
-                                            { start = fieldNameRange.start
+                                            { start = field.name.range.start
                                             , end = field.value |> GrenSyntax.nodeRange |> .end
                                             }
                                             |> Print.lineSpreadMergeWith
@@ -3259,7 +3260,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
 
                                     nameSeparatorValuePrint : Print
                                     nameSeparatorValuePrint =
-                                        Print.exactly (fieldName ++ " " ++ fieldSpecific.nameValueSeparator)
+                                        Print.exactly (field.name.value ++ " " ++ fieldSpecific.nameValueSeparator)
                                             |> Print.followedBy
                                                 (Print.withIndentAtNextMultipleOf4
                                                     ((case fieldPrintAndComment.maybeCommentsBetweenNameAndValue of
@@ -3346,8 +3347,8 @@ lineSpreadBetweenRanges earlierRange laterRange =
 
 
 lineSpreadBetweenNodes : GrenSyntax.Node a_ -> GrenSyntax.Node b_ -> Print.LineSpread
-lineSpreadBetweenNodes (GrenSyntax.Node earlierRange _) (GrenSyntax.Node laterRange _) =
-    if laterRange.end.row - earlierRange.start.row == 0 then
+lineSpreadBetweenNodes earlier later =
+    if later.range.end.row - earlier.range.start.row == 0 then
         Print.SingleLine
 
     else
@@ -3355,8 +3356,8 @@ lineSpreadBetweenNodes (GrenSyntax.Node earlierRange _) (GrenSyntax.Node laterRa
 
 
 lineSpreadInNode : GrenSyntax.Node a_ -> Print.LineSpread
-lineSpreadInNode (GrenSyntax.Node range _) =
-    lineSpreadInRange range
+lineSpreadInNode node =
+    lineSpreadInRange node.range
 
 
 typeFunctionNotParenthesized :
@@ -3385,19 +3386,16 @@ typeFunctionNotParenthesized syntaxComments function =
                 |> List.foldl
                     (\afterArrowTypeNode soFar ->
                         let
-                            (GrenSyntax.Node afterArrowTypeRange _) =
-                                afterArrowTypeNode
-
                             print : Print
                             print =
                                 typeParenthesizedIfFunction syntaxComments
                                     afterArrowTypeNode
                         in
-                        { endLocation = afterArrowTypeRange.end
+                        { endLocation = afterArrowTypeNode.range.end
                         , reverse =
                             ((case
                                 commentsInRange
-                                    { start = soFar.endLocation, end = afterArrowTypeRange.start }
+                                    { start = soFar.endLocation, end = afterArrowTypeNode.range.start }
                                     syntaxComments
                               of
                                 [] ->
@@ -3581,28 +3579,28 @@ typeToFunction typeNode =
 typeToNotParenthesized :
     GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
-typeToNotParenthesized (GrenSyntax.Node typeRange syntaxType) =
-    case syntaxType of
+typeToNotParenthesized syntaxTypeNode =
+    case syntaxTypeNode.value of
         GrenSyntax.TypeAnnotationVariable name ->
-            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationVariable name)
+            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationVariable name)
 
         GrenSyntax.TypeAnnotationConstruct reference arguments ->
-            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationConstruct reference arguments)
+            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationConstruct reference arguments)
 
         GrenSyntax.TypeAnnotationUnit ->
-            GrenSyntax.Node typeRange GrenSyntax.TypeAnnotationUnit
+            GrenSyntax.Node syntaxTypeNode.range GrenSyntax.TypeAnnotationUnit
 
         GrenSyntax.TypeAnnotationParenthesized inParens ->
             typeToNotParenthesized inParens
 
         GrenSyntax.TypeAnnotationRecord fields ->
-            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationRecord fields)
+            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationRecord fields)
 
         GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode ->
-            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode)
+            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationRecordExtension extendedRecordVariableName additionalFieldsNode)
 
         GrenSyntax.TypeAnnotationFunction inType outType ->
-            GrenSyntax.Node typeRange (GrenSyntax.TypeAnnotationFunction inType outType)
+            GrenSyntax.Node syntaxTypeNode.range (GrenSyntax.TypeAnnotationFunction inType outType)
 
 
 typeFunctionExpand :
@@ -3613,8 +3611,8 @@ typeFunctionExpand :
         , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
 typeFunctionExpand typeNode =
-    case typeNode of
-        GrenSyntax.Node _ (GrenSyntax.TypeAnnotationFunction inType outType) ->
+    case typeNode.value of
+        GrenSyntax.TypeAnnotationFunction inType outType ->
             let
                 outTypeExpanded :
                     { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
@@ -3627,8 +3625,8 @@ typeFunctionExpand typeNode =
             , rightest = outTypeExpanded.rightest
             }
 
-        typeNodeNotFunction ->
-            { beforeRightest = [], rightest = typeNodeNotFunction }
+        _ ->
+            { beforeRightest = [], rightest = typeNode }
 
 
 typeParenthesizedIfSpaceSeparated :
@@ -3749,8 +3747,8 @@ typeIsSpaceSeparated syntaxType =
         GrenSyntax.TypeAnnotationUnit ->
             False
 
-        GrenSyntax.TypeAnnotationParenthesized (GrenSyntax.Node _ inParens) ->
-            typeIsSpaceSeparated inParens
+        GrenSyntax.TypeAnnotationParenthesized inParensNode ->
+            typeIsSpaceSeparated inParensNode.value
 
         GrenSyntax.TypeAnnotationRecord _ ->
             False
@@ -3768,23 +3766,27 @@ typeNotParenthesized :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
-typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
+typeNotParenthesized syntaxComments syntaxTypeNode =
     -- IGNORE TCO
-    case syntaxType of
+    case syntaxTypeNode.value of
         GrenSyntax.TypeAnnotationUnit ->
             printExactlyCurlyBraceOpeningCurlyBraceClosing
 
         GrenSyntax.TypeAnnotationVariable name ->
             Print.exactly name
 
-        GrenSyntax.TypeAnnotationConstruct (GrenSyntax.Node _ ( referenceQualification, referenceUnqualified )) arguments ->
+        GrenSyntax.TypeAnnotationConstruct referenceNode arguments ->
+            let
+                ( referenceQualification, referenceUnqualified ) =
+                    referenceNode.value
+            in
             construct
                 { printArgumentParenthesizedIfSpaceSeparated =
                     typeParenthesizedIfSpaceSeparated
-                , lineSpreadMinimum = lineSpreadInRange fullRange
+                , lineSpreadMinimum = lineSpreadInRange syntaxTypeNode.range
                 }
                 syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxTypeNode.range
                 , start =
                     qualifiedReference
                         { qualification = referenceQualification
@@ -3797,11 +3799,19 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
-                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
+                    commentsInRange
+                        { start = syntaxTypeNode.range.start
+                        , end = inParens |> GrenSyntax.nodeRange |> .start
+                        }
+                        syntaxComments
 
                 commentsAfterInParens : List String
                 commentsAfterInParens =
-                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
+                    commentsInRange
+                        { start = inParens |> GrenSyntax.nodeRange |> .end
+                        , end = syntaxTypeNode.range.end
+                        }
+                        syntaxComments
             in
             case ( commentsBeforeInParens, commentsAfterInParens ) of
                 ( [], [] ) ->
@@ -3810,7 +3820,7 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
                 _ ->
                     parenthesized typeNotParenthesized
                         { notParenthesized = inParens |> typeToNotParenthesized
-                        , fullRange = fullRange
+                        , fullRange = syntaxTypeNode.range
                         }
                         syntaxComments
 
@@ -3820,17 +3830,20 @@ typeNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxType) =
                 , nameValueSeparator = ":"
                 }
                 syntaxComments
-                { fullRange = fullRange, fields = fields }
+                { fullRange = syntaxTypeNode.range, fields = fields }
 
-        GrenSyntax.TypeAnnotationRecordExtension recordVariable (GrenSyntax.Node _ fields) ->
+        GrenSyntax.TypeAnnotationRecordExtension recordVariable fieldsNode ->
             typeRecordExtension syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxTypeNode.range
                 , recordVariable = recordVariable
-                , fields = fields
+                , fields = fieldsNode.value
                 }
 
         GrenSyntax.TypeAnnotationFunction inType outType ->
-            { fullRange = fullRange, inType = inType, outType = outType }
+            { fullRange = syntaxTypeNode.range
+            , inType = inType
+            , outType = outType
+            }
                 |> typeFunctionNotParenthesized syntaxComments
 
 
@@ -3850,13 +3863,17 @@ declarations context syntaxDeclarations =
             -- invalid syntax
             Print.empty
 
-        (GrenSyntax.Node declaration0Range declaration0) :: declarations1Up ->
+        declaration0Node :: declarations1Up ->
             declaration
                 { comments = context.comments
                 , portDocumentationComment =
-                    case declaration0 of
+                    case declaration0Node.value of
                         GrenSyntax.PortDeclaration _ ->
-                            firstCommentInRange { start = context.previousEnd, end = declaration0Range.start } context.portDocumentationComments
+                            firstCommentInRange
+                                { start = context.previousEnd
+                                , end = declaration0Node.range.start
+                                }
+                                context.portDocumentationComments
 
                         GrenSyntax.ValueOrFunctionDeclaration _ ->
                             Nothing
@@ -3870,17 +3887,21 @@ declarations context syntaxDeclarations =
                         GrenSyntax.InfixDeclaration _ ->
                             Nothing
                 }
-                declaration0
+                declaration0Node.value
                 |> Print.followedBy
                     (declarations1Up
                         |> List.foldl
-                            (\(GrenSyntax.Node declarationRange syntaxDeclaration) soFar ->
+                            (\syntaxDeclarationNode soFar ->
                                 let
                                     maybeDeclarationPortDocumentationComment : Maybe (GrenSyntax.Node String)
                                     maybeDeclarationPortDocumentationComment =
-                                        case syntaxDeclaration of
+                                        case syntaxDeclarationNode.value of
                                             GrenSyntax.PortDeclaration _ ->
-                                                firstCommentInRange { start = soFar.previousRange.end, end = declarationRange.start } context.portDocumentationComments
+                                                firstCommentInRange
+                                                    { start = soFar.previousRange.end
+                                                    , end = syntaxDeclarationNode.range.start
+                                                    }
+                                                    context.portDocumentationComments
 
                                             GrenSyntax.ValueOrFunctionDeclaration _ ->
                                                 Nothing
@@ -3897,7 +3918,13 @@ declarations context syntaxDeclarations =
                                 { print =
                                     soFar.print
                                         |> Print.followedBy
-                                            (case commentsInRange { start = soFar.previousRange.end, end = declarationRange.start } context.comments of
+                                            (case
+                                                commentsInRange
+                                                    { start = soFar.previousRange.end
+                                                    , end = syntaxDeclarationNode.range.start
+                                                    }
+                                                    context.comments
+                                             of
                                                 comment0 :: comment1Up ->
                                                     printLinebreakLinebreakLinebreak
                                                         |> Print.followedBy
@@ -3906,24 +3933,28 @@ declarations context syntaxDeclarations =
                                                             )
                                                         |> Print.followedBy
                                                             (declaration
-                                                                { comments = commentNodesInRange declarationRange context.comments
+                                                                { comments =
+                                                                    commentNodesInRange syntaxDeclarationNode.range
+                                                                        context.comments
                                                                 , portDocumentationComment = maybeDeclarationPortDocumentationComment
                                                                 }
-                                                                syntaxDeclaration
+                                                                syntaxDeclarationNode.value
                                                             )
 
                                                 [] ->
                                                     linebreaksFollowedByDeclaration
-                                                        { comments = commentNodesInRange declarationRange context.comments
+                                                        { comments =
+                                                            commentNodesInRange syntaxDeclarationNode.range
+                                                                context.comments
                                                         , portDocumentationComment = maybeDeclarationPortDocumentationComment
                                                         }
-                                                        syntaxDeclaration
+                                                        syntaxDeclarationNode.value
                                             )
-                                , previousRange = declarationRange
+                                , previousRange = syntaxDeclarationNode.range
                                 }
                             )
                             { print = Print.empty
-                            , previousRange = declaration0Range
+                            , previousRange = declaration0Node.range
                             }
                         |> .print
                     )
@@ -3938,24 +3969,24 @@ firstCommentInRange range sortedComments =
         [] ->
             Nothing
 
-        (GrenSyntax.Node headCommentRange headComment) :: tailComments ->
-            case locationCompareFast headCommentRange.start range.start of
+        headCommentNode :: tailComments ->
+            case locationCompareFast headCommentNode.range.start range.start of
                 LT ->
                     firstCommentInRange range tailComments
 
                 EQ ->
-                    Just (GrenSyntax.Node headCommentRange headComment)
+                    Just headCommentNode
 
                 GT ->
-                    case locationCompareFast headCommentRange.end range.end of
+                    case locationCompareFast headCommentNode.range.end range.end of
                         GT ->
                             Nothing
 
                         LT ->
-                            Just (GrenSyntax.Node headCommentRange headComment)
+                            Just headCommentNode
 
                         EQ ->
-                            Just (GrenSyntax.Node headCommentRange headComment)
+                            Just headCommentNode
 
 
 locationCompareFast : GrenSyntax.Location -> GrenSyntax.Location -> Basics.Order
@@ -4104,13 +4135,13 @@ declarationPort syntaxComments signature =
         Nothing ->
             printExactlyPortSpace
 
-        Just (GrenSyntax.Node documentationRange documentation) ->
-            Print.exactly documentation
+        Just documentationNode ->
+            Print.exactly documentationNode.value
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
                     (commentsBetweenDocumentationAndDeclaration
                         (commentsInRange
-                            { start = documentationRange.start
+                            { start = documentationNode.range.start
                             , end =
                                 signature.name
                                     |> GrenSyntax.nodeRange
@@ -4212,13 +4243,13 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
         Nothing ->
             printExactlyTypeSpaceAlias
 
-        Just (GrenSyntax.Node documentationRange documentation) ->
-            Print.exactly documentation
+        Just documentationNode ->
+            Print.exactly documentationNode.value
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
                     (commentsBetweenDocumentationAndDeclaration
                         (commentsInRange
-                            { start = documentationRange.start
+                            { start = documentationNode.range.start
                             , end =
                                 syntaxTypeAliasDeclaration.name
                                     |> GrenSyntax.nodeRange
@@ -4329,7 +4360,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
         variantPrintsWithCommentsBeforeReverse =
             syntaxChoiceTypeDeclaration.constructors
                 |> List.foldl
-                    (\(GrenSyntax.Node variantRange variant) soFar ->
+                    (\variantNode soFar ->
                         let
                             variantPrint : Print
                             variantPrint =
@@ -4339,10 +4370,10 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                     , lineSpreadMinimum = Print.SingleLine
                                     }
                                     syntaxComments
-                                    { start = variant.name |> GrenSyntax.nodeValue
-                                    , fullRange = variantRange
+                                    { start = variantNode.value.name |> GrenSyntax.nodeValue
+                                    , fullRange = variantNode.range
                                     , arguments =
-                                        case variant.value of
+                                        case variantNode.value.value of
                                             Nothing ->
                                                 []
 
@@ -4352,7 +4383,13 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
 
                             commentsVariantPrint : Print
                             commentsVariantPrint =
-                                case commentsInRange { start = soFar.endLocation, end = variant.name |> GrenSyntax.nodeRange |> .start } syntaxComments of
+                                case
+                                    commentsInRange
+                                        { start = soFar.endLocation
+                                        , end = variantNode.value.name |> GrenSyntax.nodeRange |> .start
+                                        }
+                                        syntaxComments
+                                of
                                     [] ->
                                         variantPrint
 
@@ -4373,7 +4410,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                             |> Print.followedBy variantPrint
                         in
                         { reverse = commentsVariantPrint :: soFar.reverse
-                        , endLocation = variantRange.end
+                        , endLocation = variantNode.range.end
                         }
                     )
                     { reverse = []
@@ -4385,13 +4422,13 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
         Nothing ->
             printExactlyType
 
-        Just (GrenSyntax.Node documentationRange documentation) ->
-            Print.exactly documentation
+        Just documentationNode ->
+            Print.exactly documentationNode.value
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
                     (commentsBetweenDocumentationAndDeclaration
                         (commentsInRange
-                            { start = documentationRange.start
+                            { start = documentationNode.range.start
                             , end =
                                 syntaxChoiceTypeDeclaration.name
                                     |> GrenSyntax.nodeRange
@@ -4606,12 +4643,12 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
                 Nothing ->
                     implementationPrint
 
-                Just (GrenSyntax.Node signatureRange signature) ->
+                Just signatureNode ->
                     let
                         commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
                             commentsInRange
-                                { start = signatureRange.end
+                                { start = signatureNode.range.end
                                 , end =
                                     syntaxExpressionDeclaration.declaration
                                         |> GrenSyntax.nodeRange
@@ -4619,7 +4656,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
                                 }
                                 syntaxComments
                     in
-                    declarationSignature syntaxComments signature
+                    declarationSignature syntaxComments signatureNode.value
                         |> Print.followedBy Print.linebreak
                         |> Print.followedBy
                             (case commentsBetweenSignatureAndImplementationName of
@@ -4638,20 +4675,20 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
         Nothing ->
             withoutDocumentationPrint
 
-        Just (GrenSyntax.Node documentationRange documentation) ->
-            Print.exactly documentation
+        Just documentationNode ->
+            Print.exactly documentationNode.value
                 |> Print.followedBy Print.linebreak
                 |> Print.followedBy
                     (commentsBetweenDocumentationAndDeclaration
                         (commentsInRange
-                            { start = documentationRange.start
+                            { start = documentationNode.range.start
                             , end =
                                 case syntaxExpressionDeclaration.signature of
                                     Nothing ->
                                         syntaxExpressionDeclaration.declaration |> GrenSyntax.nodeRange |> .start
 
-                                    Just (GrenSyntax.Node signatureRange _) ->
-                                        signatureRange.start
+                                    Just signatureNode ->
+                                        signatureNode.range.start
                             }
                             syntaxComments
                         )
@@ -4683,9 +4720,9 @@ expressionIsSpaceSeparated syntaxExpression =
                     -- invalid syntax
                     False
 
-                [ GrenSyntax.Node _ notActuallyApplied ] ->
+                [ notActuallyAppliedNode ] ->
                     -- invalid syntax
-                    expressionIsSpaceSeparated notActuallyApplied
+                    expressionIsSpaceSeparated notActuallyAppliedNode.value
 
                 _ :: _ :: _ ->
                     True
@@ -4720,8 +4757,8 @@ expressionIsSpaceSeparated syntaxExpression =
         GrenSyntax.ExpressionChar _ ->
             False
 
-        GrenSyntax.ExpressionParenthesized (GrenSyntax.Node _ inParens) ->
-            expressionIsSpaceSeparated inParens
+        GrenSyntax.ExpressionParenthesized inParensNode ->
+            expressionIsSpaceSeparated inParensNode.value
 
         GrenSyntax.ExpressionLetIn _ ->
             True
@@ -4766,9 +4803,9 @@ expressionNotParenthesized :
     List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
-expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpression) =
+expressionNotParenthesized syntaxComments syntaxExpressionNode =
     -- IGNORE TCO
-    case syntaxExpression of
+    case syntaxExpressionNode.value of
         GrenSyntax.ExpressionUnit ->
             printExactlyCurlyBraceOpeningCurlyBraceClosing
 
@@ -4784,7 +4821,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
                 applied :: argument0 :: argument1Up ->
                     expressionCall syntaxComments
-                        { fullRange = fullRange
+                        { fullRange = syntaxExpressionNode.range
                         , applied = applied
                         , argument0 = argument0
                         , argument1Up = argument1Up
@@ -4792,7 +4829,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionInfixOperation operator left right ->
             expressionOperation syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxExpressionNode.range
                 , operator = operator
                 , left = left
                 , right = right
@@ -4804,7 +4841,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionIfThenElse condition onTrue onFalse ->
             expressionIfThenElse syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxExpressionNode.range
                 , condition = condition
                 , conditionLineSpreadMinimum = Print.SingleLine
                 , onTrue = onTrue
@@ -4836,11 +4873,19 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
             let
                 commentsBeforeInParens : List String
                 commentsBeforeInParens =
-                    commentsInRange { start = fullRange.start, end = inParens |> GrenSyntax.nodeRange |> .start } syntaxComments
+                    commentsInRange
+                        { start = syntaxExpressionNode.range.start
+                        , end = inParens |> GrenSyntax.nodeRange |> .start
+                        }
+                        syntaxComments
 
                 commentsAfterInParens : List String
                 commentsAfterInParens =
-                    commentsInRange { start = inParens |> GrenSyntax.nodeRange |> .end, end = fullRange.end } syntaxComments
+                    commentsInRange
+                        { start = inParens |> GrenSyntax.nodeRange |> .end
+                        , end = syntaxExpressionNode.range.end
+                        }
+                        syntaxComments
             in
             case ( commentsBeforeInParens, commentsAfterInParens ) of
                 ( [], [] ) ->
@@ -4849,7 +4894,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 _ ->
                     parenthesized expressionNotParenthesized
                         { notParenthesized = inParens |> expressionToNotParenthesized
-                        , fullRange = fullRange
+                        , fullRange = syntaxExpressionNode.range
                         }
                         syntaxComments
 
@@ -4861,7 +4906,7 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
                 letDeclaration0 :: letDeclaration1Up ->
                     expressionLetIn syntaxComments
-                        { fullRange = fullRange
+                        { fullRange = syntaxExpressionNode.range
                         , letDeclaration0 = letDeclaration0
                         , letDeclaration1Up = letDeclaration1Up
                         , result = syntaxLetIn.result
@@ -4869,13 +4914,14 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
 
         GrenSyntax.ExpressionCaseOf syntaxCaseOf ->
             expressionCaseOf syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxExpressionNode.range
                 , expression = syntaxCaseOf.expression
                 , cases = syntaxCaseOf.cases
                 }
 
         GrenSyntax.ExpressionLambda syntaxLambda ->
-            expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda)
+            expressionLambda syntaxComments
+                (GrenSyntax.Node syntaxExpressionNode.range syntaxLambda)
 
         GrenSyntax.ExpressionRecord fields ->
             recordLiteral
@@ -4883,21 +4929,27 @@ expressionNotParenthesized syntaxComments (GrenSyntax.Node fullRange syntaxExpre
                 , nameValueSeparator = "="
                 }
                 syntaxComments
-                { fullRange = fullRange, fields = fields }
+                { fullRange = syntaxExpressionNode.range
+                , fields = fields
+                }
 
         GrenSyntax.ExpressionArray elements ->
-            expressionList syntaxComments { fullRange = fullRange, elements = elements }
+            expressionList syntaxComments
+                { fullRange = syntaxExpressionNode.range
+                , elements = elements
+                }
 
-        GrenSyntax.ExpressionRecordAccess syntaxRecord (GrenSyntax.Node _ accessedFieldName) ->
+        GrenSyntax.ExpressionRecordAccess syntaxRecord accessedFieldNameNode ->
             expressionParenthesizedIfSpaceSeparated syntaxComments syntaxRecord
-                |> Print.followedBy (Print.exactly ("." ++ accessedFieldName))
+                |> Print.followedBy
+                    (Print.exactly ("." ++ accessedFieldNameNode.value))
 
         GrenSyntax.ExpressionRecordAccessFunction dotFieldName ->
             Print.exactly ("." ++ (dotFieldName |> String.replace "." ""))
 
         GrenSyntax.ExpressionRecordUpdate recordNode fields ->
             expressionRecordUpdate syntaxComments
-                { fullRange = fullRange
+                { fullRange = syntaxExpressionNode.range
                 , record = recordNode
                 , fields = fields
                 }
@@ -4915,19 +4967,25 @@ printExpressionNegation syntaxComments negated =
         printExactlyZeroXZeroZero
 
     else
-        case negated |> expressionToNotParenthesized of
-            GrenSyntax.Node doublyNegatedRange (GrenSyntax.ExpressionNegation doublyNegated) ->
+        let
+            negatedNotParenthesized =
+                negated |> expressionToNotParenthesized
+        in
+        case negatedNotParenthesized.value of
+            GrenSyntax.ExpressionNegation doublyNegated ->
                 printExactlyMinus
                     |> Print.followedBy
                         (expressionParenthesized syntaxComments
-                            (GrenSyntax.Node doublyNegatedRange (GrenSyntax.ExpressionNegation doublyNegated))
+                            (GrenSyntax.Node negatedNotParenthesized.range
+                                (GrenSyntax.ExpressionNegation doublyNegated)
+                            )
                         )
 
-            negatedNotNegationOrIntegerZero ->
+            _ ->
                 printExactlyMinus
                     |> Print.followedBy
                         (expressionParenthesizedIfSpaceSeparated syntaxComments
-                            negatedNotNegationOrIntegerZero
+                            negatedNotParenthesized
                         )
 
 
@@ -5402,8 +5460,8 @@ expressionOperationExpand left operator right =
             , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
             }
         rightExpanded =
-            case right of
-                GrenSyntax.Node _ (GrenSyntax.ExpressionInfixOperation rightOperator rightLeft rightRight) ->
+            case right.value of
+                GrenSyntax.ExpressionInfixOperation rightOperator rightLeft rightRight ->
                     let
                         rightOperationExpanded :
                             { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5425,14 +5483,14 @@ expressionOperationExpand left operator right =
                     , rightestExpression = rightOperationExpanded.rightestExpression
                     }
 
-                rightNotOperation ->
+                _ ->
                     { beforeRightestOperatorExpressionChain = []
                     , rightestOperator = operator
-                    , rightestExpression = rightNotOperation
+                    , rightestExpression = right
                     }
     in
-    case left of
-        GrenSyntax.Node _ (GrenSyntax.ExpressionInfixOperation leftOperator leftLeft leftRight) ->
+    case left.value of
+        GrenSyntax.ExpressionInfixOperation leftOperator leftLeft leftRight ->
             let
                 leftOperationExpanded :
                     { leftest : GrenSyntax.Node GrenSyntax.Expression
@@ -5459,8 +5517,8 @@ expressionOperationExpand left operator right =
             , rightestExpression = rightExpanded.rightestExpression
             }
 
-        leftNotOperation ->
-            { leftest = leftNotOperation
+        _ ->
+            { leftest = left
             , beforeRightestOperatorExpressionChain = rightExpanded.beforeRightestOperatorExpressionChain
             , rightestOperator = rightExpanded.rightestOperator
             , rightestExpression = rightExpanded.rightestExpression
@@ -5470,8 +5528,8 @@ expressionOperationExpand left operator right =
 expressionIsSpaceSeparatedExceptApplication : GrenSyntax.Node GrenSyntax.Expression -> Bool
 expressionIsSpaceSeparatedExceptApplication expressionNode =
     if expressionIsSpaceSeparated (expressionNode |> GrenSyntax.nodeValue) then
-        case expressionNode |> expressionToNotParenthesized of
-            GrenSyntax.Node _ (GrenSyntax.ExpressionCall _) ->
+        case expressionNode |> expressionToNotParenthesized |> .value of
+            GrenSyntax.ExpressionCall _ ->
                 False
 
             _ ->
@@ -5555,18 +5613,15 @@ expressionList syntaxComments syntaxList =
                         |> List.foldl
                             (\elementNode soFar ->
                                 let
-                                    (GrenSyntax.Node elementRange _) =
-                                        elementNode
-
                                     print : Print
                                     print =
                                         expressionNotParenthesized syntaxComments
                                             elementNode
                                 in
-                                { endLocation = elementRange.end
+                                { endLocation = elementNode.range.end
                                 , reverse =
                                     (case
-                                        commentsInRange { start = soFar.endLocation, end = elementRange.start }
+                                        commentsInRange { start = soFar.endLocation, end = elementNode.range.start }
                                             syntaxComments
                                      of
                                         [] ->
@@ -5666,28 +5721,23 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
         fieldPrintsWithCommentsBefore =
             syntaxRecordUpdate.fields
                 |> List.foldl
-                    (\(GrenSyntax.Node _ fieldSyntax) soFar ->
+                    (\fieldSyntaxNode soFar ->
                         let
-                            (GrenSyntax.Node fieldNameRange fieldName) =
-                                fieldSyntax.name
-
                             valuePrint : Print
                             valuePrint =
-                                expressionNotParenthesized syntaxComments fieldSyntax.value
-
-                            (GrenSyntax.Node fieldValueRange _) =
-                                fieldSyntax.value
+                                expressionNotParenthesized syntaxComments
+                                    fieldSyntaxNode.value.value
                         in
-                        { endLocation = fieldValueRange.end
+                        { endLocation = fieldSyntaxNode.value.value.range.end
                         , reverse =
                             (Print.withIndentIncreasedBy 2
                                 (case
                                     commentsInRange
-                                        { start = soFar.endLocation, end = fieldNameRange.start }
+                                        { start = soFar.endLocation, end = fieldSyntaxNode.value.name.range.start }
                                         syntaxComments
                                  of
                                     [] ->
-                                        Print.exactly (fieldName ++ " =")
+                                        Print.exactly (fieldSyntaxNode.value.name.value ++ " =")
 
                                     comment0 :: comment1Up ->
                                         let
@@ -5698,20 +5748,20 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                         commentsBeforeName.print
                                             |> Print.followedBy
                                                 (Print.spaceOrLinebreakIndented commentsBeforeName.lineSpread)
-                                            |> Print.followedBy (Print.exactly (fieldName ++ " ="))
+                                            |> Print.followedBy (Print.exactly (fieldSyntaxNode.value.name.value ++ " ="))
                                 )
                                 |> Print.followedBy
                                     (Print.withIndentAtNextMultipleOf4
                                         ((case
                                             commentsInRange
-                                                { start = fieldNameRange.start, end = fieldValueRange.start }
+                                                { start = fieldSyntaxNode.value.name.range.start, end = fieldSyntaxNode.value.value.range.start }
                                                 syntaxComments
                                           of
                                             [] ->
                                                 Print.spaceOrLinebreakIndented
                                                     (lineSpreadBetweenRanges
-                                                        fieldNameRange
-                                                        fieldValueRange
+                                                        fieldSyntaxNode.value.name.range
+                                                        fieldSyntaxNode.value.value.range
                                                         |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                     )
 
@@ -5728,8 +5778,8 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                                 |> Print.lineSpreadMergeWith
                                                                     (\() ->
                                                                         lineSpreadBetweenRanges
-                                                                            fieldNameRange
-                                                                            fieldValueRange
+                                                                            fieldSyntaxNode.value.name.range
+                                                                            fieldSyntaxNode.value.value.range
                                                                     )
                                                                 |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                             )
@@ -5852,14 +5902,14 @@ expressionLambda :
             , result : GrenSyntax.Node GrenSyntax.Expression
             }
     -> Print
-expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
+expressionLambda syntaxComments syntaxLambdaNode =
     let
         parameterPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
             , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
-            syntaxLambda.parameters
+            syntaxLambdaNode.value.parameters
                 |> List.foldl
                     (\parameterPattern soFar ->
                         let
@@ -5901,14 +5951,14 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
                         }
                     )
                     { reverse = []
-                    , endLocation = fullRange.start
+                    , endLocation = syntaxLambdaNode.range.start
                     }
 
         commentsBeforeResult : List String
         commentsBeforeResult =
             commentsInRange
                 { start = parameterPrintsWithCommentsBefore.endLocation
-                , end = syntaxLambda.result |> GrenSyntax.nodeRange |> .start
+                , end = syntaxLambdaNode.value.result |> GrenSyntax.nodeRange |> .start
                 }
                 syntaxComments
 
@@ -5920,7 +5970,7 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
         resultPrint : Print
         resultPrint =
             expressionNotParenthesized syntaxComments
-                syntaxLambda.result
+                syntaxLambdaNode.value.result
     in
     printExactlyBackSlash
         |> Print.followedBy
@@ -5942,7 +5992,7 @@ expressionLambda syntaxComments (GrenSyntax.Node fullRange syntaxLambda) =
                                     (parametersLineSpread
                                         |> Print.lineSpreadMergeWith
                                             (\() ->
-                                                lineSpreadInRange fullRange
+                                                lineSpreadInRange syntaxLambdaNode.range
                                             )
                                         |> Print.lineSpreadMergeWith
                                             (\() -> resultPrint |> Print.lineSpread)
@@ -6069,14 +6119,14 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         |> Print.followedBy Print.linebreakIndented
         |> Print.followedBy printExactlyElse
         |> Print.followedBy
-            (case ( commentsBeforeOnFalseNotParenthesizedInParens, onFalseNotParenthesized ) of
-                ( [], GrenSyntax.Node onFalseNotParenthesizedRange (GrenSyntax.ExpressionIfThenElse onFalseCondition onFalseOnTrue onFalseOnFalse) ) ->
+            (case ( commentsBeforeOnFalseNotParenthesizedInParens, onFalseNotParenthesized.value ) of
+                ( [], GrenSyntax.ExpressionIfThenElse onFalseCondition onFalseOnTrue onFalseOnFalse ) ->
                     case commentsBeforeOnFalse of
                         [] ->
                             printExactlySpace
                                 |> Print.followedBy
                                     (expressionIfThenElse syntaxComments
-                                        { fullRange = onFalseNotParenthesizedRange
+                                        { fullRange = onFalseNotParenthesized.range
                                         , condition = onFalseCondition
                                         , conditionLineSpreadMinimum = Print.SingleLine
                                         , onTrue = onFalseOnTrue
@@ -6091,7 +6141,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
                                 |> Print.followedBy Print.linebreakIndented
                                 |> Print.followedBy
                                     (expressionIfThenElse syntaxComments
-                                        { fullRange = onFalseNotParenthesizedRange
+                                        { fullRange = onFalseNotParenthesized.range
                                         , conditionLineSpreadMinimum =
                                             -- don't ask me why
                                             Print.MultipleLines
@@ -6239,19 +6289,20 @@ expressionLetIn syntaxComments syntaxLetIn =
         letDeclarationPrints =
             (syntaxLetIn.letDeclaration0 :: syntaxLetIn.letDeclaration1Up)
                 |> List.foldl
-                    (\(GrenSyntax.Node letDeclarationRange letDeclaration) soFar ->
+                    (\letDeclarationNode soFar ->
                         let
                             commentsBefore : List String
                             commentsBefore =
                                 commentsInRange
                                     { start = soFar.endLocation
-                                    , end = letDeclarationRange.start
+                                    , end = letDeclarationNode.range.start
                                     }
                                     syntaxComments
 
                             letDeclarationPrint : Print
                             letDeclarationPrint =
-                                expressionLetDeclaration syntaxComments letDeclaration
+                                expressionLetDeclaration syntaxComments
+                                    letDeclarationNode.value
 
                             letDeclarationWithCommentsBeforePrint : Print
                             letDeclarationWithCommentsBeforePrint =
@@ -6264,7 +6315,7 @@ expressionLetIn syntaxComments syntaxLetIn =
                                             |> Print.followedBy Print.linebreakIndented
                                             |> Print.followedBy letDeclarationPrint
                         in
-                        { endLocation = letDeclarationRange.end
+                        { endLocation = letDeclarationNode.range.end
                         , reverse =
                             letDeclarationWithCommentsBeforePrint :: soFar.reverse
                         }
@@ -6329,12 +6380,12 @@ expressionLetDeclaration syntaxComments letDeclaration =
                 Nothing ->
                     implementationPrint
 
-                Just (GrenSyntax.Node signatureRange signature) ->
+                Just signatureNode ->
                     let
                         commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
                             commentsInRange
-                                { start = signatureRange.end
+                                { start = signatureNode.range.end
                                 , end =
                                     letDeclarationExpression.declaration
                                         |> GrenSyntax.nodeRange
@@ -6342,7 +6393,7 @@ expressionLetDeclaration syntaxComments letDeclaration =
                                 }
                                 syntaxComments
                     in
-                    declarationSignature syntaxComments signature
+                    declarationSignature syntaxComments signatureNode.value
                         |> Print.followedBy
                             (case commentsBetweenSignatureAndImplementationName of
                                 [] ->
@@ -6399,14 +6450,14 @@ expressionLetDeclaration syntaxComments letDeclaration =
 expressionToNotParenthesized :
     GrenSyntax.Node GrenSyntax.Expression
     -> GrenSyntax.Node GrenSyntax.Expression
-expressionToNotParenthesized (GrenSyntax.Node fullRange syntaxExpression) =
+expressionToNotParenthesized syntaxExpressionNode =
     -- IGNORE TCO
-    case syntaxExpression of
+    case syntaxExpressionNode.value of
         GrenSyntax.ExpressionParenthesized inParens ->
             inParens |> expressionToNotParenthesized
 
         syntaxExpressionNotParenthesized ->
-            GrenSyntax.Node fullRange syntaxExpressionNotParenthesized
+            GrenSyntax.Node syntaxExpressionNode.range syntaxExpressionNotParenthesized
 
 
 {-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)

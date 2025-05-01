@@ -3,10 +3,8 @@ module GrenSyntax exposing
     , DefaultModuleData, EffectModuleData, Module(..)
     , Exposing(..), TopLevelExpose(..), ExposedType
     , Declaration(..), ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection(..)
-    , Pattern(..), Expression(..), LetDeclaration(..)
-    , StringQuotingStyle(..)
-    , TypeAnnotation(..)
-    , Range, Location, Node(..), nodeCombine, nodeMap, nodeRange, nodeValue
+    , Pattern(..), Expression(..), LetDeclaration(..), StringQuotingStyle(..), TypeAnnotation(..)
+    , Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
     )
 
 {-| Gren syntax tree
@@ -15,9 +13,7 @@ module GrenSyntax exposing
 @docs DefaultModuleData, EffectModuleData, Module
 @docs Exposing, TopLevelExpose, ExposedType
 @docs Declaration, ValueOrFunctionDeclarationInfo, ChoiceTypeDeclarationInfo, TypeAliasDeclarationInfo, InfixDeclarationInfo, InfixDirection
-@docs Pattern, Expression, LetDeclaration
-@docs StringQuotingStyle
-@docs TypeAnnotation
+@docs Pattern, Expression, LetDeclaration, StringQuotingStyle, TypeAnnotation
 @docs Range, Location, Node, nodeCombine, nodeMap, nodeRange, nodeValue
 
 -}
@@ -396,38 +392,38 @@ The purpose of this type is to add the information of the [`Range`](#Range), i.e
 element of the tree was found.
 
 -}
-type Node a
-    = Node Range a
+type alias Node a =
+    { range : Range, value : a }
 
 
 {-| Combine two nodes, constructing a new node which will have the outer most range of the child nodes
 -}
 nodeCombine : (Node a -> Node b -> c) -> Node a -> Node b -> Node c
-nodeCombine f ((Node aRange _) as a) ((Node bRange _) as b) =
+nodeCombine f a b =
     Node
-        { start = aRange.start, end = bRange.end }
+        { start = a.range.start, end = b.range.end }
         (f a b)
 
 
 {-| Map the value within a node leaving the range untouched
 -}
 nodeMap : (a -> b) -> Node a -> Node b
-nodeMap f (Node r a) =
-    Node r (f a)
+nodeMap f node =
+    { range = node.range, value = f node.value }
 
 
 {-| Extract the range out of a `Node a`
 -}
 nodeRange : Node a -> Range
-nodeRange (Node r _) =
-    r
+nodeRange node =
+    node.range
 
 
 {-| Extract the value (`a`) out of a `Node a`
 -}
 nodeValue : Node a -> a
-nodeValue (Node _ v) =
-    v
+nodeValue node =
+    node.value
 
 
 {-| Source location
