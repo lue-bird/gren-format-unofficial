@@ -39,12 +39,12 @@ they are.
 
 -}
 type Print
-    = Exact String ()
-    | FollowedBy Print Print
-    | Linebreak () ()
-    | LinebreakIndented () ()
-    | WithIndentIncreasedBy Int Print
-    | WithIndentAtNextMultipleOf4 Print ()
+    = Exact String
+    | FollowedBy { earlier : Print, later : Print }
+    | Linebreak
+    | LinebreakIndented
+    | WithIndentIncreasedBy { indentIncrease : Int, print : Print }
+    | WithIndentAtNextMultipleOf4 Print
 
 
 {-| Convert to a String with no extra indentation
@@ -66,36 +66,36 @@ toStringWithIndentAndLinebreakIndentAsStringWithRight : Int -> String -> String 
 toStringWithIndentAndLinebreakIndentAsStringWithRight indentIgnoringMultiplesOfBy4 linebreakIndentAsString right print =
     -- IGNORE TCO
     case print of
-        Exact string () ->
+        Exact string ->
             string ++ right ++ ""
 
-        FollowedBy b a ->
+        FollowedBy parts ->
             toStringWithIndentAndLinebreakIndentAsStringWithRight indentIgnoringMultiplesOfBy4
                 linebreakIndentAsString
                 (toStringWithIndentAndLinebreakIndentAsStringWithRight indentIgnoringMultiplesOfBy4
                     linebreakIndentAsString
                     right
-                    b
+                    parts.later
                 )
-                a
+                parts.earlier
 
-        Linebreak () () ->
+        Linebreak ->
             "\n" ++ right
 
-        LinebreakIndented () () ->
+        LinebreakIndented ->
             linebreakIndentAsString ++ right ++ ""
 
-        WithIndentIncreasedBy increase innerPrint ->
+        WithIndentIncreasedBy indented ->
             toStringWithIndentAndLinebreakIndentAsStringWithRight
-                (indentIgnoringMultiplesOfBy4 + increase + 0)
+                (indentIgnoringMultiplesOfBy4 + indented.indentIncrease + 0)
                 (linebreakIndentAsString
-                    ++ indentAtMost4 increase
+                    ++ indentAtMost4 indented.indentIncrease
                     ++ ""
                 )
                 right
-                innerPrint
+                indented.print
 
-        WithIndentAtNextMultipleOf4 innerPrint () ->
+        WithIndentAtNextMultipleOf4 innerPrint ->
             toStringWithIndentAndLinebreakIndentAsStringWithRight
                 0
                 (linebreakIndentAsString
@@ -147,29 +147,29 @@ take up if turned into a string?
 lineSpread : Print -> LineSpread
 lineSpread print =
     case print of
-        Exact _ () ->
+        Exact _ ->
             SingleLine
 
-        FollowedBy b a ->
-            lineSpreadWithRemaining a [ b ]
+        FollowedBy parts ->
+            lineSpreadWithRemaining parts.earlier [ parts.later ]
 
-        Linebreak () () ->
+        Linebreak ->
             MultipleLines
 
-        LinebreakIndented () () ->
+        LinebreakIndented ->
             MultipleLines
 
-        WithIndentIncreasedBy _ innerPrint ->
-            lineSpread innerPrint
+        WithIndentIncreasedBy indented ->
+            lineSpread indented.print
 
-        WithIndentAtNextMultipleOf4 innerPrint () ->
+        WithIndentAtNextMultipleOf4 innerPrint ->
             lineSpread innerPrint
 
 
 lineSpreadWithRemaining : Print -> List Print -> LineSpread
 lineSpreadWithRemaining print remainingPrints =
     case print of
-        Exact _ () ->
+        Exact _ ->
             case remainingPrints of
                 [] ->
                     SingleLine
@@ -177,19 +177,19 @@ lineSpreadWithRemaining print remainingPrints =
                 nextPrint :: nextRemainingPrints ->
                     lineSpreadWithRemaining nextPrint nextRemainingPrints
 
-        FollowedBy b a ->
-            lineSpreadWithRemaining a (b :: remainingPrints)
+        FollowedBy parts ->
+            lineSpreadWithRemaining parts.earlier (parts.later :: remainingPrints)
 
-        Linebreak () () ->
+        Linebreak ->
             MultipleLines
 
-        LinebreakIndented () () ->
+        LinebreakIndented ->
             MultipleLines
 
-        WithIndentIncreasedBy _ innerPrint ->
-            lineSpreadWithRemaining innerPrint remainingPrints
+        WithIndentIncreasedBy indented ->
+            lineSpreadWithRemaining indented.print remainingPrints
 
-        WithIndentAtNextMultipleOf4 innerPrint () ->
+        WithIndentAtNextMultipleOf4 innerPrint ->
             lineSpreadWithRemaining innerPrint remainingPrints
 
 
@@ -203,8 +203,8 @@ Do not include linebreaks here and instead use [`linebreak`](#linebreak)
 
 -}
 exactly : String -> Print
-exactly exactNextString =
-    Exact exactNextString ()
+exactly =
+    Exact
 
 
 {-| `exactly ""`.
@@ -239,7 +239,7 @@ Usually followed by [`Print.linebreakIndented`](#linebreakIndented)
 -}
 linebreak : Print
 linebreak =
-    Linebreak () ()
+    Linebreak
 
 
 {-| Prepend a given [`Print`](#Print)
@@ -253,8 +253,8 @@ To append more than 2, use [`Print.listMapAndFlatten`](#listMapAndFlatten)
 
 -}
 followedBy : Print -> Print -> Print
-followedBy =
-    FollowedBy
+followedBy later earlier =
+    FollowedBy { earlier = earlier, later = later }
 
 
 {-| Concatenate a given list of [`Print`](#Print)s
@@ -419,8 +419,9 @@ and [`Print.emptyOrLinebreakIndented`](#emptyOrLinebreakIndented)
 to the current indent + a given number.
 -}
 withIndentIncreasedBy : Int -> Print -> Print
-withIndentIncreasedBy =
+withIndentIncreasedBy indentIncrease print =
     WithIndentIncreasedBy
+        { indentIncrease = indentIncrease, print = print }
 
 
 {-| Set the indentation used by [`Print.linebreakIndented`](#linebreakIndented),
@@ -429,8 +430,8 @@ and [`Print.emptyOrLinebreakIndented`](#emptyOrLinebreakIndented)
 to the current indent minus its remainder by 4 + 4.
 -}
 withIndentAtNextMultipleOf4 : Print -> Print
-withIndentAtNextMultipleOf4 print =
-    WithIndentAtNextMultipleOf4 print ()
+withIndentAtNextMultipleOf4 =
+    WithIndentAtNextMultipleOf4
 
 
 {-| All on the same line or split across multiple?
@@ -539,4 +540,4 @@ and [`withIndentAtNextMultipleOf4`](#withIndentAtNextMultipleOf4)
 -}
 linebreakIndented : Print
 linebreakIndented =
-    LinebreakIndented () ()
+    LinebreakIndented
