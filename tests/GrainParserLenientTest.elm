@@ -11,10 +11,10 @@ all : Test.Test
 all =
     Test.concat
         [ Test.describe "FileTests"
-            (Array.map
+            (List.map
                 (\( n, s ) ->
                     Test.test ("sample " ++ String.fromInt n)
-                        (\{} ->
+                        (\() ->
                             case GrenParserLenient.run GrenParserLenient.module_ s of
                                 Nothing ->
                                     Expect.fail "failed to parse"
@@ -41,9 +41,8 @@ all =
             )
         , Test.describe "layout"
             [ Test.test "positively indented across multiple linebreaks and comments"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
         --x
         {- foo 
 -}
@@ -54,17 +53,15 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "positively indented, too few spaces"
-                (\{} ->
-                    """
-a = f
+                (\() ->
+                    """a = f
 0"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
                         |> Expect.equal Nothing
                 )
             , Test.test "top indented across multiple linebreaks and comments"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         b = 0
 
@@ -81,9 +78,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "top indented, too many spaces"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         b = 0
          c = 0
@@ -94,30 +90,30 @@ a =
                 )
             , Test.describe "comment"
                 [ Test.test "singleLineComment"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.singleLineComment "--bar"
                             |> Expect.equal
                                 (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }, value = "--bar" })
                     )
                 , Test.test "singleLineComment state"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.singleLineComment "--bar"
                             |> Expect.equal
                                 (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }, value = "--bar" })
                     )
                 , Test.test "singleLineComment including 2-part utf-16 char range"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.singleLineComment """--bar\u{D83D}\u{DD27}"""
                             |> Expect.equal
                                 (Just { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }, value = """--bar\u{D83D}\u{DD27}""" })
                     )
                 , Test.test "singleLineComment does not include new line"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.singleLineComment "--bar\n"
                             |> Expect.equal Nothing
                     )
                 , Test.test "multilineComment parse result"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment "{-foo\nbar-}"
                             |> Expect.equal
                                 (Just
@@ -127,7 +123,7 @@ a =
                                 )
                     )
                 , Test.test "multilineComment range"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment "{-foo\nbar-}"
                             |> Expect.equal
                                 (Just
@@ -137,28 +133,26 @@ a =
                                 )
                     )
                 , Test.test "multilineComment including 2-part utf-16 char range"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment
-                            """
-\{-foo
+                            """{-foo
 bar\u{D83D}\u{DD27}-}"""
                             |> Expect.equal
                                 (Just
                                     { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } }
                                     , value =
-                                        """
-\{-foo
+                                        """{-foo
 bar\u{D83D}\u{DD27}-}"""
                                     }
                                 )
                     )
                 , Test.test "nested multilineComment only open"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment "{- {- -}"
                             |> Expect.equal Nothing
                     )
                 , Test.test "nested multilineComment open and close"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment "{- {- -} -}"
                             |> Expect.equal
                                 (Just
@@ -168,7 +162,7 @@ bar\u{D83D}\u{DD27}-}"""
                                 )
                     )
                 , Test.test "multilineComment on module documentation"
-                    (\{} ->
+                    (\() ->
                         GrenParserLenient.run GrenParserLenient.multiLineComment "{-|foo\nbar-}"
                             |> Expect.equal Nothing
                     )
@@ -176,7 +170,7 @@ bar\u{D83D}\u{DD27}-}"""
             ]
         , Test.describe "module header"
             [ Test.test "formatted moduleDefinition"
-                (\{} ->
+                (\() ->
                     "module Foo exposing (Bar)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
@@ -197,7 +191,7 @@ bar\u{D83D}\u{DD27}-}"""
                             }
                 )
             , Test.test "port moduleDefinition"
-                (\{} ->
+                (\() ->
                     "port module Foo exposing (Bar)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 31 } }
@@ -218,7 +212,7 @@ bar\u{D83D}\u{DD27}-}"""
                             }
                 )
             , Test.test "port moduleDefinition with spacing"
-                (\{} ->
+                (\() ->
                     "port module Foo exposing ( Bar )"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
@@ -239,7 +233,7 @@ bar\u{D83D}\u{DD27}-}"""
                             }
                 )
             , Test.test "effect moduleDefinition"
-                (\{} ->
+                (\() ->
                     "effect module Foo where {command = MyCmd, subscription = MySub } exposing (Bar)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 80 } }
@@ -266,7 +260,7 @@ bar\u{D83D}\u{DD27}-}"""
                             }
                 )
             , Test.test "unformatted"
-                (\{} ->
+                (\() ->
                     "module \n Foo \n exposing  (..)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 3, column = 16 } }
@@ -282,9 +276,8 @@ bar\u{D83D}\u{DD27}-}"""
                             }
                 )
             , Test.test "allow module name without indentation"
-                (\{} ->
-                    """
-module 
+                (\() ->
+                    """module 
 Foo 
  exposing  (..)"""
                         |> GrenParserLenient.run GrenParserLenient.moduleHeader
@@ -292,7 +285,7 @@ Foo
                         |> Expect.equal (Just ())
                 )
             , Test.test "exposing .."
-                (\{} ->
+                (\() ->
                     "module Foo exposing (..)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 25 } }
@@ -308,7 +301,7 @@ Foo
                             }
                 )
             , Test.test "exposing ..."
-                (\{} ->
+                (\() ->
                     "module Foo exposing (...)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
@@ -324,7 +317,7 @@ Foo
                             }
                 )
             , Test.test "module name with _"
-                (\{} ->
+                (\() ->
                     "module I_en_gb exposing (..)"
                         |> expectSyntaxWithoutComments GrenParserLenient.moduleHeader
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 29 } }
@@ -343,79 +336,79 @@ Foo
                 )
             , Test.describe "uppercase name"
                 [ Test.test "lower and upper simple latin"
-                    (\{} ->
+                    (\() ->
                         "MyCmd"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal (Just "MyCmd")
                     )
                 , Test.test "typeName not empty"
-                    (\{} ->
+                    (\() ->
                         ""
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "typeName with number"
-                    (\{} ->
+                    (\() ->
                         "T1"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal (Just "T1")
                     )
                 , Test.test "ρ function"
-                    (\{} ->
+                    (\() ->
                         "ρ"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.notEqual Nothing
                     )
                 , Test.test "ε2 function"
-                    (\{} ->
+                    (\() ->
                         "ε2"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.notEqual Nothing
                     )
                 , Test.test "εε function"
-                    (\{} ->
+                    (\() ->
                         "εε"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.notEqual Nothing
                     )
                 , Test.test "ρ uppercase function"
-                    (\{} ->
+                    (\() ->
                         String.toUpper "ρ"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "ε uppercase function"
-                    (\{} ->
+                    (\() ->
                         String.toUpper "ε"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "ρ type name"
-                    (\{} ->
+                    (\() ->
                         "ρ"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "ε2 type name"
-                    (\{} ->
+                    (\() ->
                         "ε2"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "εε type name"
-                    (\{} ->
+                    (\() ->
                         "εε"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "ρ uppercase type name"
-                    (\{} ->
+                    (\() ->
                         String.toUpper "ρ"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.notEqual Nothing
                     )
                 , Test.test "ε uppercase type name"
-                    (\{} ->
+                    (\() ->
                         String.toUpper "ε"
                             |> GrenParserLenient.run GrenParserLenient.nameUppercase
                             |> Expect.notEqual Nothing
@@ -423,55 +416,55 @@ Foo
                 ]
             , Test.describe "lowercase name"
                 [ Test.test "simple latin"
-                    (\{} ->
+                    (\() ->
                         "foo"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "foo")
                     )
                 , Test.test "functionName may not be a keyword"
-                    (\{} ->
+                    (\() ->
                         "type"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "functionName may be a keyword suffixed with an underscore"
-                    (\{} ->
+                    (\() ->
                         "type_"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "type_")
                     )
                 , Test.test "functionName not empty"
-                    (\{} ->
+                    (\() ->
                         ""
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "functionName with number"
-                    (\{} ->
+                    (\() ->
                         "n1"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "n1")
                     )
                 , Test.test "alias can be a functionName (it is not reserved)"
-                    (\{} ->
+                    (\() ->
                         "alias"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "alias")
                     )
                 , Test.test "infix can be a functionName (it is not reserved)"
-                    (\{} ->
+                    (\() ->
                         "infix"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "infix")
                     )
                 , Test.test "functionName is not matched with 'if'"
-                    (\{} ->
+                    (\() ->
                         "if"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal Nothing
                     )
                 , Test.test "functionName with _"
-                    (\{} ->
+                    (\() ->
                         "foo_"
                             |> GrenParserLenient.run GrenParserLenient.nameLowercase
                             |> Expect.equal (Just "foo_")
@@ -479,15 +472,14 @@ Foo
                 ]
             , Test.describe "exposing"
                 [ Test.test "Exposing all"
-                    (\{} ->
+                    (\() ->
                         "(..)"
                             |> expectSyntaxWithoutComments GrenParserLenient.exposing_
                                 (GrenSyntax.All { start = { row = 1, column = 2 }, end = { row = 1, column = 4 } })
                     )
                 , Test.test "Exposing all with spacing and comment"
-                    (\{} ->
-                        """
-(
+                    (\() ->
+                        """(
   .. -- foo
   )"""
                             |> expectSyntaxWithComments GrenParserLenient.exposing_
@@ -496,9 +488,8 @@ Foo
                                 }
                     )
                 , Test.test "allow multi-line exposing all when closing parens is top indented"
-                    (\{} ->
-                        """
-(
+                    (\() ->
+                        """(
   ..
 )"""
                             |> GrenParserLenient.run GrenParserLenient.exposing_
@@ -506,29 +497,29 @@ Foo
                             |> Expect.equal (Just ())
                     )
                 , Test.test "should fail to parse empty with just 1 `.`"
-                    (\{} ->
+                    (\() ->
                         "( . )"
                             |> expectFailsToParse GrenParserLenient.exposing_
                     )
                 , Test.test "should allow `...`"
-                    (\{} ->
+                    (\() ->
                         "( ... )"
                             |> GrenParserLenient.run GrenParserLenient.exposing_
                             |> Maybe.map (\_ -> ())
                             |> Expect.equal (Just ())
                     )
                 , Test.test "should fail to parse empty with 2 spaced `.`"
-                    (\{} ->
+                    (\() ->
                         "(. .)"
                             |> expectFailsToParse GrenParserLenient.exposing_
                     )
                 , Test.test "should fail to parse empty exposing list"
-                    (\{} ->
+                    (\() ->
                         "()"
                             |> expectFailsToParse GrenParserLenient.exposing_
                     )
                 , Test.test "Explicit exposing list"
-                    (\{} ->
+                    (\() ->
                         "(Model,Msg(..),Info(..),init,(::))"
                             |> expectSyntaxWithoutComments GrenParserLenient.exposing_
                                 (GrenSyntax.Explicit
@@ -559,7 +550,7 @@ Foo
                                 )
                     )
                 , Test.test "exposingList with spacing on one line"
-                    (\{} ->
+                    (\() ->
                         "(Model, Msg, Info   (..)   ,init,(::) )"
                             |> expectSyntaxWithoutComments GrenParserLenient.exposing_
                                 (GrenSyntax.Explicit
@@ -586,7 +577,7 @@ Foo
                                 )
                     )
                 , Test.test "exposingList with extra commas between exposes"
-                    (\{} ->
+                    (\() ->
                         "(Model,,Msg,,Info   (..)  ,,init,(::) )"
                             |> expectSyntaxWithoutComments GrenParserLenient.exposing_
                                 (GrenSyntax.Explicit
@@ -613,9 +604,8 @@ Foo
                                 )
                     )
                 , Test.test "Explicit exposing list with spaces and newlines"
-                    (\{} ->
-                        """
-(
+                    (\() ->
+                        """(
       A
     , B(...)
     , Info (..)
@@ -651,9 +641,8 @@ Foo
                                 )
                     )
                 , Test.test "Explicit exposing list with extra comma before first expose"
-                    (\{} ->
-                        """
-(
+                    (\() ->
+                        """(
     , A
     , B(..)
     , Info (..)
@@ -689,7 +678,7 @@ Foo
                                 )
                     )
                 , Test.test "Comments inside the exposing clause"
-                    (\{} ->
+                    (\() ->
                         "(foo\n --bar\n )"
                             |> expectSyntaxWithComments GrenParserLenient.exposing_
                                 { syntax =
@@ -703,10 +692,9 @@ Foo
                     )
                 ]
             , Test.test "Regression test for Incorrect range in if expression"
-                (\{} ->
+                (\() ->
                     parseSource
-                        """
-module TestModule exposing (..)
+                        """module TestModule exposing (..)
 
 a =
     if cond then
@@ -800,10 +788,9 @@ b = 3
                             )
                 )
             , Test.test "Simple module range test"
-                (\{} ->
+                (\() ->
                     parseSource
-                        """
-module TestModule exposing (..)
+                        """module TestModule exposing (..)
 
 a =
     2
@@ -880,10 +867,9 @@ b = 3
                             )
                 )
             , Test.test "File with multiple imports"
-                (\{} ->
+                (\() ->
                     parseSource
-                        """
-module TestModule exposing (..)
+                        """module TestModule exposing (..)
 import A
 import B
 
@@ -949,10 +935,9 @@ a = 1
                             )
                 )
             , Test.test "File with multiple declarations"
-                (\{} ->
+                (\() ->
                     parseSource
-                        """
-module TestModule exposing (..)
+                        """module TestModule exposing (..)
 type A = B | C
 a = 1
 type alias B = A
@@ -1082,9 +1067,8 @@ b = 2
                             )
                 )
             , Test.test "should fail to parse two signatures in a row"
-                (\{} ->
-                    """
-module TestModule exposing (..)
+                (\() ->
+                    """module TestModule exposing (..)
 a : Int
 b : Int
 b = 2
@@ -1092,18 +1076,16 @@ b = 2
                         |> moduleExpectInvalid
                 )
             , Test.test "should fail to parse signature for a different function"
-                (\{} ->
-                    """
-module TestModule exposing (..)
+                (\() ->
+                    """module TestModule exposing (..)
 a : Int
 b = 2
 """
                         |> moduleExpectInvalid
                 )
             , Test.test "trailing comments at the end of declarations"
-                (\{} ->
-                    """
-module A exposing (fun1, fun2)
+                (\() ->
+                    """module A exposing (fun1, fun2)
 
 fun1 n =
   fun2 n
@@ -1224,9 +1206,8 @@ fun2 n =
                             )
                 )
             , Test.test "import between declarations, no existing import"
-                (\{} ->
-                    """
-module A exposing (fun1, fun2)
+                (\() ->
+                    """module A exposing (fun1, fun2)
 
 fun1 n =
   fun2 n
@@ -1337,9 +1318,8 @@ fun2 n =
                             )
                 )
             , Test.test "import between declarations, existing import"
-                (\{} ->
-                    """
-module A exposing (fun1, fun2)
+                (\() ->
+                    """module A exposing (fun1, fun2)
 import C
 fun1 n =
   fun2 n
@@ -1460,7 +1440,7 @@ fun2 n =
             ]
         , Test.describe "import"
             [ Test.test "import with explicits"
-                (\{} ->
+                (\() ->
                     "import Foo exposing (Model, Msg(..))"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 37 } }
@@ -1489,7 +1469,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with explicits 2"
-                (\{} ->
+                (\() ->
                     "import Html exposing (text)"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
@@ -1511,7 +1491,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with exposing ()"
-                (\{} ->
+                (\() ->
                     "import Html exposing ()"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -1524,7 +1504,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with alias and exposing ()"
-                (\{} ->
+                (\() ->
                     "import Html as H exposing ()"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
@@ -1539,7 +1519,7 @@ fun2 n =
                             }
                 )
             , Test.test "import minimal"
-                (\{} ->
+                (\() ->
                     "import Foo"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -1552,7 +1532,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with alias"
-                (\{} ->
+                (\() ->
                     "import Foo as Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 18 } }
@@ -1567,7 +1547,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with alias and exposing .."
-                (\{} ->
+                (\() ->
                     "import Foo as Bar exposing (..)"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 32 } }
@@ -1586,7 +1566,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with alias and exposing ..."
-                (\{} ->
+                (\() ->
                     "import Foo as Bar exposing (...)"
                         |> expectSyntaxWithoutComments GrenParserLenient.import_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
@@ -1605,7 +1585,7 @@ fun2 n =
                             }
                 )
             , Test.test "import with invalid alias containing ."
-                (\{} ->
+                (\() ->
                     "import Foo as Bar.Buzz"
                         |> expectFailsToParse GrenParserLenient.import_
                 )
@@ -1655,8 +1635,7 @@ f =
             )
         , Test.test "declarations with comments"
             (\() ->
-                """
-module Foo exposing (b, fn)
+                """module Foo exposing (b, fn)
 
 fn a =
     case a of
@@ -2304,19 +2283,18 @@ port sendResponse : String -> Cmd msg
                     comments =
                         String.repeat 3000 "-- a\n"
                 in
-                ("""
-module Foo exposing (..)
+                ("""module Foo exposing (..)
 a = 1
 """
                     ++ comments
                 )
                     |> GrenParserLenient.run GrenParserLenient.module_
-                    |> Maybe.map (\ast -> Array.length ast.comments)
+                    |> Maybe.map (\ast -> List.length ast.comments)
                     |> Expect.equal (Just 3000)
             )
         , Test.describe "declaration"
             [ Test.test "value/function declaration"
-                (\{} ->
+                (\() ->
                     "foo = bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -2340,9 +2318,8 @@ a = 1
                             }
                 )
             , Test.test "function declaration with documentation"
-                (\{} ->
-                    """
-\{-| Foo does bar -}
+                (\() ->
+                    """{-| Foo does bar -}
 foo = bar"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 10 } }
@@ -2370,7 +2347,7 @@ foo = bar"""
                             }
                 )
             , Test.test "function declaration with empty record"
-                (\{} ->
+                (\() ->
                     "foo = {}"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
@@ -2394,9 +2371,8 @@ foo = bar"""
                             }
                 )
             , Test.test "function with case in let"
-                (\{} ->
-                    """
-inc x =
+                (\() ->
+                    """inc x =
   let
     y =
       case x of
@@ -2490,7 +2466,7 @@ inc x =
                             }
                 )
             , Test.test "function declaration with args"
-                (\{} ->
+                (\() ->
                     "inc x = x + 1"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
@@ -2529,9 +2505,8 @@ inc x =
                             }
                 )
             , Test.test "function declaration with let"
-                (\{} ->
-                    """
-foo =
+                (\() ->
+                    """foo =
  let
   b = 1
  in
@@ -2584,10 +2559,9 @@ foo =
                             }
                 )
             , Test.test "documentation comment inside a let is invalid"
-                (\{} ->
+                (\() ->
                     expectFailsToParse GrenParserLenient.declaration
-                        """
-foo =
+                        """foo =
  let
   {-| b is one -}
   b = 1
@@ -2595,9 +2569,8 @@ foo =
   b"""
                 )
             , Test.test "let destructuring with no spaces around '='"
-                (\{} ->
-                    """
-foo =
+                (\() ->
+                    """foo =
  let
   (b   )=(1   )
  in
@@ -2653,9 +2626,8 @@ foo =
                             }
                 )
             , Test.test "declaration with record"
-                (\{} ->
-                    """
-main =
+                (\() ->
+                    """main =
   beginnerProgram { model = 0, view = view, update = update }"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 62 } }
@@ -2719,9 +2691,8 @@ main =
                             }
                 )
             , Test.test "update function"
-                (\{} ->
-                    """
-update msg model =
+                (\() ->
+                    """update msg model =
   case msg of
     Increment ->
       model + 1
@@ -2805,7 +2776,7 @@ update msg model =
                             }
                 )
             , Test.test "port declaration for command"
-                (\{} ->
+                (\() ->
                     "port parseResponse : ( String         ) -> Cmd msg"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { end = { column = 51, row = 1 }, start = { column = 1, row = 1 } }
@@ -2855,7 +2826,7 @@ update msg model =
                             }
                 )
             , Test.test "port declaration for subscription"
-                (\{} ->
+                (\() ->
                     "port scroll : (Move -> msg) -> Sub msg"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { end = { column = 39, row = 1 }, start = { column = 1, row = 1 } }
@@ -2913,14 +2884,13 @@ update msg model =
                             }
                 )
             , Test.test "should fail to parse destructuring declaration at the top-level"
-                (\{} ->
+                (\() ->
                     "_ = b"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "simple main declaration"
-                (\{} ->
-                    """
-main =
+                (\() ->
+                    """main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 23 } }
@@ -2954,9 +2924,8 @@ main =
                             }
                 )
             , Test.test "value/function declaration with signature"
-                (\{} ->
-                    """
-main : Html msg
+                (\() ->
+                    """main : Html msg
 main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
@@ -3013,9 +2982,8 @@ main =
                             }
                 )
             , Test.test "value/function declaration with signature omitting start name"
-                (\{} ->
-                    """
-: Html msg
+                (\() ->
+                    """: Html msg
 main =
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
@@ -3072,9 +3040,8 @@ main =
                             }
                 )
             , Test.test "function with -> instead of ="
-                (\{} ->
-                    """
-main ->
+                (\() ->
+                    """main ->
   text "Hello, World!\""""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 23 } }
@@ -3108,9 +3075,8 @@ main ->
                             }
                 )
             , Test.test "function starting with multi line comment"
-                (\{} ->
-                    """
-main =
+                (\() ->
+                    """main =
   {- y -} x"""
                         |> expectSyntaxWithComments GrenParserLenient.declaration
                             { syntax =
@@ -3137,7 +3103,7 @@ main =
                             }
                 )
             , Test.test "function with a lot of symbols"
-                (\{} ->
+                (\() ->
                     "updateState update sendPort = curry <| (uncurry update) >> batchStateCmds sendPort"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 83 } }
@@ -3212,9 +3178,8 @@ main =
                             }
                 )
             , Test.test "Some function"
-                (\{} ->
-                    """
-update msg model =
+                (\() ->
+                    """update msg model =
   case msg of
     Increment ->
       model + 1
@@ -3298,9 +3263,8 @@ update msg model =
                             }
                 )
             , Test.test "some other function"
-                (\{} ->
-                    """
-update : Model
+                (\() ->
+                    """update : Model
 update msg model =
     msg"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
@@ -3350,7 +3314,7 @@ update msg model =
                             }
                 )
             , Test.test "type alias"
-                (\{} ->
+                (\() ->
                     "type alias Foo = {color: String }"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 34 } }
@@ -3387,9 +3351,8 @@ update msg model =
                             }
                 )
             , Test.test "type alias with documentation"
-                (\{} ->
-                    """
-\{-| Foo is colorful -}
+                (\() ->
+                    """{-| Foo is colorful -}
 type alias Foo = {color: String }"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 34 } }
@@ -3430,7 +3393,7 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type alias without spacings around '='"
-                (\{} ->
+                (\() ->
                     "type alias Foo={color: String }"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 32 } }
@@ -3467,7 +3430,7 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type alias with GenericType "
-                (\{} ->
+                (\() ->
                     "type alias Foo a = {some : a }"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 31 } }
@@ -3499,7 +3462,7 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type"
-                (\{} ->
+                (\() ->
                     "type Color = Blue String | Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
@@ -3547,7 +3510,7 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type with leading | before first variant"
-                (\{} ->
+                (\() ->
                     "type Color=| Blue String | Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
@@ -3595,7 +3558,7 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type with extra | between variants"
-                (\{} ->
+                (\() ->
                     "type Color = Blue String ||Red | Green"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
@@ -3643,9 +3606,8 @@ type alias Foo = {color: String }"""
                             }
                 )
             , Test.test "type with documentation"
-                (\{} ->
-                    """
-\{-| Classic RGB -}
+                (\() ->
+                    """{-| Classic RGB -}
 type Color = Blue String | Red | Green"""
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 39 } }
@@ -3697,14 +3659,13 @@ type Color = Blue String | Red | Green"""
                             }
                 )
             , Test.test "type args should not continue on next line"
-                (\{} ->
-                    """
-type D = C B
+                (\() ->
+                    """type D = C B
 a"""
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "type with GenericType"
-                (\{} ->
+                (\() ->
                     "type Maybe a = Just a | Nothing"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 32 } }
@@ -3740,40 +3701,37 @@ a"""
                             }
                 )
             , Test.test "allow type with variant name without indentation"
-                (\{} ->
-                    """
-type Maybe a = Just a |
+                (\() ->
+                    """type Maybe a = Just a |
 Nothing"""
                         |> GrenParserLenient.run GrenParserLenient.declaration
                         |> Maybe.map (\_ -> ())
                         |> Expect.equal (Just ())
                 )
             , Test.test "fail if declarations not on module-level"
-                (\{} ->
-                    """
-a = f
+                (\() ->
+                    """a = f
     3
     b = 4"""
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "fail if function declaration argument is `as` without parenthesis"
-                (\{} ->
-                    """
-a foo as bar = f3"""
+                (\() ->
+                    """a foo as bar = f3"""
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "regression test for disallowing ( +)"
-                (\{} ->
+                (\() ->
                     "a = ( +)"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "regression test for disallowing (+ )"
-                (\{} ->
+                (\() ->
                     "a = (+ )"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "right infix"
-                (\{} ->
+                (\() ->
                     "infix right 7 (</>) = slash"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
@@ -3793,7 +3751,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "left infix"
-                (\{} ->
+                (\() ->
                     "infix left  8 (<?>) = questionMark"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 35 } }
@@ -3815,7 +3773,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "non infix"
-                (\{} ->
+                (\() ->
                     "infix non   4 (==) = eq"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 24 } }
@@ -3837,7 +3795,7 @@ a foo as bar = f3"""
             ]
         , Test.describe "type"
             [ Test.test "unitTypeReference"
-                (\{} ->
+                (\() ->
                     "()"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 3 } }
@@ -3845,17 +3803,17 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "unitTypeReference with spaces"
-                (\{} ->
+                (\() ->
                     "( )"
                         |> expectFailsToParse GrenParserLenient.type_
                 )
             , Test.test "4-tuple type annotation is invalid"
-                (\{} ->
+                (\() ->
                     "(Int,String,(),a)"
                         |> expectFailsToParse GrenParserLenient.type_
                 )
             , Test.test "qualified type reference"
-                (\{} ->
+                (\() ->
                     "Foo.Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -3870,7 +3828,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "typeAnnotationNoFn"
-                (\{} ->
+                (\() ->
                     "Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -3885,7 +3843,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "typedTypeReference 1"
-                (\{} ->
+                (\() ->
                     "Foo () a Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
@@ -3917,7 +3875,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "typedTypeReference 2"
-                (\{} ->
+                (\() ->
                     "Foo () a Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
@@ -3949,7 +3907,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordTypeReference empty"
-                (\{} ->
+                (\() ->
                     "{}"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 3 } }
@@ -3957,7 +3915,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordTypeReference one field"
-                (\{} ->
+                (\() ->
                     "{color: String }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
@@ -3984,7 +3942,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordTypeReference one field with name-value separator ="
-                (\{} ->
+                (\() ->
                     "{color= String }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
@@ -4011,7 +3969,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordTypeReference one field with name-value separator empty"
-                (\{} ->
+                (\() ->
                     "{color  String }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
@@ -4038,7 +3996,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "type record with field name colliding with keyword"
-                (\{} ->
+                (\() ->
                     "{  as : Int, b : Int }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 23, row = 1 }, start = { column = 1, row = 1 } }
@@ -4082,7 +4040,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "type record with prefixed comma"
-                (\{} ->
+                (\() ->
                     "{ , a : Int, b : Int }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 23, row = 1 }, start = { column = 1, row = 1 } }
@@ -4125,7 +4083,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "type record with extra comma between fields"
-                (\{} ->
+                (\() ->
                     "{   a : Int,,b : Int }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 23, row = 1 }, start = { column = 1, row = 1 } }
@@ -4168,7 +4126,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with generic"
-                (\{} ->
+                (\() ->
                     "{ attr | position : Vec2, texture : Vec2 }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
@@ -4218,7 +4176,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with generic with extra comma between fields"
-                (\{} ->
+                (\() ->
                     "{ attr | position : Vec2,,texture : Vec2 }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
@@ -4268,7 +4226,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with generic, with name-value separator = and name-value separator empty"
-                (\{} ->
+                (\() ->
                     "{ attr | position   Vec2, texture = Vec2 }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 43 } }
@@ -4318,12 +4276,12 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "generic record with no fields"
-                (\{} ->
+                (\() ->
                     "{ attr |}"
                         |> expectFailsToParse GrenParserLenient.type_
                 )
             , Test.test "recordTypeReference nested record"
-                (\{} ->
+                (\() ->
                     "{color: {r : Int, g :Int, b: Int } }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 37 } }
@@ -4396,7 +4354,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record field ranges"
-                (\{} ->
+                (\() ->
                     "{ foo : Int, bar : Int, baz : Int }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 36 } }
@@ -4457,7 +4415,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordTypeReference with generic"
-                (\{} ->
+                (\() ->
                     "{color: s }"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -4477,7 +4435,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function type reference"
-                (\{} ->
+                (\() ->
                     "Foo -> Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -4509,7 +4467,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function type reference multiple"
-                (\{} ->
+                (\() ->
                     "Foo -> Bar -> baz"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 18 } }
@@ -4551,7 +4509,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function type reference multiple with consecutive ->"
-                (\{} ->
+                (\() ->
                     "Foo->->Bar -> baz"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 18 } }
@@ -4593,7 +4551,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function type reference generics"
-                (\{} ->
+                (\() ->
                     "cMsg -> cModel -> a"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 20 } }
@@ -4621,7 +4579,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "annotation with parens"
-                (\{} ->
+                (\() ->
                     "Msg -> Model -> (Model->Cmd Msg)"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 33, row = 1 }, start = { column = 1, row = 1 } }
@@ -4702,7 +4660,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function as argument"
-                (\{} ->
+                (\() ->
                     "( cMsg -> cModel -> a ) -> b"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 29, row = 1 }, start = { column = 1, row = 1 } }
@@ -4744,7 +4702,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "type with params"
-                (\{} ->
+                (\() ->
                     "(Foo -> Bar)"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 13, row = 1 }, start = { column = 1, row = 1 } }
@@ -4780,7 +4738,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function type reference multiple and parens"
-                (\{} ->
+                (\() ->
                     "(Foo -> Bar) -> baz"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 20, row = 1 }, start = { column = 1, row = 1 } }
@@ -4826,12 +4784,12 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "parseTypeWith wrong indent"
-                (\{} ->
+                (\() ->
                     "Maybe\na"
                         |> expectFailsToParse GrenParserLenient.type_
                 )
             , Test.test "parseTypeWith good indent"
-                (\{} ->
+                (\() ->
                     "Maybe\n a"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 3 } }
@@ -4850,15 +4808,15 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "issue #5 - no spaces between type and generic with parens"
-                (\{} ->
-                    "Array(String)"
+                (\() ->
+                    "List(String)"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { end = { column = 13, row = 1 }, start = { column = 1, row = 1 } }
                             , value =
                                 GrenSyntax.TypeAnnotationConstruct
                                     { reference =
                                         { range = { end = { column = 5, row = 1 }, start = { column = 1, row = 1 } }
-                                        , value = { qualification = [], name = "Array" }
+                                        , value = { qualification = [], name = "List" }
                                         }
                                     , arguments =
                                         [ { range = { end = { column = 13, row = 1 }, start = { column = 5, row = 1 } }
@@ -4880,7 +4838,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "parse type with multiple params"
-                (\{} ->
+                (\() ->
                     "Dict String Int"
                         |> expectSyntaxWithoutComments GrenParserLenient.type_
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
@@ -4918,31 +4876,31 @@ a foo as bar = f3"""
             ]
         , Test.describe "expression"
             [ Test.test "operatorToken 11 -- is not an operator"
-                (\{} ->
+                (\() ->
                     "a = (--)"
                         |> GrenParserLenient.run GrenParserLenient.declaration
                         |> Expect.equal Nothing
                 )
             , Test.test "operatorToken 14"
-                (\{} ->
+                (\() ->
                     "a = (=)"
                         |> GrenParserLenient.run GrenParserLenient.declaration
                         |> Expect.equal Nothing
                 )
             , Test.test "operatorToken 15"
-                (\{} ->
+                (\() ->
                     "a = (?)"
                         |> GrenParserLenient.run GrenParserLenient.declaration
                         |> Expect.equal Nothing
                 )
             , Test.test "empty"
-                (\{} ->
+                (\() ->
                     "a = "
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.describe "number"
                 [ Test.test "long hex"
-                    (\{} ->
+                    (\() ->
                         "0x03FFFFFF"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -4950,7 +4908,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionHex 67108863))
                     )
                 , Test.test "hex FF"
-                    (\{} ->
+                    (\() ->
                         "0xFF"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -4958,7 +4916,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionHex 255))
                     )
                 , Test.test "hex"
-                    (\{} ->
+                    (\() ->
                         "0x2A"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -4966,7 +4924,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionHex 42))
                     )
                 , Test.test "Hex integer literal"
-                    (\{} ->
+                    (\() ->
                         "0x56"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -4974,7 +4932,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "Integer literal"
-                    (\{} ->
+                    (\() ->
                         "101"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -4982,7 +4940,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "float"
-                    (\{} ->
+                    (\() ->
                         "2.0"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -4990,7 +4948,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 2.0))
                     )
                 , Test.test "integer with negative exponent"
-                    (\{} ->
+                    (\() ->
                         "2e-2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -4998,7 +4956,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 0.02))
                     )
                 , Test.test "literal e is not a number"
-                    (\{} ->
+                    (\() ->
                         "e"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5006,7 +4964,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionReference { qualification = [], name = "e" }))
                     )
                 , Test.test "integer with negative exponent (uppercase E)"
-                    (\{} ->
+                    (\() ->
                         "2E-2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5014,7 +4972,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 0.02))
                     )
                 , Test.test "integer with positive exponent"
-                    (\{} ->
+                    (\() ->
                         "2e+2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5022,7 +4980,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 200.0))
                     )
                 , Test.test "float with negative exponent"
-                    (\{} ->
+                    (\() ->
                         "2.0e-2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5030,7 +4988,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 0.02))
                     )
                 , Test.test "float with negative exponent (uppercase E)"
-                    (\{} ->
+                    (\() ->
                         "2.0E-2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5038,7 +4996,7 @@ a foo as bar = f3"""
                                 (Just (GrenSyntax.ExpressionFloat 0.02))
                     )
                 , Test.test "float with positive exponent"
-                    (\{} ->
+                    (\() ->
                         "2.0e+2"
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
@@ -5047,7 +5005,7 @@ a foo as bar = f3"""
                     )
                 ]
             , Test.test "String literal"
-                (\{} ->
+                (\() ->
                     "\"Bar\""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -5056,82 +5014,82 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "multiline string"
-                (\{} ->
+                (\() ->
                     "\"\"\"Bar foo \n a\"\"\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = "Bar foo \n a" }))
                 )
             , Test.test "multiline string escape"
-                (\{} ->
+                (\() ->
                     """\"\"\" \\\"\"\" \"\"\""""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringTripleQuoted, content = """ \"\"\" """ }))
                 )
             , Test.test "character escaped"
-                (\{} ->
+                (\() ->
                     "'\\''"
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionChar '\''))
                 )
             , Test.test "character escaped - 2"
-                (\{} ->
+                (\() ->
                     "'\\r'"
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionChar '\u{000D}'))
                 )
             , Test.test "unicode char"
-                (\{} ->
+                (\() ->
                     "'\\u{000D}'"
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionChar '\u{000D}'))
                 )
             , Test.test "unicode char with lowercase hex"
-                (\{} ->
+                (\() ->
                     "'\\u{000d}'"
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionChar '\u{000D}'))
                 )
             , Test.test "string escaped 3"
-                (\{} ->
+                (\() ->
                     "\"\\\"\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "\"" }))
                 )
             , Test.test "string escaped"
-                (\{} ->
+                (\() ->
                     "\"foo\\\\\""
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionString { quotingStyle = GrenSyntax.StringSingleQuoted, content = "foo\\" }))
                 )
             , Test.test "character escaped 3"
-                (\{} ->
+                (\() ->
                     "'\\n'"
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Maybe.map (\result -> result.syntax |> GrenSyntax.nodeValue)
                         |> Expect.equal (Just (GrenSyntax.ExpressionChar '\n'))
                 )
             , Test.test "long string"
-                (\{} ->
+                (\() ->
                     longString
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Expect.notEqual Nothing
                 )
             , Test.test "long multi line string"
-                (\{} ->
+                (\() ->
                     longMultiLineString
                         |> GrenParserLenient.run GrenParserLenient.expression
                         |> Expect.notEqual Nothing
                 )
             , Test.test "character literal"
-                (\{} ->
+                (\() ->
                     "'c'"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -5139,7 +5097,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "String literal multiline"
-                (\{} ->
+                (\() ->
                     "\"\"\"Bar foo \n a\"\"\""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 6 } }
@@ -5149,12 +5107,12 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Regression test for multiline strings with backslashes"
-                (\{} ->
+                (\() ->
                     "a = \"\"\"\\{\\}\"\"\""
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "Regression test 2 for multiline strings with backslashes"
-                (\{} ->
+                (\() ->
                     "\"\"\"\\\\{\\\\}\"\"\""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
@@ -5163,7 +5121,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Regression test 3 for multiline strings with backslashes"
-                (\{} ->
+                (\() ->
                     "\"\"\"\\\\a-blablabla-\\\\b\"\"\""
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 24 } }
@@ -5173,7 +5131,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Type expression for upper case"
-                (\{} ->
+                (\() ->
                     "Bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -5181,7 +5139,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Type expression for lower case"
-                (\{} ->
+                (\() ->
                     "bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -5189,7 +5147,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Type expression for lower case but qualified"
-                (\{} ->
+                (\() ->
                     "Bar.foo"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -5197,7 +5155,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "parenthesizedExpression"
-                (\{} ->
+                (\() ->
                     "(bar)"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -5209,7 +5167,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "parenthesized expression starting with a negation"
-                (\{} ->
+                (\() ->
                     "(-1 * sign)"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -5236,14 +5194,14 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "application expression"
-                (\{} ->
-                    "Array.concat []"
+                (\() ->
+                    "List.concat []"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
-                                      , value = GrenSyntax.ExpressionReference { qualification = [ "Array" ], name = "concat" }
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "concat" }
                                       }
                                     , { range = { start = { row = 1, column = 13 }, end = { row = 1, column = 15 } }
                                       , value = GrenSyntax.ExpressionArray []
@@ -5252,7 +5210,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Binary operation"
-                (\{} ->
+                (\() ->
                     "model + 1"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -5271,7 +5229,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Nested binary operations (+ and ==)"
-                (\{} ->
+                (\() ->
                     "count + 1 == 1"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
@@ -5301,7 +5259,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Nested binary operations (+ and /=)"
-                (\{} ->
+                (\() ->
                     "count + 1 /= 1"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
@@ -5331,7 +5289,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Nested binary operations (+ and //)"
-                (\{} ->
+                (\() ->
                     "count + 1 // 2"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
@@ -5361,7 +5319,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Nested binary operations (&& and <|)"
-                (\{} ->
+                (\() ->
                     "condition && condition <| f"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
@@ -5391,8 +5349,8 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "application expression 2"
-                (\{} ->
-                    "(    always (Array.concat [ [ fileName ], [] ]))"
+                (\() ->
+                    "(    always (List.concat [ [ fileName ], [] ]))"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 48 } }
                             , value =
@@ -5410,7 +5368,7 @@ a foo as bar = f3"""
                                                         , value =
                                                             GrenSyntax.ExpressionCall
                                                                 [ { range = { start = { row = 1, column = 14 }, end = { row = 1, column = 25 } }
-                                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "Array" ], name = "concat" }
+                                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "concat" }
                                                                   }
                                                                 , { range = { start = { row = 1, column = 26 }, end = { row = 1, column = 46 } }
                                                                   , value =
@@ -5436,7 +5394,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "expressionNotApplication simple"
-                (\{} ->
+                (\() ->
                     "foo"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -5444,7 +5402,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "unit application"
-                (\{} ->
+                (\() ->
                     "Task.succeed ()"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
@@ -5460,7 +5418,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Function call"
-                (\{} ->
+                (\() ->
                     "foo bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -5476,12 +5434,12 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "Function call with argument badly indented"
-                (\{} ->
+                (\() ->
                     "a = foo\nbar"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "ifBlockExpression"
-                (\{} ->
+                (\() ->
                     "if True then foo else bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
@@ -5503,7 +5461,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "if-then-else with -> instead of then"
-                (\{} ->
+                (\() ->
                     "if True ->   foo else bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 26 } }
@@ -5525,7 +5483,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "nestedIfExpression"
-                (\{} ->
+                (\() ->
                     "if True then if False then foo else baz else bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 49 } }
@@ -5561,7 +5519,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordExpression"
-                (\{} ->
+                (\() ->
                     "{ model = 0, view = view, update = update }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 44 } }
@@ -5601,7 +5559,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "recordExpression with comment"
-                (\{} ->
+                (\() ->
                     "{ foo = 1 -- bar\n , baz = 2 }"
                         |> expectSyntaxWithComments GrenParserLenient.expression
                             { syntax =
@@ -5634,7 +5592,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "listExpression"
-                (\{} ->
+                (\() ->
                     "[ class \"a\", text \"Foo\"]"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 25 } }
@@ -5667,7 +5625,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "list with extra comma between elements"
-                (\{} ->
+                (\() ->
                     "[ class \"a\",,text \"Foo\"]"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 25 } }
@@ -5700,7 +5658,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "listExpression singleton with comment"
-                (\{} ->
+                (\() ->
                     "[ 1 {- Foo-} ]"
                         |> expectSyntaxWithComments GrenParserLenient.expression
                             { syntax =
@@ -5716,7 +5674,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "list with extra prefix comma and comment"
-                (\{} ->
+                (\() ->
                     "[,1 {- Foo-} ]"
                         |> expectSyntaxWithComments GrenParserLenient.expression
                             { syntax =
@@ -5732,7 +5690,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "listExpression empty with comment"
-                (\{} ->
+                (\() ->
                     "[{- Foo -}]"
                         |> expectSyntaxWithComments GrenParserLenient.expression
                             { syntax =
@@ -5743,7 +5701,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "qualified expression"
-                (\{} ->
+                (\() ->
                     "Html.text"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -5751,7 +5709,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "qualified expression with name colliding with keyword"
-                (\{} ->
+                (\() ->
                     "Html.Attributes.type"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 21 } }
@@ -5759,7 +5717,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record access"
-                (\{} ->
+                (\() ->
                     "foo.bar"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -5777,7 +5735,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record access with field name colliding with keyword"
-                (\{} ->
+                (\() ->
                     "foo.exposing"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
@@ -5795,7 +5753,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "multiple record access operations"
-                (\{} ->
+                (\() ->
                     "foo.bar.baz"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -5823,7 +5781,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "multiple record access operations with module name"
-                (\{} ->
+                (\() ->
                     "A.B.foo.bar.baz"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
@@ -5851,7 +5809,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with name-value separator : and name-value separator = and name-value separator empty and punned fields with each of those"
-                (\{} ->
+                (\() ->
                     "{ a 1, b = 2, c : 3, aPunned, bPunned =, cPunned : }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { end = { column = 53, row = 1 }, start = { column = 1, row = 1 } }
@@ -5919,7 +5877,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with prefix comma"
-                (\{} ->
+                (\() ->
                     "{ , a = 1, b = 2 }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { end = { column = 19, row = 1 }, start = { column = 1, row = 1 } }
@@ -5948,7 +5906,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record with extra comma between fields"
-                (\{} ->
+                (\() ->
                     "{   a = 1,,b = 2 }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { end = { column = 19, row = 1 }, start = { column = 1, row = 1 } }
@@ -5977,7 +5935,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record update"
-                (\{} ->
+                (\() ->
                     "{ model | count = 1, loading = True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
@@ -6013,7 +5971,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record update, qualified updated reference"
-                (\{} ->
+                (\() ->
                     "{ Shared.model | count = 1, loading = True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { end = { column = 45, row = 1 }, start = { column = 1, row = 1 } }
@@ -6049,7 +6007,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record update with extra comma between fields"
-                (\{} ->
+                (\() ->
                     "{ model | count = 1,,loading = True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
@@ -6085,7 +6043,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record update with name-value separator : and name-value separator empty"
-                (\{} ->
+                (\() ->
                     "{ model | count : 1, loading   True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
@@ -6121,7 +6079,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record update no spacing"
-                (\{} ->
+                (\() ->
                     "{model| count = 1, loading = True }"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 36 } }
@@ -6157,14 +6115,14 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record access as function"
-                (\{} ->
-                    "Array.map .name people"
+                (\() ->
+                    "List.map .name people"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 22 } }
                             , value =
                                 GrenSyntax.ExpressionCall
                                     [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                      , value = GrenSyntax.ExpressionReference { qualification = [ "Array" ], name = "map" }
+                                      , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "map" }
                                       }
                                     , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
                                       , value = GrenSyntax.ExpressionRecordAccessFunction ".name"
@@ -6176,7 +6134,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "record access direct"
-                (\{} ->
+                (\() ->
                     "(.spaceEvenly Internal.Style.classes)"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 38 } }
@@ -6196,47 +6154,47 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "positive integer should be invalid"
-                (\{} ->
+                (\() ->
                     "a = +1"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "expression ending with an operator should not be valid"
-                (\{} ->
+                (\() ->
                     "a = 1++"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple < in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a < b < c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple > in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a > b > c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple == in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a == b == c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple /= in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a /= b /= c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple >= in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a >= b >= c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "multiple <= in a row should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a <= b <= c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "mixing comparison operators without parenthesis should not be valid"
-                (\{} ->
+                (\() ->
                     "z = a < b == c"
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
@@ -6258,7 +6216,7 @@ a foo as bar = f3"""
               --         "z = a >> b << c"
               --             |> ParserWithCommentsUtil.expectInvalid GrenParserLenient.declaration
               Test.test "prefix notation"
-                (\{} ->
+                (\() ->
                     "(::) x"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -6274,7 +6232,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "subtraction without spaces"
-                (\{} ->
+                (\() ->
                     "2-1"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -6293,7 +6251,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after comma"
-                (\{} ->
+                (\() ->
                     "a = [0,-x]"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -6328,7 +6286,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after = in record"
-                (\{} ->
+                (\() ->
                     "{a=-x}"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -6351,8 +6309,8 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after list"
-                (\{} ->
-                    "Array.sum [a,b]-x"
+                (\() ->
+                    "List.sum [a,b]-x"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 17 } }
                             , value =
@@ -6363,7 +6321,7 @@ a foo as bar = f3"""
                                         , value =
                                             GrenSyntax.ExpressionCall
                                                 [ { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
-                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "Array" ], name = "sum" }
+                                                  , value = GrenSyntax.ExpressionReference { qualification = [ "List" ], name = "sum" }
                                                   }
                                                 , { range = { start = { row = 1, column = 10 }, end = { row = 1, column = 15 } }
                                                   , value =
@@ -6386,7 +6344,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after = in let declaration"
-                (\{} ->
+                (\() ->
                     "let a=-x in a"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
@@ -6424,7 +6382,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after -> in case branch"
-                (\{} ->
+                (\() ->
                     "case 1 of\n    _->-a"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 10 } }
@@ -6453,7 +6411,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression after `in` in let body"
-                (\{} ->
+                (\() ->
                     "let a=-x in-a"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { end = { column = 14, row = 1 }, start = { column = 1, row = 1 } }
@@ -6495,7 +6453,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression for value"
-                (\{} ->
+                (\() ->
                     "a = -x"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -6522,7 +6480,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function declaration with negation sign after ="
-                (\{} ->
+                (\() ->
                     "foo=-1"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -6550,7 +6508,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression in application"
-                (\{} ->
+                (\() ->
                     "toFloat -5"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -6570,7 +6528,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression for parenthesized"
-                (\{} ->
+                (\() ->
                     "a = -(x - y)"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 13 } }
@@ -6612,7 +6570,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negated expression with other operations"
-                (\{} ->
+                (\() ->
                     "a = -1 + -10 * -100^2 == -100001"
                         |> expectSyntaxWithoutComments GrenParserLenient.declaration
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 33 } }
@@ -6695,7 +6653,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "plus and minus in the same expression"
-                (\{} ->
+                (\() ->
                     "1 + 2 - 3"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -6725,7 +6683,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "pipe operation"
-                (\{} ->
+                (\() ->
                     "a |> b"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -6744,7 +6702,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "function with higher order"
-                (\{} ->
+                (\() ->
                     "chompWhile (\\c -> c == ' ' || c == '\\n' || c == '\\r')"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 54 } }
@@ -6830,7 +6788,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "application should be lower-priority than field access"
-                (\{} ->
+                (\() ->
                     "foo { d | b = f x y }.b"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 24 } }
@@ -6885,7 +6843,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "should not consider a negative number parameter as the start of a new application"
-                (\{} ->
+                (\() ->
                     "Random.list -1 generator"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 25 } }
@@ -6908,7 +6866,7 @@ a foo as bar = f3"""
                             }
                 )
             , Test.test "negation can be applied on record access"
-                (\{} ->
+                (\() ->
                     "1 + -{x = 10}.x"
                         |> expectSyntaxWithoutComments GrenParserLenient.expression
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 16 } }
@@ -6953,7 +6911,7 @@ a foo as bar = f3"""
                 )
             , Test.describe "lambda"
                 [ Test.test "unit lambda"
-                    (\{} ->
+                    (\() ->
                         "\\() -> foo"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -6972,7 +6930,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "record lambda"
-                    (\{} ->
+                    (\() ->
                         "\\{foo} -> foo"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
@@ -6997,7 +6955,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "empty record lambda"
-                    (\{} ->
+                    (\() ->
                         "\\{} -> foo"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -7016,7 +6974,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "args lambda"
-                    (\{} ->
+                    (\() ->
                         "\\a b -> a + b"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
@@ -7049,7 +7007,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "lambda with => instead of ->"
-                    (\{} ->
+                    (\() ->
                         "\\() => foo"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -7068,7 +7026,7 @@ a foo as bar = f3"""
                                 }
                     )
                 , Test.test "lambda with . instead of ->"
-                    (\{} ->
+                    (\() ->
                         "\\().   foo"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 11 } }
@@ -7089,9 +7047,8 @@ a foo as bar = f3"""
                 ]
             , Test.describe "let-in"
                 [ Test.test "let expression with multiple declarations"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
   foo = bar
 
   john n = n in 1"""
@@ -7151,9 +7108,8 @@ let
                                 }
                     )
                 , Test.test "Let with `in` indented more than the body and let declarations"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
   bar = 1
             in
   bar"""
@@ -7190,18 +7146,16 @@ let
                                 }
                     )
                 , Test.test "should fail to parse if declaration is indented as much as `let`"
-                    (\{} ->
-                        """
-  let
+                    (\() ->
+                        """  let
   bar = 1
   in
   bar"""
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should fail to parse if declarations are not indented the same way"
-                    (\{} ->
-                        """
-  let
+                    (\() ->
+                        """  let
     bar = 1
       foo = 2
   in
@@ -7209,9 +7163,8 @@ let
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "let with deindented expression in in"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
   bar = 1
  in
    bar"""
@@ -7248,9 +7201,8 @@ let
                                 }
                     )
                 , Test.test "Let function with type annotation"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     bar : Int
     bar = 1
   in
@@ -7306,9 +7258,8 @@ let
                                 }
                     )
                 , Test.test "Let function with type annotation (separated by a few lines)"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     bar : Int
 
 
@@ -7366,9 +7317,8 @@ let
                                 }
                     )
                 , Test.test "Let function with type annotation, signature does not repeat the name"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     : Int
     bar = 1
   in
@@ -7424,9 +7374,8 @@ let
                                 }
                     )
                 , Test.test "should fail to parse when type annotation and declaration are not aligned (annotation earlier)"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     bar : Int
       bar = 1
   in
@@ -7434,9 +7383,8 @@ let
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should fail to parse when type annotation and declaration are not aligned (annotation later)"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
        bar : Int
     bar = 1
   in
@@ -7444,18 +7392,16 @@ let
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should fail to parse `as` pattern not surrounded by parentheses"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
           bar n as m = 1
         in
         bar"""
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "correctly parse variant + args pattern not surrounded by parentheses"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
           bar Bar m = 1
         in
         bar"""
@@ -7499,9 +7445,8 @@ let
                                 }
                     )
                 , Test.test "should not parse let destructuring with a type annotation"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     bar : Int
     (bar) = 1
   in
@@ -7509,27 +7454,24 @@ let
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should not parse let destructuring with `as` not surrounded by parentheses"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     foo as bar = 1
   in
   bar"""
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should not parse let destructuring with variant + arguments not surrounded by parentheses"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     Foo bar = 1
   in
   bar"""
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "allow let destructuring = to be top indented"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     (bar)
     =     1
   in
@@ -7539,9 +7481,8 @@ let
                             |> Expect.equal (Just ())
                     )
                 , Test.test "allow let destructuring with top indented expression"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     (bar) =
     1
   in
@@ -7551,18 +7492,16 @@ let
                             |> Expect.equal (Just ())
                     )
                 , Test.test "should not parse let type annotation without a declaration"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     bar : Int
   in
   bar"""
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "Using destructuring"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
     _ = b
     {a} = b
     (c   ) = e
@@ -7658,7 +7597,7 @@ let
                                 }
                     )
                 , Test.test "On one line"
-                    (\{} ->
+                    (\() ->
                         "let indent = String.length s in indent"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 39 } }
@@ -7701,9 +7640,8 @@ let
                                 }
                     )
                 , Test.test "let with list after in without space"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
         a = 1
     in[]"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -7738,9 +7676,8 @@ let
                                 }
                     )
                 , Test.test "let with record after in without space"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
         a = 1
     in{}"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -7775,9 +7712,8 @@ let
                                 }
                     )
                 , Test.test "let with lambda after in without space"
-                    (\{} ->
-                        """
-let
+                    (\() ->
+                        """let
         a = 1
     in\\_ -> 1"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -7823,7 +7759,7 @@ let
                                 }
                     )
                 , Test.test "let is not confused by a variable name starting with let"
-                    (\{} ->
+                    (\() ->
                         "letterbox"
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -7833,9 +7769,8 @@ let
                 ]
             , Test.describe "case-of"
                 [ Test.test "allow the matched expression to be top indented"
-                    (\{} ->
-                        """
-case
+                    (\() ->
+                        """case
 True
   of
     A -> 1"""
@@ -7844,9 +7779,8 @@ True
                             |> Expect.equal (Just ())
                     )
                 , Test.test "allow the `of` keyword to be top indented"
-                    (\{} ->
-                        """
-case True
+                    (\() ->
+                        """case True
 of
                A -> 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
@@ -7854,18 +7788,16 @@ of
                             |> Expect.equal (Just ())
                     )
                 , Test.test "allow a case first branch pattern to be top indented"
-                    (\{} ->
-                        """
-case True of
+                    (\() ->
+                        """case True of
 True -> 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
                             |> Maybe.map (\_ -> ())
                             |> Expect.equal (Just ())
                     )
                 , Test.test "allow case branch result to be top indented"
-                    (\{} ->
-                        """
-case f of
+                    (\() ->
+                        """case f of
   True ->
 1"""
                             |> GrenParserLenient.run GrenParserLenient.expression
@@ -7873,9 +7805,8 @@ case f of
                             |> Expect.equal (Just ())
                     )
                 , Test.test "case expression"
-                    (\{} ->
-                        """
-case f of
+                    (\() ->
+                        """case f of
   True -> 1
   False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -7910,9 +7841,8 @@ case f of
                                 }
                     )
                 , Test.test "allow . between case pattern and result"
-                    (\{} ->
-                        """
-case [] of
+                    (\() ->
+                        """case [] of
     _ .  1"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { end = { column = 11, row = 2 }, start = { column = 1, row = 1 } }
@@ -7937,9 +7867,8 @@ case [] of
                                 }
                     )
                 , Test.test "allow no symbol at all between case pattern and result"
-                    (\{} ->
-                        """
-case [] of
+                    (\() ->
+                        """case [] of
     _    1"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { end = { column = 11, row = 2 }, start = { column = 1, row = 1 } }
@@ -7964,9 +7893,8 @@ case [] of
                                 }
                     )
                 , Test.test "when-is expression with `when` after simple cased expression"
-                    (\{} ->
-                        """
-f when
+                    (\() ->
+                        """f when
   True -> 1
   False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -8001,9 +7929,8 @@ f when
                                 }
                     )
                 , Test.test "when-is expression with `when` after cased expression infix operation"
-                    (\{} ->
-                        """
-f |> g when
+                    (\() ->
+                        """f |> g when
   True -> 1
   False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
@@ -8049,9 +7976,8 @@ f |> g when
                                 }
                     )
                 , Test.test "case expression with qualified imports"
-                    (\{} ->
-                        """
-case f of
+                    (\() ->
+                        """case f of
   Foo.Bar -> 1"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 15 } }
@@ -8076,9 +8002,8 @@ case f of
                                 }
                     )
                 , Test.test "case expression with no space between pattern and value"
-                    (\{} ->
-                        """
-case f of
+                    (\() ->
+                        """case f of
   x->1"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 7 } }
@@ -8103,9 +8028,8 @@ case f of
                                 }
                     )
                 , Test.test "should parse case expression with first branch on the same line as case of"
-                    (\{} ->
-                        """
-case x of True -> 1
+                    (\() ->
+                        """case x of True -> 1
           False -> 2"""
                             |> expectSyntaxWithoutComments GrenParserLenient.expression
                                 { range = { start = { row = 1, column = 1 }, end = { row = 2, column = 21 } }
@@ -8139,9 +8063,8 @@ case x of True -> 1
                                 }
                     )
                 , Test.test "should parse case expression with a multiline pattern"
-                    (\{} ->
-                        """
-case x of
+                    (\() ->
+                        """case x of
         \"\"\"single line triple quote\"\"\" ->
             1
         \"\"\"multi line
@@ -8195,26 +8118,23 @@ case x of
                                 }
                     )
                 , Test.test "should fail to parse case expression with second branch indented differently than the first line (before)"
-                    (\{} ->
+                    (\() ->
                         expectFailsToParse GrenParserLenient.expression
-                            """
-case f of
+                            """case f of
   True -> 1
  False -> 2"""
                     )
                 , Test.test "should fail to parse case expression with second branch indented differently than the first line (after)"
-                    (\{} ->
-                        """
-case f of
+                    (\() ->
+                        """case f of
   True -> 1
    False -> 2
 """
                             |> expectFailsToParse GrenParserLenient.expression
                     )
                 , Test.test "should parse case expression when "
-                    (\{} ->
-                        """
-case msg of
+                    (\() ->
+                        """case msg of
   Increment ->
     1
 
@@ -8253,9 +8173,8 @@ case msg of
                     )
                 ]
             , Test.test "allow if condition to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if
@@ -8267,9 +8186,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow `then` indentation to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True
@@ -8281,9 +8199,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if `then` to not be positively indented if it doesn't overlap with existing indents"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True
@@ -8295,9 +8212,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if-true-branch to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True then
@@ -8309,9 +8225,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if `else` to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True then 1
@@ -8323,9 +8238,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if `else` to not positively indented if it doesn't overlap with existing indents"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True then 1
@@ -8337,9 +8251,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if if-false-branch to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             if True then 1 else
@@ -8351,9 +8264,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow record closing curly to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             { a = 0, b = 1
@@ -8365,9 +8277,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow record field value to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             { a = 0, b =
@@ -8379,9 +8290,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow record field name to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             { a = 0,
@@ -8393,9 +8303,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow record field `=` to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             { a = 0, b
@@ -8407,9 +8316,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow infix operator to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             0
@@ -8421,9 +8329,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "fail if function call argument is top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             f 0
@@ -8433,9 +8340,8 @@ a =
                         |> expectFailsToParse GrenParserLenient.declaration
                 )
             , Test.test "allow lambda result to be top indented"
-                (\{} ->
-                    """
-a =
+                (\() ->
+                    """a =
     let
         x =
             \\y ->
@@ -8447,9 +8353,8 @@ a =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow case branch result call argument to be top indented"
-                (\{} ->
-                    """
-foo = 
+                (\() ->
+                    """foo = 
     case Nothing of
         Nothing -> a <|
         \\_ -> ()"""
@@ -8458,9 +8363,8 @@ foo =
                         |> Expect.equal (Just ())
                 )
             , Test.test "allow if case branch result call argument to not positively indented if it doesn't overlap with existing indents"
-                (\{} ->
-                    """
-foo = 
+                (\() ->
+                    """foo = 
     case Nothing of
         Nothing -> a
   b"""
@@ -8471,7 +8375,7 @@ foo =
             ]
         , Test.describe "pattern"
             [ Test.test "Unit"
-                (\{} ->
+                (\() ->
                     "()"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 3 } }
@@ -8479,9 +8383,8 @@ foo =
                             }
                 )
             , Test.test "Unit with inner layout"
-                (\{} ->
-                    """
-(
+                (\() ->
+                    """(
    -- comment
    )"""
                         |> expectSyntaxWithComments GrenParserLenient.pattern
@@ -8497,7 +8400,7 @@ foo =
                             }
                 )
             , Test.test "String"
-                (\{} ->
+                (\() ->
                     "\"Foo\""
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -8505,7 +8408,7 @@ foo =
                             }
                 )
             , Test.test "Char"
-                (\{} ->
+                (\() ->
                     "'f'"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8513,7 +8416,7 @@ foo =
                             }
                 )
             , Test.test "Wildcard"
-                (\{} ->
+                (\() ->
                     "_"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
@@ -8521,7 +8424,7 @@ foo =
                             }
                 )
             , Test.test "Wildcard with custom name"
-                (\{} ->
+                (\() ->
                     "_name"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -8529,7 +8432,7 @@ foo =
                             }
                 )
             , Test.test "Parenthesized"
-                (\{} ->
+                (\() ->
                     "(x)"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8541,7 +8444,7 @@ foo =
                             }
                 )
             , Test.test "Int"
-                (\{} ->
+                (\() ->
                     "1"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 2 } }
@@ -8549,7 +8452,7 @@ foo =
                             }
                 )
             , Test.test "Hex int"
-                (\{} ->
+                (\() ->
                     "0x1"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8558,7 +8461,7 @@ foo =
                 )
             , Test.test "Float should not be valid" (\() -> expectFailsToParse GrenParserLenient.pattern "1.0")
             , Test.test "Uncons"
-                (\{} ->
+                (\() ->
                     "n :: tail"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -8576,7 +8479,7 @@ foo =
                             }
                 )
             , Test.test "Uncons multiple"
-                (\{} ->
+                (\() ->
                     "a :: b :: cUp"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 14 } }
@@ -8604,7 +8507,7 @@ foo =
                             }
                 )
             , Test.test "Uncons with parens"
-                (\{} ->
+                (\() ->
                     "(X x) :: xs"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -8635,7 +8538,7 @@ foo =
                             }
                 )
             , Test.test "Empty list"
-                (\{} ->
+                (\() ->
                     "[]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 3 } }
@@ -8643,7 +8546,7 @@ foo =
                             }
                 )
             , Test.test "Empty list pattern with whitespace"
-                (\{} ->
+                (\() ->
                     "[ ]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8651,7 +8554,7 @@ foo =
                             }
                 )
             , Test.test "Single element list"
-                (\{} ->
+                (\() ->
                     "[1]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8664,7 +8567,7 @@ foo =
                             }
                 )
             , Test.test "Single element list with trailing whitespace"
-                (\{} ->
+                (\() ->
                     "[1 ]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8677,7 +8580,7 @@ foo =
                             }
                 )
             , Test.test "Single element list with leading whitespace"
-                (\{} ->
+                (\() ->
                     "[ 1]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8690,7 +8593,7 @@ foo =
                             }
                 )
             , Test.test "list with prefix extra comma"
-                (\{} ->
+                (\() ->
                     "[,1]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8703,7 +8606,7 @@ foo =
                             }
                 )
             , Test.test "list with extra comma between elements"
-                (\{} ->
+                (\() ->
                     "[1,,2]"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -8719,7 +8622,7 @@ foo =
                             }
                 )
             , Test.test "Empty record"
-                (\{} ->
+                (\() ->
                     "{}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 3 } }
@@ -8727,7 +8630,7 @@ foo =
                             }
                 )
             , Test.test "Empty record with whitespace"
-                (\{} ->
+                (\() ->
                     "{ }"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 4 } }
@@ -8735,7 +8638,7 @@ foo =
                             }
                 )
             , Test.test "Record"
-                (\{} ->
+                (\() ->
                     "{a,b}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -8753,7 +8656,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with whitespace"
-                (\{} ->
+                (\() ->
                     "{a , b}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -8771,7 +8674,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with renamed field"
-                (\{} ->
+                (\() ->
                     "{a=a_,b}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
@@ -8793,7 +8696,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with field destructured to unit"
-                (\{} ->
+                (\() ->
                     "{a={},b}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 9 } }
@@ -8815,7 +8718,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with extra comma between fields"
-                (\{} ->
+                (\() ->
                     "{a,, b}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 8 } }
@@ -8833,7 +8736,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with prefixed comma"
-                (\{} ->
+                (\() ->
                     "{ , a , b }"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -8851,7 +8754,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with field name colliding with keyword"
-                (\{} ->
+                (\() ->
                     "{ ,as , b }"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -8869,7 +8772,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with trailing whitespace"
-                (\{} ->
+                (\() ->
                     "{a }"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8883,7 +8786,7 @@ foo =
                             }
                 )
             , Test.test "Record pattern with leading whitespace"
-                (\{} ->
+                (\() ->
                     "{ a}"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8897,7 +8800,7 @@ foo =
                             }
                 )
             , Test.test "Named"
-                (\{} ->
+                (\() ->
                     "True"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 5 } }
@@ -8905,7 +8808,7 @@ foo =
                             }
                 )
             , Test.test "Named pattern without and with spacing should parse to the same"
-                (\{} ->
+                (\() ->
                     "Bar "
                         |> GrenParserLenient.run GrenParserLenient.pattern
                         |> Expect.equal
@@ -8914,7 +8817,7 @@ foo =
                             )
                 )
             , Test.test "Qualified named"
-                (\{} ->
+                (\() ->
                     "Basics.True"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 12 } }
@@ -8922,7 +8825,7 @@ foo =
                             }
                 )
             , Test.test "Named pattern with data"
-                (\{} ->
+                (\() ->
                     "Set x"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 6 } }
@@ -8939,7 +8842,7 @@ foo =
                             }
                 )
             , Test.test "Qualified named pattern with data"
-                (\{} ->
+                (\() ->
                     "Set.Set x"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
@@ -8956,7 +8859,7 @@ foo =
                             }
                 )
             , Test.test "As pattern"
-                (\{} ->
+                (\() ->
                     "x as y"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 7 } }
@@ -8972,37 +8875,37 @@ foo =
                             }
                 )
             , Test.test "should fail to parse when right side is not a direct variable name"
-                (\{} ->
+                (\() ->
                     "x as (y)"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "should fail to parse consecutive as"
-                (\{} ->
+                (\() ->
                     "x as y as z"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "should fail to parse :: after as"
-                (\{} ->
+                (\() ->
                     "x as y :: z"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "should fail to parse :: after as even when :: was already used before"
-                (\{} ->
+                (\() ->
                     "w :: x as y :: z"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "should fail to parse when right side is an invalid variable name"
-                (\{} ->
+                (\() ->
                     "x as _y"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "should fail to parse when right side is not a variable name"
-                (\{} ->
+                (\() ->
                     "x as 1"
                         |> expectFailsToParse GrenParserLenient.pattern
                 )
             , Test.test "Record as"
-                (\{} ->
+                (\() ->
                     "{model,context} as appState"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 28 } }
@@ -9028,7 +8931,7 @@ foo =
                             }
                 )
             , Test.test "Complex pattern"
-                (\{} ->
+                (\() ->
                     "RBNode_gren_builtin     (RBNode_gren_builtin      (RBNode_gren_builtin Red   ))"
                         |> expectSyntaxWithoutComments GrenParserLenient.pattern
                             { range = { end = { column = 80, row = 1 }, start = { column = 1, row = 1 } }
@@ -9073,7 +8976,7 @@ foo =
             ]
         , Test.describe "misc comments and operators"
             [ Test.test "function with documentation comment, without signature"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9141,7 +9044,7 @@ bar = 1
                             )
                 )
             , Test.test "function with documentation and signature"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9228,7 +9131,7 @@ bar = 1
                             )
                 )
             , Test.test "function with single line comment before"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9278,7 +9181,7 @@ bar = 1
                             )
                 )
             , Test.test "file with multiple comments"
-                (\{} ->
+                (\() ->
                     """
 -- comment 1
 module Bar exposing (..)
@@ -9346,7 +9249,7 @@ bar = {- comment 3 -} 1 -- comment 4
                             )
                 )
             , Test.test "function with multi-line comment before"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9400,7 +9303,7 @@ bar = 1
                             )
                 )
             , Test.test "type alias with documentation"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9481,7 +9384,7 @@ type alias Foo
                             )
                 )
             , Test.test "choice type with documentation comment"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9556,9 +9459,8 @@ type Foo
                             )
                 )
             , Test.test "max call stack size failure"
-                (\{} ->
-                    """
-module Simplify.AstHelpers exposing (log)
+                (\() ->
+                    """module Simplify.AstHelpers exposing (log)
 
 
 log : Int -> Int
@@ -9665,7 +9567,7 @@ log a =
                             )
                 )
             , Test.test "parenthesized infix operations"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9755,7 +9657,7 @@ bar = (x + 1) * (2 * y)
                             )
                 )
             , Test.test "infix operators consecutive with different associativity loose then tight"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9826,7 +9728,7 @@ bar = x + 1 * 2
                             )
                 )
             , Test.test "infix operators consecutive with different associativity tight then loose"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9897,7 +9799,7 @@ bar = x * 1 + 2
                             )
                 )
             , Test.test "negated infix operation"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -9965,7 +9867,7 @@ bar = -(1 * 2)
                             )
                 )
             , Test.test "infix operation into record access"
-                (\{} ->
+                (\() ->
                     """
 module Bar exposing (..)
 
@@ -10039,7 +9941,7 @@ bar = (1 * 2).x
                             )
                 )
             , Test.test "infix operators regression https://github.com/stil4m/gren-syntax/issues/41"
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10259,7 +10161,7 @@ numeric2 = 1 + 2 * 3 ^ 4
                             )
                 )
             , Test.test "infix operators associativity https://github.com/stil4m/gren-syntax/issues/87"
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10373,7 +10275,7 @@ pipeline1 = 1 |> 2 |> 3
                             )
                 )
             , Test.test "!= is equivalent to /="
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10465,7 +10367,7 @@ pipeline1 = 1 /= 2
                             )
                 )
             , Test.test "!== is equivalent to /="
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10557,7 +10459,7 @@ pipeline1 = 1 /= 2
                             )
                 )
             , Test.test "=== is equivalent to =="
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10649,7 +10551,7 @@ pipeline1 = 1 == 2
                             )
                 )
             , Test.test "** is equivalent to ^"
-                (\{} ->
+                (\() ->
                     """
 module A exposing (..)
 
@@ -10793,7 +10695,7 @@ expectSyntaxWithoutComments parser expected source =
 
 expectSyntaxWithComments :
     GrenParserLenient.Parser { comments : GrenParserLenient.Comments, syntax : a }
-    -> { syntax : a, comments : Array (GrenSyntax.Node String) }
+    -> { syntax : a, comments : List (GrenSyntax.Node String) }
     -> String
     -> Expect.Expectation
 expectSyntaxWithComments parser expected source =

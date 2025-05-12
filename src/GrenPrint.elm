@@ -62,7 +62,7 @@ module_ syntaxModule =
 For import exposing: [`importExposing`](#importExposing)
 -}
 moduleExposing :
-    { atDocsLines : Array (Array String), comments : Array (GrenSyntax.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 moduleExposing context moduleExposingNode =
@@ -75,7 +75,7 @@ moduleExposing context moduleExposingNode =
 (confusingly, that's their name for only the `module X exposing (Y)` lines)
 -}
 moduleHeader :
-    { atDocsLines : Array (Array String), comments : Array (GrenSyntax.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Module
     -> Print
 moduleHeader context syntaxModuleHeader =
@@ -87,8 +87,8 @@ moduleHeader context syntaxModuleHeader =
 {-| Print a set of [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)s
 -}
 imports :
-    Array (GrenSyntax.Node String)
-    -> Array (GrenSyntax.Node GrenSyntax.Import)
+    List (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
     -> Print
 imports syntaxComments syntaxImports =
     \state ->
@@ -99,7 +99,7 @@ imports syntaxComments syntaxImports =
 {-| Print a single [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)
 -}
 import_ :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Import
     -> Print
 import_ syntaxComments importNode =
@@ -112,7 +112,7 @@ import_ syntaxComments importNode =
 For module header exposing: [`moduleExposing`](#moduleExposing)
 -}
 importExposing :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 importExposing syntaxComments importExposingNode =
@@ -124,7 +124,7 @@ importExposing syntaxComments importExposingNode =
 {-| Print `--` or `{- -}` comments placed _within a declaration_.
 For top-level comments: [`moduleLevelComments`](#moduleLevelComments)
 -}
-comments : Array String -> Print
+comments : List String -> Print
 comments syntaxComments =
     \state ->
         GrenPrintDefunctionalized.comments syntaxComments
@@ -134,7 +134,7 @@ comments syntaxComments =
 {-| Print `--` or `{- -}` comments placed outside of declarations at the top level.
 For comments within a declaration: [`comments`](#comments)
 -}
-moduleLevelComments : Array String -> Print
+moduleLevelComments : List String -> Print
 moduleLevelComments syntaxComments =
     \state ->
         GrenPrintDefunctionalized.moduleLevelComments syntaxComments
@@ -169,7 +169,7 @@ expose syntaxExpose =
 {-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
 -}
 patternNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternNotParenthesized syntaxComments patternNode =
@@ -180,7 +180,7 @@ patternNotParenthesized syntaxComments patternNode =
 
 {-| Print a name with its qualification (`[]` for no qualification)
 -}
-qualifiedReference : { qualification : Array String, name : String } -> Print
+qualifiedReference : { qualification : List String, name : String } -> Print
 qualifiedReference syntaxReference =
     \_ ->
         GrenPrintDefunctionalized.qualifiedReference syntaxReference
@@ -189,7 +189,7 @@ qualifiedReference syntaxReference =
 {-| Print an [`GrenSyntax.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
 -}
 typeNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeNotParenthesized syntaxComments typeNode =
@@ -202,11 +202,11 @@ typeNotParenthesized syntaxComments typeNode =
 and comments in between
 -}
 declarations :
-    { portDocumentationComments : Array (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    { portDocumentationComments : List (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     , previousEnd : GrenSyntax.Location
     }
-    -> Array (GrenSyntax.Node GrenSyntax.Declaration)
+    -> List (GrenSyntax.Node GrenSyntax.Declaration)
     -> Print
 declarations context syntaxDeclarations =
     \state ->
@@ -218,7 +218,7 @@ declarations context syntaxDeclarations =
 -}
 declaration :
     { portDocumentationComment : Maybe (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -232,7 +232,7 @@ declaration syntaxComments syntaxDeclaration =
 as `name : Type`
 -}
 declarationSignature :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { name : GrenSyntax.Node String
         , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -248,7 +248,7 @@ declarationSignature syntaxComments signature =
 -}
 declarationPort :
     { documentationComment : Maybe (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     ->
         { name : GrenSyntax.Node String
@@ -264,7 +264,7 @@ declarationPort syntaxComments signature =
 {-| Print an [`GrenSyntax.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
 -}
 declarationTypeAlias :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.TypeAliasDeclarationInfo
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
@@ -276,7 +276,7 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
 {-| Print an [`GrenSyntax.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
 -}
 declarationChoiceType :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.ChoiceTypeDeclarationInfo
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
@@ -297,7 +297,7 @@ declarationInfix syntaxInfixDeclaration =
 {-| Print an [`GrenSyntax.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
 -}
 declarationExpression :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.ValueOrFunctionDeclarationInfo
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
@@ -309,7 +309,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
 {-| Print an [`GrenSyntax.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
 -}
 expressionNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionNotParenthesized syntaxComments expressionNode =
@@ -321,7 +321,7 @@ expressionNotParenthesized syntaxComments expressionNode =
 {-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
 -}
 case_ :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { pattern : GrenSyntax.Node GrenSyntax.Pattern
         , result : GrenSyntax.Node GrenSyntax.Expression

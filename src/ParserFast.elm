@@ -144,13 +144,13 @@ type Parser a
 
 type PStep value
     = Good value State
-    | Bad Bool {}
+    | Bad Bool ()
 
 
 type alias State =
     { src : String
     , offset : Int
-    , indent : Array Int
+    , indent : List Int
     , row : Int
     , col : Int
     }
@@ -159,13 +159,13 @@ type alias State =
 {-| Try a parser. Here are some examples using the [`keyword`](#keyword)
 parser:
 
-    run (keyword "true" {}) "true" --> Just {}
+    run (keyword "true" ()) "true" --> Just ()
 
-    run (keyword "true" {}) "True" --> Nothing
+    run (keyword "true" ()) "True" --> Nothing
 
-    run (keyword "true" {}) "false" --> Nothing
+    run (keyword "true" ()) "false" --> Nothing
 
-    run (keyword "true" {}) "true!" --> Nothing
+    run (keyword "true" ()) "true!" --> Nothing
 
 Notice the last case!
 It's guaranteed you have reached the end of the string you are parsing.
@@ -185,7 +185,7 @@ run (Parser parse) src =
             else
                 Nothing
 
-        Bad _ {} ->
+        Bad _ () ->
             Nothing
 
 
@@ -237,13 +237,13 @@ only define a value in terms of itself it is behind a function call. So
 If the recursion is linear, first consider the loop- helpers to avoid stack overflows
 
 -}
-lazy : ({} -> Parser a) -> Parser a
+lazy : (() -> Parser a) -> Parser a
 lazy thunk =
     Parser
         (\s ->
             let
                 (Parser parse) =
-                    thunk {}
+                    thunk ()
             in
             parse s
         )
@@ -286,7 +286,7 @@ mapOrFail isOkay (Parser parseA) =
 
 {-| Can be used to verify the current indentation like this:
 
-    checkIndent : Parser {}
+    checkIndent : Parser ()
     checkIndent =
         columnIndentAndThen (\indent column -> column > indent)
             "expecting more spaces"
@@ -295,7 +295,7 @@ So the `checkIndent` parser only succeeds when you are "deeper" than the
 current indent level. You could use this to parse gren-style `let` expressions.
 
 -}
-columnIndentAndThen : (Int -> Array Int -> Parser b) -> Parser b
+columnIndentAndThen : (Int -> List Int -> Parser b) -> Parser b
 columnIndentAndThen callback =
     Parser
         (\s ->
@@ -307,7 +307,7 @@ columnIndentAndThen callback =
         )
 
 
-validateEndColumnIndentation : (Int -> Array Int -> Bool) -> Parser a -> Parser a
+validateEndColumnIndentation : (Int -> List Int -> Bool) -> Parser a -> Parser a
 validateEndColumnIndentation isOkay (Parser parse) =
     Parser
         (\s0 ->
@@ -940,12 +940,12 @@ problem =
 
 pStepBadBacktracking : PStep a_
 pStepBadBacktracking =
-    Bad False {}
+    Bad False ()
 
 
 pStepBadCommitting : PStep a_
 pStepBadCommitting =
-    Bad True {}
+    Bad True ()
 
 
 orSucceed : Parser a -> a -> Parser a
@@ -990,7 +990,7 @@ mapOrSucceed attemptToResult (Parser attempt) fallbackResult =
                 Good attemptResult s1 ->
                     Good (attemptResult |> attemptToResult) s1
 
-                Bad firstCommitted {} ->
+                Bad firstCommitted () ->
                     if firstCommitted then
                         pStepBadCommitting
 
@@ -1179,12 +1179,12 @@ oneOf2DisregardingCommit (Parser attemptFirst) (Parser attemptSecond) =
                 (Good _ _) as firstGood ->
                     firstGood
 
-                Bad _ {} ->
+                Bad _ () ->
                     case attemptSecond s of
                         (Good _ _) as secondGood ->
                             secondGood
 
-                        (Bad secondCommitted {}) as secondBad ->
+                        (Bad secondCommitted ()) as secondBad ->
                             if secondCommitted then
                                 secondBad
 
@@ -1201,7 +1201,7 @@ oneOf2 (Parser attemptFirst) (Parser attemptSecond) =
                 (Good _ _) as firstGood ->
                     firstGood
 
-                (Bad firstCommitted {}) as firstBad ->
+                (Bad firstCommitted ()) as firstBad ->
                     if firstCommitted then
                         firstBad
 
@@ -1210,7 +1210,7 @@ oneOf2 (Parser attemptFirst) (Parser attemptSecond) =
                             (Good _ _) as secondGood ->
                                 secondGood
 
-                            (Bad secondCommitted {}) as secondBad ->
+                            (Bad secondCommitted ()) as secondBad ->
                                 if secondCommitted then
                                     secondBad
 
@@ -1227,7 +1227,7 @@ oneOf2OrSucceed (Parser attemptFirst) (Parser attemptSecond) fallbackResult =
                 (Good _ _) as firstGood ->
                     firstGood
 
-                (Bad firstCommitted {}) as firstBad ->
+                (Bad firstCommitted ()) as firstBad ->
                     if firstCommitted then
                         firstBad
 
@@ -1236,7 +1236,7 @@ oneOf2OrSucceed (Parser attemptFirst) (Parser attemptSecond) fallbackResult =
                             (Good _ _) as secondGood ->
                                 secondGood
 
-                            (Bad secondCommitted {}) as secondBad ->
+                            (Bad secondCommitted ()) as secondBad ->
                                 if secondCommitted then
                                     secondBad
 
@@ -1253,7 +1253,7 @@ oneOf3 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) =
                 (Good _ _) as firstGood ->
                     firstGood
 
-                (Bad firstCommitted {}) as firstBad ->
+                (Bad firstCommitted ()) as firstBad ->
                     if firstCommitted then
                         firstBad
 
@@ -1262,7 +1262,7 @@ oneOf3 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) =
                             (Good _ _) as secondGood ->
                                 secondGood
 
-                            (Bad secondCommitted {}) as secondBad ->
+                            (Bad secondCommitted ()) as secondBad ->
                                 if secondCommitted then
                                     secondBad
 
@@ -1271,7 +1271,7 @@ oneOf3 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) =
                                         (Good _ _) as thirdGood ->
                                             thirdGood
 
-                                        (Bad thirdCommitted {}) as thirdBad ->
+                                        (Bad thirdCommitted ()) as thirdBad ->
                                             if thirdCommitted then
                                                 thirdBad
 
@@ -1288,7 +1288,7 @@ oneOf4 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                 (Good _ _) as firstGood ->
                     firstGood
 
-                (Bad firstCommitted {}) as firstBad ->
+                (Bad firstCommitted ()) as firstBad ->
                     if firstCommitted then
                         firstBad
 
@@ -1297,7 +1297,7 @@ oneOf4 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                             (Good _ _) as secondGood ->
                                 secondGood
 
-                            (Bad secondCommitted {}) as secondBad ->
+                            (Bad secondCommitted ()) as secondBad ->
                                 if secondCommitted then
                                     secondBad
 
@@ -1306,7 +1306,7 @@ oneOf4 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                                         (Good _ _) as thirdGood ->
                                             thirdGood
 
-                                        (Bad thirdCommitted {}) as thirdBad ->
+                                        (Bad thirdCommitted ()) as thirdBad ->
                                             if thirdCommitted then
                                                 thirdBad
 
@@ -1315,7 +1315,7 @@ oneOf4 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                                                     (Good _ _) as fourthGood ->
                                                         fourthGood
 
-                                                    (Bad fourthCommitted {}) as fourthBad ->
+                                                    (Bad fourthCommitted ()) as fourthBad ->
                                                         if fourthCommitted then
                                                             fourthBad
 
@@ -1332,7 +1332,7 @@ oneOf5 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                 (Good _ _) as firstGood ->
                     firstGood
 
-                (Bad firstCommitted {}) as firstBad ->
+                (Bad firstCommitted ()) as firstBad ->
                     if firstCommitted then
                         firstBad
 
@@ -1341,7 +1341,7 @@ oneOf5 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                             (Good _ _) as secondGood ->
                                 secondGood
 
-                            (Bad secondCommitted {}) as secondBad ->
+                            (Bad secondCommitted ()) as secondBad ->
                                 if secondCommitted then
                                     secondBad
 
@@ -1350,7 +1350,7 @@ oneOf5 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                                         (Good _ _) as thirdGood ->
                                             thirdGood
 
-                                        (Bad thirdCommitted {}) as thirdBad ->
+                                        (Bad thirdCommitted ()) as thirdBad ->
                                             if thirdCommitted then
                                                 thirdBad
 
@@ -1359,7 +1359,7 @@ oneOf5 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                                                     (Good _ _) as fourthGood ->
                                                         fourthGood
 
-                                                    (Bad fourthCommitted {}) as fourthBad ->
+                                                    (Bad fourthCommitted ()) as fourthBad ->
                                                         if fourthCommitted then
                                                             fourthBad
 
@@ -1368,7 +1368,7 @@ oneOf5 (Parser attemptFirst) (Parser attemptSecond) (Parser attemptThird) (Parse
                                                                 (Good _ _) as fifthGood ->
                                                                     fifthGood
 
-                                                                (Bad fifthCommitted {}) as fifthBad ->
+                                                                (Bad fifthCommitted ()) as fifthBad ->
                                                                     if fifthCommitted then
                                                                         fifthBad
 
@@ -1385,7 +1385,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                 (Good _ _) as good ->
                     good
 
-                (Bad committed0 {}) as bad0 ->
+                (Bad committed0 ()) as bad0 ->
                     if committed0 then
                         bad0
 
@@ -1394,7 +1394,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                             (Good _ _) as good ->
                                 good
 
-                            (Bad committed1 {}) as bad1 ->
+                            (Bad committed1 ()) as bad1 ->
                                 if committed1 then
                                     bad1
 
@@ -1403,7 +1403,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                         (Good _ _) as good ->
                                             good
 
-                                        (Bad committed2 {}) as bad2 ->
+                                        (Bad committed2 ()) as bad2 ->
                                             if committed2 then
                                                 bad2
 
@@ -1412,7 +1412,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                     (Good _ _) as good ->
                                                         good
 
-                                                    (Bad committed3 {}) as bad3 ->
+                                                    (Bad committed3 ()) as bad3 ->
                                                         if committed3 then
                                                             bad3
 
@@ -1421,7 +1421,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                 (Good _ _) as good ->
                                                                     good
 
-                                                                (Bad committed4 {}) as bad4 ->
+                                                                (Bad committed4 ()) as bad4 ->
                                                                     if committed4 then
                                                                         bad4
 
@@ -1430,7 +1430,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                             (Good _ _) as good ->
                                                                                 good
 
-                                                                            (Bad committed5 {}) as bad5 ->
+                                                                            (Bad committed5 ()) as bad5 ->
                                                                                 if committed5 then
                                                                                     bad5
 
@@ -1439,7 +1439,7 @@ oneOf7 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                                         (Good _ _) as good ->
                                                                                             good
 
-                                                                                        (Bad committed6 {}) as bad6 ->
+                                                                                        (Bad committed6 ()) as bad6 ->
                                                                                             if committed6 then
                                                                                                 bad6
 
@@ -1456,7 +1456,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                 (Good _ _) as good ->
                     good
 
-                (Bad committed0 {}) as bad0 ->
+                (Bad committed0 ()) as bad0 ->
                     if committed0 then
                         bad0
 
@@ -1465,7 +1465,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                             (Good _ _) as good ->
                                 good
 
-                            (Bad committed1 {}) as bad1 ->
+                            (Bad committed1 ()) as bad1 ->
                                 if committed1 then
                                     bad1
 
@@ -1474,7 +1474,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                         (Good _ _) as good ->
                                             good
 
-                                        (Bad committed2 {}) as bad2 ->
+                                        (Bad committed2 ()) as bad2 ->
                                             if committed2 then
                                                 bad2
 
@@ -1483,7 +1483,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                     (Good _ _) as good ->
                                                         good
 
-                                                    (Bad committed3 {}) as bad3 ->
+                                                    (Bad committed3 ()) as bad3 ->
                                                         if committed3 then
                                                             bad3
 
@@ -1492,7 +1492,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                 (Good _ _) as good ->
                                                                     good
 
-                                                                (Bad committed4 {}) as bad4 ->
+                                                                (Bad committed4 ()) as bad4 ->
                                                                     if committed4 then
                                                                         bad4
 
@@ -1501,7 +1501,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                             (Good _ _) as good ->
                                                                                 good
 
-                                                                            (Bad committed5 {}) as bad5 ->
+                                                                            (Bad committed5 ()) as bad5 ->
                                                                                 if committed5 then
                                                                                     bad5
 
@@ -1510,7 +1510,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                                         (Good _ _) as good ->
                                                                                             good
 
-                                                                                        (Bad committed6 {}) as bad6 ->
+                                                                                        (Bad committed6 ()) as bad6 ->
                                                                                             if committed6 then
                                                                                                 bad6
 
@@ -1519,7 +1519,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                                                     (Good _ _) as good ->
                                                                                                         good
 
-                                                                                                    (Bad committed7 {}) as bad7 ->
+                                                                                                    (Bad committed7 ()) as bad7 ->
                                                                                                         if committed7 then
                                                                                                             bad7
 
@@ -1528,7 +1528,7 @@ oneOf9 (Parser attempt0) (Parser attempt1) (Parser attempt2) (Parser attempt3) (
                                                                                                                 (Good _ _) as good ->
                                                                                                                     good
 
-                                                                                                                (Bad committed8 {}) as bad8 ->
+                                                                                                                (Bad committed8 ()) as bad8 ->
                                                                                                                     if committed8 then
                                                                                                                         bad8
 
@@ -1680,16 +1680,16 @@ loopWhileSucceedsOntoResultFromParser element (Parser parseInitialFolded) reduce
         )
 
 
-loopUntil : Parser {} -> Parser element -> folded -> (element -> folded -> folded) -> (folded -> res) -> Parser res
+loopUntil : Parser () -> Parser element -> folded -> (element -> folded -> folded) -> (folded -> res) -> Parser res
 loopUntil endParser element initialFolded reduce foldedToRes =
     Parser
         (\s -> loopUntilHelp endParser element initialFolded reduce foldedToRes s)
 
 
-loopUntilHelp : Parser {} -> Parser element -> folded -> (element -> folded -> folded) -> (folded -> res) -> State -> PStep res
+loopUntilHelp : Parser () -> Parser element -> folded -> (element -> folded -> folded) -> (folded -> res) -> State -> PStep res
 loopUntilHelp ((Parser parseEnd) as endParser) ((Parser parseElement) as element) soFar reduce foldedToRes s0 =
     case parseEnd s0 of
-        Good {} s1 ->
+        Good () s1 ->
             Good (foldedToRes soFar) s1
 
         Bad endCommitted endX ->
@@ -1707,7 +1707,7 @@ loopUntilHelp ((Parser parseEnd) as endParser) ((Parser parseElement) as element
                             foldedToRes
                             s1
 
-                    Bad _ {} ->
+                    Bad _ () ->
                         pStepBadCommitting
 
 
@@ -2321,8 +2321,8 @@ convert0OrMore0To9s soFar offset src =
 Make sure the given String isn't empty and does not contain \\n
 or 2-part UTF-16 characters.
 
-    run (symbol "[" {}) "[" == Ok {}
-    run (symbol "[" {}) "4" == Err ... (ExpectingSymbol "[") ...
+    run (symbol "[" ()) "[" == Ok ()
+    run (symbol "[" ()) "4" == Err ... (ExpectingSymbol "[") ...
 
 **Note:** This is good for stuff like brackets and semicolons,
 but it might need extra validations for binary operators like `-` because you can find
@@ -2535,9 +2535,9 @@ pStepCommit pStep =
 Make sure the given String isn't empty and does not contain \\n
 or 2-part UTF-16 characters.
 
-    run (keyword "let" {}) "let"     == Ok {}
-    run (keyword "let" {}) "var"     == Err ... (ExpectingKeyword "let") ...
-    run (keyword "let" {}) "letters" == Err ... (ExpectingKeyword "let") ...
+    run (keyword "let" ()) "let"     == Ok ()
+    run (keyword "let" ()) "var"     == Err ... (ExpectingKeyword "let") ...
+    run (keyword "let" ()) "letters" == Err ... (ExpectingKeyword "let") ...
 
 **Note:** Notice the third case there! `keyword` actually looks ahead one
 character to make sure it is not a letter, digit, or underscore.
@@ -2699,7 +2699,7 @@ whileMapWithRange isGood rangeAndConsumedStringToRes =
         )
 
 
-skipWhileHelp : (Char -> Bool) -> Int -> Int -> Int -> String -> Array Int -> State
+skipWhileHelp : (Char -> Bool) -> Int -> Int -> Int -> String -> List Int -> State
 skipWhileHelp isGood offset row col src indent =
     let
         actualChar : String
@@ -2731,7 +2731,7 @@ skipWhileHelp isGood offset row col src indent =
         }
 
 
-skipWhileWithoutLinebreakHelp : (Char -> Bool) -> Int -> Int -> Int -> String -> Array Int -> State
+skipWhileWithoutLinebreakHelp : (Char -> Bool) -> Int -> Int -> Int -> String -> List Int -> State
 skipWhileWithoutLinebreakHelp isGood offset row col src indent =
     let
         actualChar : String
@@ -2781,7 +2781,7 @@ skipWhileWhitespaceBacktrackableFollowedBy (Parser parseNext) =
         )
 
 
-skipWhileWhitespaceHelp : Int -> Int -> Int -> String -> Array Int -> State
+skipWhileWhitespaceHelp : Int -> Int -> Int -> String -> List Int -> State
 skipWhileWhitespaceHelp offset row col src indent =
     case String.slice offset (offset + 1) src of
         " " ->
@@ -2798,7 +2798,7 @@ skipWhileWhitespaceHelp offset row col src indent =
             { src = src, offset = offset, indent = indent, row = row, col = col }
 
 
-changeIndent : (Array Int -> Array Int) -> State -> State
+changeIndent : (List Int -> List Int) -> State -> State
 changeIndent newIndent s =
     { src = s.src
     , offset = s.offset
@@ -2817,7 +2817,7 @@ withIndentSetToColumn (Parser parse) =
         (\s0 ->
             case parse (changeIndent (\indent -> s0.col :: indent) s0) of
                 Good a s1 ->
-                    Good a (changeIndent (\indent -> indent |> Array.drop 1) s1)
+                    Good a (changeIndent (\indent -> indent |> List.drop 1) s1)
 
                 bad ->
                     bad
@@ -3263,7 +3263,7 @@ type Step state a
 repeated structures, like a bunch of statements:
 
 
-    statements : Parser (Array Statement)
+    statements : Parser (List Statement)
     statements =
         loop maybeStatementSemicolonWhitespace
             []
@@ -3273,7 +3273,7 @@ repeated structures, like a bunch of statements:
                         Loop (lastStatement :: soFar)
 
                     Nothing ->
-                        Done (Array.reverse soFar)
+                        Done (List.reverse soFar)
             )
 
     maybeStatementSemicolonWhitespace : Maybe Statement

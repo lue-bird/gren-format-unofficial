@@ -1,67 +1,66 @@
 module GrainParserLenientTestFullModules exposing (allSamples)
 
 
-allSamples : Array { number : Int, sample : String }
+allSamples : List ( Int, String )
 allSamples =
-    [ { number = 1, sample = sample1 }
-    , { number = 2, sample = sample2 }
-    , { number = 3, sample = sample3 }
-    , { number = 4, sample = sample4 }
-    , { number = 5, sample = sample5 }
-    , { number = 6, sample = sample6 }
-    , { number = 7, sample = sample7 }
-    , { number = 8, sample = sample8 }
-    , { number = 9, sample = sample9 }
-    , { number = 11, sample = sample11 }
-    , { number = 12, sample = sample12 }
-    , { number = 14, sample = sample14 }
-    , { number = 15, sample = sample15 }
-    , { number = 16, sample = sample16 }
-    , { number = 17, sample = sample17 }
-    , { number = 18, sample = sample18 }
-    , { number = 19, sample = sample19 }
-    , { number = 20, sample = sample20 }
-    , { number = 21, sample = sample21 }
-    , { number = 22, sample = sample22 }
-    , { number = 23, sample = sample23 }
-    , { number = 24, sample = sample24 }
-    , { number = 25, sample = sample25 }
-    , { number = 26, sample = sample26 }
-    , { number = 27, sample = sample27 }
-    , { number = 28, sample = sample28 }
-    , { number = 29, sample = sample29 }
-    , { number = 30, sample = sample30 }
-    , { number = 31, sample = sample31 }
-    , { number = 32, sample = sample32 }
-    , { number = 33, sample = sample33 }
-    , { number = 34, sample = sample34 }
-    , { number = 35, sample = sample35 }
-    , { number = 36, sample = sample36 }
-    , { number = 37, sample = sample37 }
-    , { number = 38, sample = sample38 }
-    , { number = 39, sample = sample39 }
-    , { number = 40, sample = sample40 }
-    , { number = 41, sample = sample41 }
-    , { number = 42, sample = sample42 }
-    , { number = 43, sample = sample43 }
-    , { number = 44, sample = sample44 }
-    , { number = 45, sample = sample45 }
-    , { number = 46, sample = sample46 }
-    , { number = 47, sample = sample47 }
-    , { number = 48, sample = sample48 }
-    , { number = 49, sample = sample49 }
-    , { number = 50, sample = sample50 }
-    , { number = 51, sample = sample51 }
-    , { number = 52, sample = sample52 }
-    , { number = 53, sample = sample53 }
-    , { number = 54, sample = sample54 }
+    [ ( 1, sample1 )
+    , ( 2, sample2 )
+    , ( 3, sample3 )
+    , ( 4, sample4 )
+    , ( 5, sample5 )
+    , ( 6, sample6 )
+    , ( 7, sample7 )
+    , ( 8, sample8 )
+    , ( 9, sample9 )
+    , ( 11, sample11 )
+    , ( 12, sample12 )
+    , ( 14, sample14 )
+    , ( 15, sample15 )
+    , ( 16, sample16 )
+    , ( 17, sample17 )
+    , ( 18, sample18 )
+    , ( 19, sample19 )
+    , ( 20, sample20 )
+    , ( 21, sample21 )
+    , ( 22, sample22 )
+    , ( 23, sample23 )
+    , ( 24, sample24 )
+    , ( 25, sample25 )
+    , ( 26, sample26 )
+    , ( 27, sample27 )
+    , ( 28, sample28 )
+    , ( 29, sample29 )
+    , ( 30, sample30 )
+    , ( 31, sample31 )
+    , ( 32, sample32 )
+    , ( 33, sample33 )
+    , ( 34, sample34 )
+    , ( 35, sample35 )
+    , ( 36, sample36 )
+    , ( 37, sample37 )
+    , ( 38, sample38 )
+    , ( 39, sample39 )
+    , ( 40, sample40 )
+    , ( 41, sample41 )
+    , ( 42, sample42 )
+    , ( 43, sample43 )
+    , ( 44, sample44 )
+    , ( 45, sample45 )
+    , ( 46, sample46 )
+    , ( 47, sample47 )
+    , ( 48, sample48 )
+    , ( 49, sample49 )
+    , ( 50, sample50 )
+    , ( 51, sample51 )
+    , ( 52, sample52 )
+    , ( 53, sample53 )
+    , ( 54, sample54 )
     ]
 
 
 sample51 : String
 sample51 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     [case a of
@@ -71,8 +70,7 @@ f =
 
 sample50 : String
 sample50 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     [case a of
@@ -83,8 +81,7 @@ f =
 
 sample49 : String
 sample49 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     [case a of
@@ -95,8 +92,7 @@ f =
 
 sample48 : String
 sample48 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     (\\a -> case a of
@@ -106,8 +102,7 @@ f =
 
 sample47 : String
 sample47 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     (\\a -> case a of
@@ -118,8 +113,7 @@ f =
 
 sample46 : String
 sample46 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 f =
     (\\a -> case a of
@@ -130,8 +124,7 @@ f =
 
 sample45 : String
 sample45 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 a =
     case b of
@@ -143,8 +136,7 @@ a =
 
 sample44 : String
 sample44 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 type B a= B
 
@@ -153,8 +145,7 @@ type B a= B
 
 sample43 : String
 sample43 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 a =
     case b of
@@ -165,8 +156,7 @@ a =
 
 sample42 : String
 sample42 =
-    """
-module PegTest exposing (..)
+    """module PegTest exposing (..)
 
 a =
     infixr
@@ -181,8 +171,7 @@ c =
 
 sample41 : String
 sample41 =
-    """
-module A exposing ( infixl , infixr, infix )
+    """module A exposing ( infixl , infixr, infix )
 
 a = 0
 """
@@ -190,8 +179,7 @@ a = 0
 
 sample40 : String
 sample40 =
-    """
-module A exposing (..)
+    """module A exposing (..)
 
 type alias A msg=
     { a : Int
@@ -244,8 +232,7 @@ importX =
 
 sample36 : String
 sample36 =
-    """
-module Parser.Advanced exposing( Parser)
+    """module Parser.Advanced exposing( Parser)
 
 
 -- WHITESPACE
@@ -288,7 +275,7 @@ type_ =
 sample33 : String
 sample33 =
     """
-module Lazy.Array  exposing (..)
+module Lazy.List  exposing (..)
 
 type D = C B
 """
@@ -296,8 +283,7 @@ type D = C B
 
 sample32 : String
 sample32 =
-    """
-module SomeModule exposing (..)
+    """module SomeModule exposing (..)
 
 x =
   case y of
@@ -321,8 +307,7 @@ x =
 
 sample30 : String
 sample30 =
-    """
-module Hex exposing (fromString, toString)
+    """module Hex exposing (fromString, toString)
 
 {-| Convert to and from Hex strings.
 
@@ -347,10 +332,10 @@ fromString str =
                         list =
                             str
                                 |> String.toList
-                                |> Array.tail
+                                |> List.tail
                                 |> Maybe.withDefault []
                     in
-                        fromStringHelp (Array.length list - 1) list 0
+                        fromStringHelp (List.length list - 1) list 0
                             |> Result.map negate
                 else
                     fromStringHelp (String.length str - 1) (String.toList str) 0
@@ -365,7 +350,7 @@ fromString str =
             Result.mapError formatError result
 
 
-fromStringHelp : Int -> Array Char -> Int -> Result String Int
+fromStringHelp : Int -> List Char -> Int -> Result String Int
 fromStringHelp position chars accumulated =
     case chars of
         [] ->
@@ -447,7 +432,7 @@ toString num =
 
 {-| ONLY EVER CALL THIS WITH POSITIVE INTEGERS!
 -}
-unsafePositiveToDigits : Array Char -> Int -> Array Char
+unsafePositiveToDigits : List Char -> Int -> List Char
 unsafePositiveToDigits digits num =
     if num < 16 then
         unsafeToDigit num :: digits
@@ -459,8 +444,7 @@ unsafePositiveToDigits digits num =
 
 sample29 : String
 sample29 =
-    """
-module Bar exposing (..)
+    """module Bar exposing (..)
 
 type Color = Blue
 
@@ -469,8 +453,7 @@ type Color = Blue
 
 sample28 : String
 sample28 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 x =
     let
@@ -484,8 +467,7 @@ x =
 
 sample27 : String
 sample27 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 type alias Post = {
   id: Int,
@@ -500,8 +482,7 @@ type alias Post = {
 -}
 sample26 : String
 sample26 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 x b =
   let
@@ -520,15 +501,16 @@ x b =
 -}
 sample25 : String
 sample25 =
-    "module HelloWorld exposing (..)\n\n"
-        ++ "{-| an individual Note (no pitch class implies a rest) -}    \n"
-        ++ "type alias AnInt = Int\n"
+    String.concat
+        [ "module HelloWorld exposing (..)\n\n"
+        , "{-| an individual Note (no pitch class implies a rest) -}    \n"
+        , "type alias AnInt = Int\n"
+        ]
 
 
 sample1 : String
 sample1 =
-    """
-module HelloWorld exposing (..)
+    """module HelloWorld exposing (..)
 
 import Html exposing (text)
 
@@ -539,8 +521,7 @@ main =
 
 sample2 : String
 sample2 =
-    """
--- Read more about this program in the official Gren guide:
+    """-- Read more about this program in the official Gren guide:
 -- https://guide.gren-lang.org/architecture/user_input/buttons.html
 module Buttons exposing (..)
 
@@ -576,8 +557,7 @@ update msg model =
 -}
 sample3 : String
 sample3 =
-    """
-module X exposing (..)
+    """module X exposing (..)
 import Html
 
 main =
@@ -589,8 +569,7 @@ foo = 1
 
 sample4 : String
 sample4 =
-    """
-module Operators exposing ((|=), (|.))
+    """module Operators exposing ((|=), (|.))
 
 infix left 5 (|=) = keeper
 infix left 6 (|.) = ignorer
@@ -599,8 +578,7 @@ infix left 6 (|.) = ignorer
 
 sample5 : String
 sample5 =
-    """
-module Realm exposing (updateState)
+    """module Realm exposing (updateState)
 
 {-| This library exposes a single helper function to help interface with the Realm npm package.
 
@@ -623,8 +601,7 @@ batchStateCmds sendPort nextStateAndCmd =
 
 sample6 : String
 sample6 =
-    """
-module Realm exposing (updateState)
+    """module Realm exposing (updateState)
 
 type alias SendPort msg model = model -> Cmd msg
 
@@ -633,8 +610,7 @@ type alias SendPort msg model = model -> Cmd msg
 
 sample7 : String
 sample7 =
-    """
-port module Store exposing (..)
+    """port module Store exposing (..)
 
 bar foo =
     foo.bar
@@ -644,8 +620,7 @@ bar foo =
 
 sample8 : String
 sample8 =
-    """
-port module Store exposing (..)
+    """port module Store exposing (..)
 
 foo bar =
   { bar | n = 2}
@@ -654,8 +629,7 @@ foo bar =
 
 sample9 : String
 sample9 =
-    """
-port module Store exposing (..)
+    """port module Store exposing (..)
 
 update : Msg -> Model -> ({model:Model, cmd:Cmd Msg})
 update msg model =
@@ -673,8 +647,7 @@ update msg model =
 
 sample11 : String
 sample11 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 type alias X =
     { foo : Bar.Baz
@@ -684,8 +657,7 @@ type alias X =
 
 sample12 : String
 sample12 =
-    """
-module Z exposing (..)
+    """module Z exposing (..)
 
 x : A -> B
 x baz =
@@ -701,8 +673,7 @@ x baz =
 
 sample14 : String
 sample14 =
-    """
-module G exposing (..)
+    """module G exposing (..)
 
 e =
     let
@@ -715,8 +686,7 @@ e =
 
 sample15 : String
 sample15 =
-    """
-module G exposing (..)
+    """module G exposing (..)
 
 e =
     let
@@ -730,8 +700,7 @@ e =
 
 sample16 : String
 sample16 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 bar baz3 =
   Foo1
@@ -740,16 +709,14 @@ bar baz3 =
 
 sample17 : String
 sample17 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 bar =
     '1'"""
 
 
 sample18 : String
 sample18 =
-    """
-port module Ports exposing (..)
+    """port module Ports exposing (..)
 
 import Scroll exposing (Move)
 
@@ -758,8 +725,7 @@ port scroll : (Move -> msg) -> Sub msg"""
 
 sample19 : String
 sample19 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 
 timeAgo time now =
@@ -813,8 +779,7 @@ timeAgo time now =
 
 sample20 : String
 sample20 =
-    """
-module Baz exposing (..)
+    """module Baz exposing (..)
 
 foo = bar
 -- some
@@ -824,8 +789,7 @@ foo = bar
 
 sample21 : String
 sample21 =
-    """
-module Greno8.Layers.Background exposing (..)
+    """module Greno8.Layers.Background exposing (..)
 
 {-| Background layer
 
@@ -844,8 +808,7 @@ shader = "not supported by gren"
 
 sample22 : String
 sample22 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 x : a -> b -> a
 x y z =
@@ -858,8 +821,7 @@ x y z =
 
 sample23 : String
 sample23 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 x s =
   let indent = String.length s in
@@ -870,8 +832,7 @@ x s =
 
 sample24 : String
 sample24 =
-    """
-module Foo exposing (..)
+    """module Foo exposing (..)
 
 tests =
     \\() -> Expect.equal "'\\\\''" (toString '\\'')
@@ -1042,8 +1003,7 @@ sample54 : String
 sample54 =
     -- copied and edited from https://github.com/pdamoc/elm-syntax-sscce
     -- big thanks!
-    """
-port module Main exposing (Msg(..), Natural, main)
+    """port module Main exposing (Msg(..), Natural, main)
 
 {-| The above declaration shows how to:
 
@@ -1226,7 +1186,7 @@ init _ =
 {-| Shows how to give a new name to a more complex type
 -}
 type alias Naturals =
-    Array Natural
+    List Natural
 
 
 {-| Shows how to define a custom type with multiple variants
@@ -1277,7 +1237,7 @@ view model =
         , button [ onClick AddNextTen ] [ text "Add Next Ten" ]
         , div [] [ namedNaturalToHtml namedCount ]
         , String.lines multiline
-            |> Array.map (\\line -> p [] [ text line ])
+            |> List.map (\\line -> p [] [ text line ])
             |> div []
         , footer [] [ text (String.fromChar first), text (String.fromChar last) ]
         ]
@@ -1294,7 +1254,7 @@ subscriptions model =
         -- Show how to use an anonymous function (lambda expression)
         fromJS
             (\\value ->
-                case Array.map String.toInt value of
+                case List.map String.toInt value of
                     [] ->
                         OnSubscription (Err "Received an empty list")
 
@@ -1351,7 +1311,7 @@ port reportError : String -> Cmd msg
 {-| Shows how to define an incomming port.
 The first parameter is a function that takes the data received from JS and produces a message that the app understands.
 -}
-port fromJS : (Array String -> msg) -> Sub msg
+port fromJS : (List String -> msg) -> Sub msg
 
 
 vertexShader = "not supported by gren"

@@ -33,8 +33,8 @@ module_ syntaxModule =
             moduleDocumentation syntaxModule
 
         commentsAndPortDocumentationComments :
-            { portDocumentationComments : Array (GrenSyntax.Node String)
-            , remainingComments : Array (GrenSyntax.Node String)
+            { portDocumentationComments : List (GrenSyntax.Node String)
+            , remainingComments : List (GrenSyntax.Node String)
             }
         commentsAndPortDocumentationComments =
             (case maybeModuleDocumentation of
@@ -43,13 +43,13 @@ module_ syntaxModule =
 
                 Just syntaxModuleDocumentation ->
                     syntaxModule.comments
-                        |> Array.filter (\c -> c /= syntaxModuleDocumentation)
+                        |> List.filter (\c -> c /= syntaxModuleDocumentation)
             )
                 |> splitOffPortDocumentationComments
 
         maybeModuleDocumentationParsed :
             Maybe
-                { whileAtDocsLines : Array { rawBefore : String, atDocsLine : Array String }
+                { whileAtDocsLines : List { rawBefore : String, atDocsLine : List String }
                 , rawAfterAtDocsLines : String
                 }
         maybeModuleDocumentationParsed =
@@ -63,7 +63,7 @@ module_ syntaxModule =
                             |> moduleDocumentationParse
                         )
 
-        atDocsLines : Array (Array String)
+        atDocsLines : List (List String)
         atDocsLines =
             case maybeModuleDocumentationParsed of
                 Nothing ->
@@ -71,7 +71,7 @@ module_ syntaxModule =
 
                 Just moduleDocumentationParsed ->
                     moduleDocumentationParsed.whileAtDocsLines
-                        |> Array.map .atDocsLine
+                        |> List.map .atDocsLine
 
         lastSyntaxLocationBeforeDeclarations : GrenSyntax.Location
         lastSyntaxLocationBeforeDeclarations =
@@ -84,7 +84,7 @@ module_ syntaxModule =
                         |> GrenSyntax.nodeRange
                         |> .end
 
-        commentsBeforeDeclarations : Array String
+        commentsBeforeDeclarations : List String
         commentsBeforeDeclarations =
             case syntaxModule.declarations of
                 [] ->
@@ -196,7 +196,7 @@ module_ syntaxModule =
 
 
 printModuleDocumentation :
-    { whileAtDocsLines : Array { rawBefore : String, atDocsLine : Array String }
+    { whileAtDocsLines : List { rawBefore : String, atDocsLine : List String }
     , rawAfterAtDocsLines : String
     }
     -> Print
@@ -246,14 +246,14 @@ printModuleDocumentation moduleDocumentationBlocks =
 {-| Resulting lists are sorted by range
 -}
 splitOffPortDocumentationComments :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { portDocumentationComments : Array (GrenSyntax.Node String)
-        , remainingComments : Array (GrenSyntax.Node String)
+        { portDocumentationComments : List (GrenSyntax.Node String)
+        , remainingComments : List (GrenSyntax.Node String)
         }
 splitOffPortDocumentationComments commentsAndPortDocumentationComments =
     commentsAndPortDocumentationComments
-        |> Array.foldr
+        |> List.foldr
             (\commentOrPortDocumentationComments soFar ->
                 if commentOrPortDocumentationComments |> GrenSyntax.nodeValue |> String.startsWith "{-|" then
                     { remainingComments = soFar.remainingComments
@@ -268,7 +268,7 @@ splitOffPortDocumentationComments commentsAndPortDocumentationComments =
             commentsEmptyPortDocumentationRemainingCommentsEmpty
 
 
-commentsEmptyPortDocumentationRemainingCommentsEmpty : { remainingComments : Array a_, portDocumentationComments : Array b_ }
+commentsEmptyPortDocumentationRemainingCommentsEmpty : { remainingComments : List a_, portDocumentationComments : List b_ }
 commentsEmptyPortDocumentationRemainingCommentsEmpty =
     { remainingComments = [], portDocumentationComments = [] }
 
@@ -294,7 +294,7 @@ moduleDocumentation ast =
     moduleDocumentationBeforeCutOffLine cutOffLine ast.comments
 
 
-moduleDocumentationBeforeCutOffLine : Int -> Array (GrenSyntax.Node String) -> Maybe (GrenSyntax.Node String)
+moduleDocumentationBeforeCutOffLine : Int -> List (GrenSyntax.Node String) -> Maybe (GrenSyntax.Node String)
 moduleDocumentationBeforeCutOffLine cutOffLine allComments =
     case allComments of
         [] ->
@@ -314,14 +314,14 @@ moduleDocumentationBeforeCutOffLine cutOffLine allComments =
 moduleDocumentationParse :
     String
     ->
-        { whileAtDocsLines : Array { rawBefore : String, atDocsLine : Array String }
+        { whileAtDocsLines : List { rawBefore : String, atDocsLine : List String }
         , rawAfterAtDocsLines : String
         }
 moduleDocumentationParse moduleDocumentationContent =
     let
         parsed :
             { rawSinceAtDocs : String
-            , finishedBlocks : Array { rawBefore : String, atDocsLine : Array String }
+            , finishedBlocks : List { rawBefore : String, atDocsLine : List String }
             }
         parsed =
             moduleDocumentationContent
@@ -333,7 +333,7 @@ moduleDocumentationParse moduleDocumentationContent =
                     -- String.length "-}"
                     2
                 |> String.lines
-                |> Array.foldl
+                |> List.foldl
                     (\line soFar ->
                         if line |> String.startsWith "@docs " then
                             { rawSinceAtDocs = ""
@@ -342,7 +342,7 @@ moduleDocumentationParse moduleDocumentationContent =
                                 , atDocsLine =
                                     String.slice 6 (line |> String.length) line
                                         |> String.split ","
-                                        |> Array.map String.trim
+                                        |> List.map String.trim
                                 }
                                     :: soFar.finishedBlocks
                             }
@@ -365,17 +365,17 @@ moduleDocumentationParse moduleDocumentationContent =
                     )
                     rawSinceAtDocsEmptyFinishedBlocksEmpty
     in
-    { whileAtDocsLines = parsed.finishedBlocks |> Array.reverse
+    { whileAtDocsLines = parsed.finishedBlocks |> List.reverse
     , rawAfterAtDocsLines = parsed.rawSinceAtDocs
     }
 
 
-rawSinceAtDocsEmptyFinishedBlocksEmpty : { rawSinceAtDocs : String, finishedBlocks : Array a_ }
+rawSinceAtDocsEmptyFinishedBlocksEmpty : { rawSinceAtDocs : String, finishedBlocks : List a_ }
 rawSinceAtDocsEmptyFinishedBlocksEmpty =
     { rawSinceAtDocs = "", finishedBlocks = [] }
 
 
-commentsAfter : GrenSyntax.Location -> Array (GrenSyntax.Node String) -> Array String
+commentsAfter : GrenSyntax.Location -> List (GrenSyntax.Node String) -> List String
 commentsAfter end sortedComments =
     case sortedComments of
         [] ->
@@ -387,13 +387,13 @@ commentsAfter end sortedComments =
                     commentsAfter end tailComments
 
                 GT ->
-                    headCommentNode.value :: (tailComments |> Array.map GrenSyntax.nodeValue)
+                    headCommentNode.value :: (tailComments |> List.map GrenSyntax.nodeValue)
 
                 EQ ->
-                    headCommentNode.value :: (tailComments |> Array.map GrenSyntax.nodeValue)
+                    headCommentNode.value :: (tailComments |> List.map GrenSyntax.nodeValue)
 
 
-moduleLevelCommentsBeforeDeclaration : { comment0 : String, comment1Up : Array String } -> Print
+moduleLevelCommentsBeforeDeclaration : { comment0 : String, comment1Up : List String } -> Print
 moduleLevelCommentsBeforeDeclaration syntaxComments =
     Print.linebreak
         |> Print.followedBy
@@ -409,7 +409,7 @@ moduleLevelCommentsBeforeDeclaration syntaxComments =
             )
 
 
-commentNodesInRange : GrenSyntax.Range -> Array (GrenSyntax.Node String) -> Array (GrenSyntax.Node String)
+commentNodesInRange : GrenSyntax.Range -> List (GrenSyntax.Node String) -> List (GrenSyntax.Node String)
 commentNodesInRange range sortedComments =
     case sortedComments of
         [] ->
@@ -435,7 +435,7 @@ commentNodesInRange range sortedComments =
                             headCommentNode :: commentNodesInRange range tailComments
 
 
-commentsInRange : GrenSyntax.Range -> Array (GrenSyntax.Node String) -> Array String
+commentsInRange : GrenSyntax.Range -> List (GrenSyntax.Node String) -> List String
 commentsInRange range sortedComments =
     case sortedComments of
         [] ->
@@ -471,16 +471,16 @@ lineSpreadInRange range =
 
 
 exposingMulti :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , expose0 : GrenSyntax.Node GrenSyntax.TopLevelExpose
-        , expose1Up : Array (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+        , expose1Up : List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
         }
     -> Print
 exposingMulti syntaxComments syntaxExposing =
     let
-        containedComments : Array String
+        containedComments : List String
         containedComments =
             commentsInRange syntaxExposing.fullRange syntaxComments
 
@@ -523,15 +523,15 @@ exposingMulti syntaxComments syntaxExposing =
             )
 
 
-listMapAndFlattenToString : (a -> String) -> Array a -> String
+listMapAndFlattenToString : (a -> String) -> List a -> String
 listMapAndFlattenToString elementToString elements =
     elements
-        |> Array.foldl
+        |> List.foldl
             (\next soFar -> soFar ++ elementToString next ++ "")
             ""
 
 
-listMapAndIntersperseAndFlattenToString : (a -> String) -> String -> Array a -> String
+listMapAndIntersperseAndFlattenToString : (a -> String) -> String -> List a -> String
 listMapAndIntersperseAndFlattenToString elementToString betweenElements elements =
     case elements of
         [] ->
@@ -539,7 +539,7 @@ listMapAndIntersperseAndFlattenToString elementToString betweenElements elements
 
         head :: tail ->
             tail
-                |> Array.foldl
+                |> List.foldl
                     (\next soFar -> soFar ++ betweenElements ++ elementToString next ++ "")
                     (elementToString head)
 
@@ -605,11 +605,11 @@ exposeCompare a b =
 
 
 exposeListToNormal :
-    Array (GrenSyntax.Node GrenSyntax.TopLevelExpose)
-    -> Array (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    -> List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
 exposeListToNormal syntaxExposeList =
     syntaxExposeList
-        |> Array.sortWith
+        |> List.sortWith
             (\a b ->
                 exposeCompare a.value b.value
             )
@@ -617,8 +617,8 @@ exposeListToNormal syntaxExposeList =
 
 
 exposesCombine :
-    Array (GrenSyntax.Node GrenSyntax.TopLevelExpose)
-    -> Array (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
+    -> List (GrenSyntax.Node GrenSyntax.TopLevelExpose)
 exposesCombine syntaxExposes =
     case syntaxExposes of
         [] ->
@@ -682,7 +682,7 @@ exposeMerge a b =
 For import exposing: [`importExposing`](#importExposing)
 -}
 moduleExposing :
-    { atDocsLines : Array (Array String), comments : Array (GrenSyntax.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 moduleExposing context syntaxExposingNode =
@@ -697,7 +697,7 @@ moduleExposing context syntaxExposingNode =
 
                 [ onlySyntaxExposeNode ] ->
                     let
-                        containedComments : Array String
+                        containedComments : List String
                         containedComments =
                             commentsInRange syntaxExposingNode.range context.comments
 
@@ -738,17 +738,17 @@ moduleExposing context syntaxExposingNode =
                         atDocsLine0 :: atDocsLine1Up ->
                             let
                                 atDocsExposeLines :
-                                    { remainingExposes : Array GrenSyntax.TopLevelExpose
-                                    , atDocsExposeLines : Array (Array GrenSyntax.TopLevelExpose)
+                                    { remainingExposes : List GrenSyntax.TopLevelExpose
+                                    , atDocsExposeLines : List (List GrenSyntax.TopLevelExpose)
                                     }
                                 atDocsExposeLines =
                                     (atDocsLine0 :: atDocsLine1Up)
-                                        |> Array.foldr
+                                        |> List.foldr
                                             (\atDocsLine soFar ->
                                                 let
                                                     atDocsExposeLine :
-                                                        { remaining : Array GrenSyntax.TopLevelExpose
-                                                        , exposes : Array GrenSyntax.TopLevelExpose
+                                                        { remaining : List GrenSyntax.TopLevelExpose
+                                                        , exposes : List GrenSyntax.TopLevelExpose
                                                         }
                                                     atDocsExposeLine =
                                                         atDocsLineToExposesAndRemaining atDocsLine soFar.remainingExposes
@@ -760,13 +760,13 @@ moduleExposing context syntaxExposingNode =
                                             )
                                             { remainingExposes =
                                                 (expose0 :: expose1 :: expose2Up)
-                                                    |> Array.map GrenSyntax.nodeValue
+                                                    |> List.map GrenSyntax.nodeValue
                                             , atDocsExposeLines = []
                                             }
                             in
                             case
                                 atDocsExposeLines.atDocsExposeLines
-                                    |> Array.filter
+                                    |> List.filter
                                         (\line ->
                                             case line of
                                                 [] ->
@@ -826,15 +826,15 @@ moduleExposing context syntaxExposingNode =
 
 
 atDocsLineToExposesAndRemaining :
-    Array String
-    -> Array GrenSyntax.TopLevelExpose
+    List String
+    -> List GrenSyntax.TopLevelExpose
     ->
-        { remaining : Array GrenSyntax.TopLevelExpose
-        , exposes : Array GrenSyntax.TopLevelExpose
+        { remaining : List GrenSyntax.TopLevelExpose
+        , exposes : List GrenSyntax.TopLevelExpose
         }
 atDocsLineToExposesAndRemaining atDocsLine remainingExposes =
     atDocsLine
-        |> Array.foldr
+        |> List.foldr
             (\exposeAsAtDocsString soFar ->
                 let
                     toExposeReferencedByAtDocsString : GrenSyntax.TopLevelExpose -> Maybe GrenSyntax.TopLevelExpose
@@ -852,7 +852,7 @@ atDocsLineToExposesAndRemaining atDocsLine remainingExposes =
                     Just exposeReferencedByAtDocsString ->
                         { remaining =
                             soFar.remaining
-                                |> Array.filter (\ex -> ex /= exposeReferencedByAtDocsString)
+                                |> List.filter (\ex -> ex /= exposeReferencedByAtDocsString)
                         , exposes = exposeReferencedByAtDocsString :: soFar.exposes
                         }
             )
@@ -877,7 +877,7 @@ exposeToAtDocsString syntaxExpose =
             choiceTypeExpose.name
 
 
-listFirstJustMap : (a -> Maybe b) -> Array a -> Maybe b
+listFirstJustMap : (a -> Maybe b) -> List a -> Maybe b
 listFirstJustMap elementToMaybe list =
     case list of
         [] ->
@@ -896,7 +896,7 @@ listFirstJustMap elementToMaybe list =
 (confusingly, that's their name for only the `module X exposing (Y)` lines)
 -}
 moduleHeader :
-    { atDocsLines : Array (Array String), comments : Array (GrenSyntax.Node String) }
+    { atDocsLines : List (List String), comments : List (GrenSyntax.Node String) }
     -> GrenSyntax.Module
     -> Print
 moduleHeader context syntaxModuleHeader =
@@ -977,7 +977,7 @@ moduleHeader context syntaxModuleHeader =
                             Just nameNode ->
                                 Just ("subscription = " ++ nameNode.value)
                         ]
-                            |> Array.filterMap identity
+                            |> List.filterMap identity
                             |> String.join ", "
                        )
                     ++ " } exposing"
@@ -993,8 +993,8 @@ moduleHeader context syntaxModuleHeader =
 {-| Print a set of [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)s
 -}
 imports :
-    Array (GrenSyntax.Node String)
-    -> Array (GrenSyntax.Node GrenSyntax.Import)
+    List (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
     -> Print
 imports syntaxComments syntaxImports =
     case syntaxImports of
@@ -1003,10 +1003,10 @@ imports syntaxComments syntaxImports =
 
         import0Node :: imports1Up ->
             let
-                commentsBetweenImports : Array String
+                commentsBetweenImports : List String
                 commentsBetweenImports =
                     (import0Node :: imports1Up)
-                        |> Array.foldl
+                        |> List.foldl
                             (\importNode soFar ->
                                 { previousImportRange = importNode.range
                                 , commentsBetweenImports =
@@ -1033,7 +1033,7 @@ imports syntaxComments syntaxImports =
             )
                 |> Print.followedBy
                     ((import0Node :: imports1Up)
-                        |> Array.sortWith
+                        |> List.sortWith
                             (\a b ->
                                 compare
                                     (a.value.moduleName |> GrenSyntax.nodeValue)
@@ -1047,8 +1047,8 @@ imports syntaxComments syntaxImports =
 
 
 importsCombine :
-    Array (GrenSyntax.Node GrenSyntax.Import)
-    -> Array (GrenSyntax.Node GrenSyntax.Import)
+    List (GrenSyntax.Node GrenSyntax.Import)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
 importsCombine syntaxImports =
     case syntaxImports of
         [] ->
@@ -1154,7 +1154,7 @@ exposingCombine a b =
 {-| Print a single [`GrenSyntax.Import`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Import#Import)
 -}
 import_ :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Import
     -> Print
 import_ syntaxComments syntaxImportNode =
@@ -1299,7 +1299,7 @@ import_ syntaxComments syntaxImportNode =
 For module header exposing: [`moduleExposing`](#moduleExposing)
 -}
 importExposing :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Exposing
     -> Print
 importExposing syntaxComments syntaxExposingNode =
@@ -1324,7 +1324,7 @@ importExposing syntaxComments syntaxExposingNode =
 {-| Print `--` or `{- -}` comments placed _within a declaration_.
 For top-level comments: [`moduleLevelComments`](#moduleLevelComments)
 -}
-comments : Array String -> Print
+comments : List String -> Print
 comments syntaxComments =
     syntaxComments
         |> Print.listMapAndIntersperseAndFlatten
@@ -1332,7 +1332,7 @@ comments syntaxComments =
             Print.linebreakIndented
 
 
-collapsibleComments : Array String -> { print : Print, lineSpread : Print.LineSpread }
+collapsibleComments : List String -> { print : Print, lineSpread : Print.LineSpread }
 collapsibleComments commentsToPrint =
     case commentsToPrint of
         [] ->
@@ -1340,13 +1340,13 @@ collapsibleComments commentsToPrint =
 
         comment0 :: comment1Up ->
             let
-                commentPrints : Array Print
+                commentPrints : List Print
                 commentPrints =
-                    (comment0 :: comment1Up) |> Array.map comment
+                    (comment0 :: comment1Up) |> List.map comment
             in
             if
                 commentPrints
-                    |> Array.all
+                    |> List.all
                         (\commentPrint ->
                             commentPrint |> Print.toString |> commentCanBePartOfCollapsible
                         )
@@ -1382,7 +1382,7 @@ commentCanBePartOfCollapsible syntaxComment =
 {-| Print `--` or `{- -}` comments placed outside of declarations at the top level.
 For comments within a declaration: [`comments`](#comments)
 -}
-moduleLevelComments : Array String -> Print
+moduleLevelComments : List String -> Print
 moduleLevelComments syntaxComments =
     case syntaxComments of
         [] ->
@@ -1428,7 +1428,7 @@ comment syntaxComment =
             else
                 -- comment starts with {-
                 let
-                    commentContentLines : Array String
+                    commentContentLines : List String
                     commentContentLines =
                         nonDirectlyClosingMultiLineComment
                             |> -- {-
@@ -1437,7 +1437,7 @@ comment syntaxComment =
                                String.dropRight 2
                             |> String.lines
 
-                    commentContentNormal : Array String
+                    commentContentNormal : List String
                     commentContentNormal =
                         case commentContentLines of
                             [] ->
@@ -1457,7 +1457,7 @@ comment syntaxComment =
                                                 )
                                             |> unindent
                                        )
-                                    |> Array.map String.trimRight
+                                    |> List.map String.trimRight
                 in
                 printExactlyCurlyOpeningMinus
                     |> Print.followedBy
@@ -1498,13 +1498,13 @@ comment syntaxComment =
                     |> Print.followedBy printExactlyMinusCurlyClosing
 
 
-unindent : Array String -> Array String
+unindent : List String -> List String
 unindent lines =
     let
-        nonBlankLines : Array String
+        nonBlankLines : List String
         nonBlankLines =
             lines
-                |> Array.filterMap
+                |> List.filterMap
                     (\line ->
                         case line |> String.trim of
                             "" ->
@@ -1514,13 +1514,13 @@ unindent lines =
                                 Just line
                     )
     in
-    case nonBlankLines |> Array.map lineIndentation |> Array.minimum of
+    case nonBlankLines |> List.map lineIndentation |> List.minimum of
         Nothing ->
             lines
 
         Just minimumIndentation ->
             lines
-                |> Array.map (\line -> line |> String.dropLeft minimumIndentation)
+                |> List.map (\line -> line |> String.dropLeft minimumIndentation)
 
 
 lineIndentation : String -> Int
@@ -1548,7 +1548,7 @@ spaceCount0OnlySpacesTrue =
     { spaceCount = 0, onlySpaces = True }
 
 
-listDropLastIfIs : (a -> Bool) -> Array a -> Array a
+listDropLastIfIs : (a -> Bool) -> List a -> List a
 listDropLastIfIs lastElementShouldBeRemoved list =
     case list of
         [] ->
@@ -1596,7 +1596,7 @@ expose syntaxExpose =
 
 
 patternParenthesizedIfSpaceSeparated :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternParenthesizedIfSpaceSeparated syntaxComments syntaxPattern =
@@ -1608,7 +1608,7 @@ patternParenthesizedIfSpaceSeparated syntaxComments syntaxPattern =
 
 
 patternParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternParenthesized syntaxComments patternNode =
@@ -2153,7 +2153,7 @@ patternToNotParenthesized syntaxPatternNode =
 {-| Print an [`GrenSyntax.Pattern`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Pattern#Pattern)
 -}
 patternNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Pattern
     -> Print
 patternNotParenthesized syntaxComments syntaxPatternNode =
@@ -2187,7 +2187,7 @@ patternNotParenthesized syntaxComments syntaxPatternNode =
 
         GrenSyntax.PatternParenthesized inParens ->
             let
-                commentsBeforeInParens : Array String
+                commentsBeforeInParens : List String
                 commentsBeforeInParens =
                     commentsInRange
                         { start = syntaxPatternNode.range.start
@@ -2195,7 +2195,7 @@ patternNotParenthesized syntaxComments syntaxPatternNode =
                         }
                         syntaxComments
 
-                commentsAfterInParens : Array String
+                commentsAfterInParens : List String
                 commentsAfterInParens =
                     commentsInRange
                         { start = inParens |> GrenSyntax.nodeRange |> .end
@@ -2252,9 +2252,9 @@ patternNotParenthesized syntaxComments syntaxPatternNode =
 
 
 patternList :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { elements : Array (GrenSyntax.Node GrenSyntax.Pattern)
+        { elements : List (GrenSyntax.Node GrenSyntax.Pattern)
         , fullRange : GrenSyntax.Range
         }
     -> Print
@@ -2286,11 +2286,11 @@ patternList syntaxComments syntaxList =
             let
                 elementPrintsWithCommentsBefore :
                     { endLocation : GrenSyntax.Location
-                    , reverse : Array Print
+                    , reverse : List Print
                     }
                 elementPrintsWithCommentsBefore =
                     (element0 :: element1Up)
-                        |> Array.foldl
+                        |> List.foldl
                             (\elementNode soFar ->
                                 let
                                     elementPrint : Print
@@ -2321,7 +2321,7 @@ patternList syntaxComments syntaxList =
                                                     (Print.spaceOrLinebreakIndented
                                                         (commentsBeforeElement.lineSpread
                                                             |> Print.lineSpreadMergeWith
-                                                                (\{} -> elementPrint |> Print.lineSpread)
+                                                                (\() -> elementPrint |> Print.lineSpread)
                                                         )
                                                     )
                                                 |> Print.followedBy elementPrint
@@ -2350,7 +2350,7 @@ patternList syntaxComments syntaxList =
                     elementPrintsWithCommentsBefore.reverse
                         |> Print.lineSpreadListMapAndCombine Print.lineSpread
                         |> Print.lineSpreadMergeWith
-                            (\{} -> commentsAfterElements |> maybeLineSpread .lineSpread)
+                            (\() -> commentsAfterElements |> maybeLineSpread .lineSpread)
             in
             printExactlySquareOpeningSpace
                 |> Print.followedBy
@@ -2390,7 +2390,7 @@ maybeLineSpread valueToLineSpread maybe =
 
 
 patternCons :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { head : GrenSyntax.Node GrenSyntax.Pattern
         , tail : GrenSyntax.Node GrenSyntax.Pattern
@@ -2402,14 +2402,14 @@ patternCons syntaxComments syntaxCons =
         headPrint =
             patternParenthesizedIfSpaceSeparated syntaxComments syntaxCons.head
 
-        tailPatterns : Array (GrenSyntax.Node GrenSyntax.Pattern)
+        tailPatterns : List (GrenSyntax.Node GrenSyntax.Pattern)
         tailPatterns =
             syntaxCons.tail |> patternConsExpand
 
-        tailPatternPrintsAndCommentsBeforeReverse : Array Print
+        tailPatternPrintsAndCommentsBeforeReverse : List Print
         tailPatternPrintsAndCommentsBeforeReverse =
             tailPatterns
-                |> Array.foldl
+                |> List.foldl
                     (\tailPatternNode soFar ->
                         let
                             print : Print
@@ -2439,7 +2439,7 @@ patternCons syntaxComments syntaxCons =
                                             (Print.spaceOrLinebreakIndented
                                                 (commentsBefore.lineSpread
                                                     |> Print.lineSpreadMergeWith
-                                                        (\{} -> print |> Print.lineSpread)
+                                                        (\() -> print |> Print.lineSpread)
                                                 )
                                             )
                                         |> Print.followedBy print
@@ -2458,7 +2458,7 @@ patternCons syntaxComments syntaxCons =
             headPrint
                 |> Print.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         tailPatternPrintsAndCommentsBeforeReverse
                             |> Print.lineSpreadListMapAndCombine Print.lineSpread
                     )
@@ -2485,7 +2485,7 @@ patternCons syntaxComments syntaxCons =
 
 patternConsExpand :
     GrenSyntax.Node GrenSyntax.Pattern
-    -> Array (GrenSyntax.Node GrenSyntax.Pattern)
+    -> List (GrenSyntax.Node GrenSyntax.Pattern)
 patternConsExpand syntaxPatternNode =
     case syntaxPatternNode.value of
         GrenSyntax.PatternListCons listCons ->
@@ -2529,7 +2529,7 @@ patternConsExpand syntaxPatternNode =
 
 
 patternAs :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { variable : GrenSyntax.Node String
         , pattern : GrenSyntax.Node GrenSyntax.Pattern
@@ -2541,7 +2541,7 @@ patternAs syntaxComments syntaxAs =
         aliasedPatternPrint =
             patternParenthesizedIfSpaceSeparated syntaxComments syntaxAs.pattern
 
-        commentsBeforeAliasName : Array String
+        commentsBeforeAliasName : List String
         commentsBeforeAliasName =
             commentsInRange
                 { start = syntaxAs.pattern |> GrenSyntax.nodeRange |> .end
@@ -2557,7 +2557,7 @@ patternAs syntaxComments syntaxAs =
         lineSpread =
             commentsCollapsibleBeforeAliasName.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} -> aliasedPatternPrint |> Print.lineSpread)
+                    (\() -> aliasedPatternPrint |> Print.lineSpread)
 
         namePrint : Print
         namePrint =
@@ -2587,10 +2587,10 @@ patternAs syntaxComments syntaxAs =
 
 
 patternRecord :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fields :
-            Array
+            List
                 { name : GrenSyntax.Node String
                 , value : Maybe (GrenSyntax.Node GrenSyntax.Pattern)
                 }
@@ -2625,11 +2625,11 @@ patternRecord syntaxComments syntaxRecord =
             let
                 fieldPrintsWithCommentsBefore :
                     { endLocation : GrenSyntax.Location
-                    , reverse : Array Print
+                    , reverse : List Print
                     }
                 fieldPrintsWithCommentsBefore =
                     (field0 :: field1Up)
-                        |> Array.foldl
+                        |> List.foldl
                             (\field soFar ->
                                 case field.value of
                                     Nothing ->
@@ -2683,7 +2683,7 @@ patternRecord syntaxComments syntaxRecord =
                                                         fieldLineSpread =
                                                             commentsBefore.lineSpread
                                                                 |> Print.lineSpreadMergeWith
-                                                                    (\{} -> fieldValuePrint |> Print.lineSpread)
+                                                                    (\() -> fieldValuePrint |> Print.lineSpread)
                                                     in
                                                     Print.exactly ((field.name |> GrenSyntax.nodeValue) ++ " =")
                                                         |> Print.followedBy
@@ -2725,7 +2725,7 @@ patternRecord syntaxComments syntaxRecord =
                     fieldPrintsWithCommentsBefore.reverse
                         |> Print.lineSpreadListMapAndCombine Print.lineSpread
                         |> Print.lineSpreadMergeWith
-                            (\{} -> maybeCommentsAfterFields |> maybeLineSpread .lineSpread)
+                            (\() -> maybeCommentsAfterFields |> maybeLineSpread .lineSpread)
             in
             printExactlyCurlyOpeningSpace
                 |> Print.followedBy
@@ -2757,12 +2757,12 @@ patternRecord syntaxComments syntaxRecord =
 
 
 typeRecordExtension :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , recordVariable : GrenSyntax.Node String
         , fields :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -2772,7 +2772,7 @@ typeRecordExtension :
     -> Print
 typeRecordExtension syntaxComments syntaxRecordExtension =
     let
-        commentsBeforeRecordVariable : Array String
+        commentsBeforeRecordVariable : List String
         commentsBeforeRecordVariable =
             commentsInRange
                 { start = syntaxRecordExtension.fullRange.start
@@ -2787,7 +2787,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
         fieldPrintsAndComments :
             { endLocation : GrenSyntax.Location
             , reverse :
-                Array
+                List
                     { syntax :
                         { name : GrenSyntax.Node String
                         , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -2799,16 +2799,16 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
             }
         fieldPrintsAndComments =
             syntaxRecordExtension.fields
-                |> Array.foldl
+                |> List.foldl
                     (\fieldNode soFar ->
                         let
-                            commentsBeforeName : Array String
+                            commentsBeforeName : List String
                             commentsBeforeName =
                                 commentsInRange
                                     { start = soFar.endLocation, end = fieldNode.value.name.range.start }
                                     syntaxComments
 
-                            commentsBetweenNameAndValue : Array String
+                            commentsBetweenNameAndValue : List String
                             commentsBetweenNameAndValue =
                                 commentsInRange
                                     { start = fieldNode.value.name.range.start
@@ -2845,7 +2845,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                     , reverse = []
                     }
 
-        commentsAfterFields : Array String
+        commentsAfterFields : List String
         commentsAfterFields =
             commentsInRange
                 { start = fieldPrintsAndComments.endLocation
@@ -2859,14 +2859,14 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                 |> Print.lineSpreadMergeWithStrict
                     commentsCollapsibleBeforeRecordVariable.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         fieldPrintsAndComments.reverse
                             |> Print.lineSpreadListMapAndCombine
                                 (\field ->
                                     field.valuePrint
                                         |> Print.lineSpread
                                         |> Print.lineSpreadMergeWith
-                                            (\{} ->
+                                            (\() ->
                                                 case field.maybeCommentsBeforeName of
                                                     Nothing ->
                                                         Print.SingleLine
@@ -2875,7 +2875,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                                         commentsBeforeName.lineSpread
                                             )
                                         |> Print.lineSpreadMergeWith
-                                            (\{} ->
+                                            (\() ->
                                                 case field.maybeCommentsBetweenNameAndValue of
                                                     Nothing ->
                                                         Print.SingleLine
@@ -2886,7 +2886,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                 )
                     )
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         case commentsAfterFields of
                             [] ->
                                 Print.SingleLine
@@ -2925,14 +2925,14 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                             |> Print.listReverseAndMapAndIntersperseAndFlatten
                                 (\field ->
                                     let
-                                        lineSpreadBetweenNameAndValueNotConsideringComments : {} -> Print.LineSpread
-                                        lineSpreadBetweenNameAndValueNotConsideringComments {} =
+                                        lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
+                                        lineSpreadBetweenNameAndValueNotConsideringComments () =
                                             lineSpreadInRange
                                                 { start = field.syntax.name.range.start
                                                 , end = field.syntax.value |> GrenSyntax.nodeRange |> .end
                                                 }
                                                 |> Print.lineSpreadMergeWith
-                                                    (\{} -> field.valuePrint |> Print.lineSpread)
+                                                    (\() -> field.valuePrint |> Print.lineSpread)
                                     in
                                     Print.withIndentIncreasedBy 2
                                         ((case field.maybeCommentsBeforeName of
@@ -2955,7 +2955,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                                     ((case field.maybeCommentsBetweenNameAndValue of
                                                         Nothing ->
                                                             Print.spaceOrLinebreakIndented
-                                                                (lineSpreadBetweenNameAndValueNotConsideringComments {})
+                                                                (lineSpreadBetweenNameAndValueNotConsideringComments ())
 
                                                         Just commentsBetweenNameAndValue ->
                                                             Print.spaceOrLinebreakIndented
@@ -2968,7 +2968,7 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
                                                                     (Print.spaceOrLinebreakIndented
                                                                         (commentsBetweenNameAndValue.lineSpread
                                                                             |> Print.lineSpreadMergeWith
-                                                                                (\{} -> field.valuePrint |> Print.lineSpread)
+                                                                                (\() -> field.valuePrint |> Print.lineSpread)
                                                                         )
                                                                     )
                                                      )
@@ -3000,22 +3000,22 @@ typeRecordExtension syntaxComments syntaxRecordExtension =
 
 construct :
     { printArgumentParenthesizedIfSpaceSeparated :
-        Array (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print
+        List (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print
     , lineSpreadMinimum : Print.LineSpread
     }
-    -> Array (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node String)
     ->
-        { arguments : Array (GrenSyntax.Node a)
+        { arguments : List (GrenSyntax.Node a)
         , fullRange : GrenSyntax.Range
         , start : String
         }
     -> Print
 construct specific syntaxComments syntaxConstruct =
     let
-        argumentPrintsAndCommentsBeforeReverse : Array Print
+        argumentPrintsAndCommentsBeforeReverse : List Print
         argumentPrintsAndCommentsBeforeReverse =
             syntaxConstruct.arguments
-                |> Array.foldl
+                |> List.foldl
                     (\argument soFar ->
                         let
                             print : Print
@@ -3045,7 +3045,7 @@ construct specific syntaxComments syntaxConstruct =
                                             (Print.spaceOrLinebreakIndented
                                                 (commentsBeforeArgument.lineSpread
                                                     |> Print.lineSpreadMergeWith
-                                                        (\{} -> print |> Print.lineSpread)
+                                                        (\() -> print |> Print.lineSpread)
                                                 )
                                             )
                                         |> Print.followedBy print
@@ -3063,7 +3063,7 @@ construct specific syntaxComments syntaxConstruct =
         lineSpread =
             specific.lineSpreadMinimum
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         argumentPrintsAndCommentsBeforeReverse
                             |> Print.lineSpreadListMapAndCombine
                                 Print.lineSpread
@@ -3086,14 +3086,14 @@ construct specific syntaxComments syntaxConstruct =
 recordLiteral :
     { nameValueSeparator : String
     , printValueNotParenthesized :
-        Array (GrenSyntax.Node String)
+        List (GrenSyntax.Node String)
         -> GrenSyntax.Node fieldValue
         -> Print
     }
-    -> Array (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node String)
     ->
         { fields :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node fieldValue
@@ -3131,7 +3131,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 fieldPrintsAndComments :
                     { endLocation : GrenSyntax.Location
                     , reverse :
-                        Array
+                        List
                             { syntax :
                                 { name : GrenSyntax.Node String
                                 , value : GrenSyntax.Node fieldValue
@@ -3143,16 +3143,16 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                     }
                 fieldPrintsAndComments =
                     (field0 :: field1Up)
-                        |> Array.foldl
+                        |> List.foldl
                             (\fieldNode soFar ->
                                 let
-                                    commentsBeforeName : Array String
+                                    commentsBeforeName : List String
                                     commentsBeforeName =
                                         commentsInRange
                                             { start = soFar.endLocation, end = fieldNode.value.name.range.start }
                                             syntaxComments
 
-                                    commentsBetweenNameAndValue : Array String
+                                    commentsBetweenNameAndValue : List String
                                     commentsBetweenNameAndValue =
                                         commentsInRange
                                             { start = fieldNode.value.name.range.start, end = fieldNode.value.value.range.start }
@@ -3186,7 +3186,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                             , reverse = []
                             }
 
-                commentsAfterFields : Array String
+                commentsAfterFields : List String
                 commentsAfterFields =
                     commentsInRange
                         { start = fieldPrintsAndComments.endLocation
@@ -3198,14 +3198,14 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                 lineSpread =
                     lineSpreadInRange syntaxRecord.fullRange
                         |> Print.lineSpreadMergeWith
-                            (\{} ->
+                            (\() ->
                                 fieldPrintsAndComments.reverse
                                     |> Print.lineSpreadListMapAndCombine
                                         (\field ->
                                             field.valuePrint
                                                 |> Print.lineSpread
                                                 |> Print.lineSpreadMergeWith
-                                                    (\{} ->
+                                                    (\() ->
                                                         case field.maybeCommentsBeforeName of
                                                             Nothing ->
                                                                 Print.SingleLine
@@ -3214,7 +3214,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                                                 commentsBeforeName.lineSpread
                                                     )
                                                 |> Print.lineSpreadMergeWith
-                                                    (\{} ->
+                                                    (\() ->
                                                         case field.maybeCommentsBetweenNameAndValue of
                                                             Nothing ->
                                                                 Print.SingleLine
@@ -3225,7 +3225,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                         )
                             )
                         |> Print.lineSpreadMergeWith
-                            (\{} ->
+                            (\() ->
                                 case commentsAfterFields of
                                     [] ->
                                         Print.SingleLine
@@ -3247,14 +3247,14 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                     field =
                                         fieldPrintAndComment.syntax
 
-                                    lineSpreadBetweenNameAndValueNotConsideringComments : {} -> Print.LineSpread
-                                    lineSpreadBetweenNameAndValueNotConsideringComments {} =
+                                    lineSpreadBetweenNameAndValueNotConsideringComments : () -> Print.LineSpread
+                                    lineSpreadBetweenNameAndValueNotConsideringComments () =
                                         lineSpreadInRange
                                             { start = field.name.range.start
                                             , end = field.value |> GrenSyntax.nodeRange |> .end
                                             }
                                             |> Print.lineSpreadMergeWith
-                                                (\{} -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
+                                                (\() -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
 
                                     nameSeparatorValuePrint : Print
                                     nameSeparatorValuePrint =
@@ -3264,7 +3264,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                                     ((case fieldPrintAndComment.maybeCommentsBetweenNameAndValue of
                                                         Nothing ->
                                                             Print.spaceOrLinebreakIndented
-                                                                (lineSpreadBetweenNameAndValueNotConsideringComments {})
+                                                                (lineSpreadBetweenNameAndValueNotConsideringComments ())
 
                                                         Just commentsBetweenNameAndValue ->
                                                             Print.spaceOrLinebreakIndented
@@ -3277,7 +3277,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
                                                                     (Print.spaceOrLinebreakIndented
                                                                         (commentsBetweenNameAndValue.lineSpread
                                                                             |> Print.lineSpreadMergeWith
-                                                                                (\{} -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
+                                                                                (\() -> fieldPrintAndComment.valuePrint |> Print.lineSpread)
                                                                         )
                                                                     )
                                                      )
@@ -3319,7 +3319,7 @@ recordLiteral fieldSpecific syntaxComments syntaxRecord =
 
 {-| Print a name with its qualification (`[]` for no qualification)
 -}
-qualifiedReference : { qualification : Array String, name : String } -> String
+qualifiedReference : { qualification : List String, name : String } -> String
 qualifiedReference syntaxReference =
     case syntaxReference.qualification of
         [] ->
@@ -3359,7 +3359,7 @@ lineSpreadInNode node =
 
 
 typeFunctionNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , input : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -3369,7 +3369,7 @@ typeFunctionNotParenthesized :
 typeFunctionNotParenthesized syntaxComments function =
     let
         afterArrowTypes :
-            { beforeRightest : Array (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+            { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
             , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
             }
         afterArrowTypes =
@@ -3377,11 +3377,11 @@ typeFunctionNotParenthesized syntaxComments function =
 
         afterArrowTypesBeforeRightestPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
-            , reverse : Array Print
+            , reverse : List Print
             }
         afterArrowTypesBeforeRightestPrintsWithCommentsBefore =
             afterArrowTypes.beforeRightest
-                |> Array.foldl
+                |> List.foldl
                     (\afterArrowTypeNode soFar ->
                         let
                             print : Print
@@ -3410,7 +3410,7 @@ typeFunctionNotParenthesized syntaxComments function =
                                         lineSpread =
                                             commentsBeforeAfterArrowType.lineSpread
                                                 |> Print.lineSpreadMergeWith
-                                                    (\{} -> print |> Print.lineSpread)
+                                                    (\() -> print |> Print.lineSpread)
                                     in
                                     Print.spaceOrLinebreakIndented lineSpread
                                         |> Print.followedBy commentsBeforeAfterArrowType.print
@@ -3428,7 +3428,7 @@ typeFunctionNotParenthesized syntaxComments function =
                     , reverse = []
                     }
 
-        commentsBeforeRightestAfterArrowType : Array String
+        commentsBeforeRightestAfterArrowType : List String
         commentsBeforeRightestAfterArrowType =
             commentsInRange
                 { start = afterArrowTypesBeforeRightestPrintsWithCommentsBefore.endLocation
@@ -3466,7 +3466,7 @@ typeFunctionNotParenthesized syntaxComments function =
                         lineSpread =
                             commentsCollapsible.lineSpread
                                 |> Print.lineSpreadMergeWith
-                                    (\{} -> rightestAfterArrowTypePrint |> Print.lineSpread)
+                                    (\() -> rightestAfterArrowTypePrint |> Print.lineSpread)
                     in
                     Print.spaceOrLinebreakIndented lineSpread
                         |> Print.followedBy commentsCollapsible.print
@@ -3481,13 +3481,13 @@ typeFunctionNotParenthesized syntaxComments function =
         fullLineSpread =
             lineSpreadInRange function.fullRange
                 |> Print.lineSpreadMergeWith
-                    (\{} -> inTypePrint |> Print.lineSpread)
+                    (\() -> inTypePrint |> Print.lineSpread)
                 |> Print.lineSpreadMergeWith
-                    (\{} -> rightestAfterArrowTypeWithCommentsBeforePrint |> Print.lineSpread)
+                    (\() -> rightestAfterArrowTypeWithCommentsBeforePrint |> Print.lineSpread)
                 |> Print.lineSpreadMergeWithStrict
                     commentsCollapsibleBeforeRightestAfterArrowType.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         afterArrowTypesBeforeRightestPrintsWithCommentsBefore.reverse
                             |> Print.lineSpreadListMapAndCombine Print.lineSpread
                     )
@@ -3516,7 +3516,7 @@ typeFunctionNotParenthesized syntaxComments function =
 
 
 typeParenthesizedIfParenthesizedFunction :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfParenthesizedFunction syntaxComments typeNode =
@@ -3529,7 +3529,7 @@ typeParenthesizedIfParenthesizedFunction syntaxComments typeNode =
 
 
 typeParenthesizedIfFunction :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfFunction syntaxComments typeNode =
@@ -3607,7 +3607,7 @@ typeFunctionExpand :
     GrenSyntax.Node GrenSyntax.TypeAnnotation
     ->
         { beforeRightest :
-            Array (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+            List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
         , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
 typeFunctionExpand typeNode =
@@ -3615,7 +3615,7 @@ typeFunctionExpand typeNode =
         GrenSyntax.TypeAnnotationFunction typeFunction ->
             let
                 outTypeExpanded :
-                    { beforeRightest : Array (GrenSyntax.Node GrenSyntax.TypeAnnotation)
+                    { beforeRightest : List (GrenSyntax.Node GrenSyntax.TypeAnnotation)
                     , rightest : GrenSyntax.Node GrenSyntax.TypeAnnotation
                     }
                 outTypeExpanded =
@@ -3630,7 +3630,7 @@ typeFunctionExpand typeNode =
 
 
 typeParenthesizedIfSpaceSeparated :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesizedIfSpaceSeparated syntaxComments typeNode =
@@ -3642,7 +3642,7 @@ typeParenthesizedIfSpaceSeparated syntaxComments typeNode =
 
 
 typeParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeParenthesized syntaxComments typeNode =
@@ -3654,16 +3654,16 @@ typeParenthesized syntaxComments typeNode =
 
 
 parenthesized :
-    (Array (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print)
+    (List (GrenSyntax.Node String) -> GrenSyntax.Node a -> Print)
     ->
         { notParenthesized : GrenSyntax.Node a
         , fullRange : GrenSyntax.Range
         }
-    -> Array (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node String)
     -> Print
 parenthesized printNotParenthesized syntax syntaxComments =
     let
-        commentsBeforeInner : Array String
+        commentsBeforeInner : List String
         commentsBeforeInner =
             commentsInRange
                 { start = syntax.fullRange.start
@@ -3671,7 +3671,7 @@ parenthesized printNotParenthesized syntax syntaxComments =
                 }
                 syntaxComments
 
-        commentsAfterInner : Array String
+        commentsAfterInner : List String
         commentsAfterInner =
             commentsInRange
                 { start = syntax.notParenthesized |> GrenSyntax.nodeRange |> .end
@@ -3763,7 +3763,7 @@ typeIsSpaceSeparated syntaxType =
 {-| Print an [`GrenSyntax.TypeAnnotation`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAnnotation#TypeAnnotation)
 -}
 typeNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.TypeAnnotation
     -> Print
 typeNotParenthesized syntaxComments syntaxTypeNode =
@@ -3790,7 +3790,7 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
 
         GrenSyntax.TypeAnnotationParenthesized inParens ->
             let
-                commentsBeforeInParens : Array String
+                commentsBeforeInParens : List String
                 commentsBeforeInParens =
                     commentsInRange
                         { start = syntaxTypeNode.range.start
@@ -3798,7 +3798,7 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
                         }
                         syntaxComments
 
-                commentsAfterInParens : Array String
+                commentsAfterInParens : List String
                 commentsAfterInParens =
                     commentsInRange
                         { start = inParens |> GrenSyntax.nodeRange |> .end
@@ -3844,11 +3844,11 @@ typeNotParenthesized syntaxComments syntaxTypeNode =
 and comments in between
 -}
 declarations :
-    { portDocumentationComments : Array (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    { portDocumentationComments : List (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     , previousEnd : GrenSyntax.Location
     }
-    -> Array (GrenSyntax.Node GrenSyntax.Declaration)
+    -> List (GrenSyntax.Node GrenSyntax.Declaration)
     -> Print
 declarations context syntaxDeclarations =
     case syntaxDeclarations of
@@ -3883,7 +3883,7 @@ declarations context syntaxDeclarations =
                 declaration0Node.value
                 |> Print.followedBy
                     (declarations1Up
-                        |> Array.foldl
+                        |> List.foldl
                             (\syntaxDeclarationNode soFar ->
                                 let
                                     maybeDeclarationPortDocumentationComment : Maybe (GrenSyntax.Node String)
@@ -3955,7 +3955,7 @@ declarations context syntaxDeclarations =
 
 firstCommentInRange :
     GrenSyntax.Range
-    -> Array (GrenSyntax.Node String)
+    -> List (GrenSyntax.Node String)
     -> Maybe (GrenSyntax.Node String)
 firstCommentInRange range sortedComments =
     case sortedComments of
@@ -3996,7 +3996,7 @@ locationCompareFast left right =
 
 linebreaksFollowedByDeclaration :
     { portDocumentationComment : Maybe (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -4029,7 +4029,7 @@ linebreaksFollowedByDeclaration syntaxComments syntaxDeclaration =
                 |> Print.followedBy (declarationInfix syntaxInfixDeclaration)
 
 
-listFilledLast : a -> Array a -> a
+listFilledLast : a -> List a -> a
 listFilledLast head tail =
     case tail of
         [] ->
@@ -4043,7 +4043,7 @@ listFilledLast head tail =
 -}
 declaration :
     { portDocumentationComment : Maybe (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     -> GrenSyntax.Declaration
     -> Print
@@ -4073,7 +4073,7 @@ declaration syntaxComments syntaxDeclaration =
 as `name : Type`
 -}
 declarationSignature :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { name : GrenSyntax.Node String
         , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -4116,7 +4116,7 @@ declarationSignature syntaxComments signature =
 -}
 declarationPort :
     { documentationComment : Maybe (GrenSyntax.Node String)
-    , comments : Array (GrenSyntax.Node String)
+    , comments : List (GrenSyntax.Node String)
     }
     ->
         { name : GrenSyntax.Node String
@@ -4151,15 +4151,15 @@ declarationPort syntaxComments signature =
 {-| Print an [`GrenSyntax.TypeAlias`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-TypeAlias#TypeAlias) declaration
 -}
 declarationTypeAlias :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.TypeAliasDeclarationInfo
     -> Print
 declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
     let
-        parameterPrintsWithCommentsBeforeReverse : Array Print
+        parameterPrintsWithCommentsBeforeReverse : List Print
         parameterPrintsWithCommentsBeforeReverse =
             syntaxTypeAliasDeclaration.generics
-                |> Array.foldl
+                |> List.foldl
                     (\parameterName soFar ->
                         let
                             parameterPrintedRange : GrenSyntax.Range
@@ -4290,18 +4290,18 @@ declarationTypeAlias syntaxComments syntaxTypeAliasDeclaration =
 {-| Print an [`GrenSyntax.Type`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Type#Type) declaration
 -}
 declarationChoiceType :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.ChoiceTypeDeclarationInfo
     -> Print
 declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
     let
         parameterPrints :
             { endLocation : GrenSyntax.Location
-            , reverse : Array Print
+            , reverse : List Print
             }
         parameterPrints =
             syntaxChoiceTypeDeclaration.generics
-                |> Array.foldl
+                |> List.foldl
                     (\parameterName soFar ->
                         let
                             parameterPrintedRange : GrenSyntax.Range
@@ -4349,10 +4349,10 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
         parametersLineSpread =
             parameterPrints.reverse |> Print.lineSpreadListMapAndCombine Print.lineSpread
 
-        variantPrintsWithCommentsBeforeReverse : Array Print
+        variantPrintsWithCommentsBeforeReverse : List Print
         variantPrintsWithCommentsBeforeReverse =
             syntaxChoiceTypeDeclaration.constructors
-                |> Array.foldl
+                |> List.foldl
                     (\variantNode soFar ->
                         let
                             variantPrint : Print
@@ -4397,7 +4397,7 @@ declarationChoiceType syntaxComments syntaxChoiceTypeDeclaration =
                                                 (Print.spaceOrLinebreakIndented
                                                     (commentsCollapsible.lineSpread
                                                         |> Print.lineSpreadMergeWith
-                                                            (\{} -> variantPrint |> Print.lineSpread)
+                                                            (\() -> variantPrint |> Print.lineSpread)
                                                     )
                                                 )
                                             |> Print.followedBy variantPrint
@@ -4491,10 +4491,10 @@ infixDirection syntaxInfixDirection =
 
 
 declarationExpressionImplementation :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { name : GrenSyntax.Node String
-        , parameters : Array (GrenSyntax.Node GrenSyntax.Pattern)
+        , parameters : List (GrenSyntax.Node GrenSyntax.Pattern)
         , expression : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
@@ -4502,11 +4502,11 @@ declarationExpressionImplementation syntaxComments implementation =
     let
         parameterPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
-            , reverse : Array Print
+            , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
             implementation.parameters
-                |> Array.foldl
+                |> List.foldl
                     (\parameterPattern soFar ->
                         let
                             parameterRange : GrenSyntax.Range
@@ -4537,7 +4537,7 @@ declarationExpressionImplementation syntaxComments implementation =
                                             (Print.spaceOrLinebreakIndented
                                                 (commentsBefore.lineSpread
                                                     |> Print.lineSpreadMergeWith
-                                                        (\{} -> parameterPrint |> Print.lineSpread)
+                                                        (\() -> parameterPrint |> Print.lineSpread)
                                                 )
                                             )
                                         |> Print.followedBy parameterPrint
@@ -4559,7 +4559,7 @@ declarationExpressionImplementation syntaxComments implementation =
                 |> Print.lineSpreadListMapAndCombine
                     Print.lineSpread
 
-        commentsBetweenParametersAndResult : Array String
+        commentsBetweenParametersAndResult : List String
         commentsBetweenParametersAndResult =
             commentsInRange
                 { start = parameterPrintsWithCommentsBefore.endLocation
@@ -4603,7 +4603,7 @@ declarationExpressionImplementation syntaxComments implementation =
             )
 
 
-commentsBetweenDocumentationAndDeclaration : Array String -> Print
+commentsBetweenDocumentationAndDeclaration : List String -> Print
 commentsBetweenDocumentationAndDeclaration syntaxComments =
     case syntaxComments of
         [] ->
@@ -4619,7 +4619,7 @@ commentsBetweenDocumentationAndDeclaration syntaxComments =
 {-| Print an [`GrenSyntax.Function`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Function) declaration
 -}
 declarationExpression :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.ValueOrFunctionDeclarationInfo
     -> Print
 declarationExpression syntaxComments syntaxExpressionDeclaration =
@@ -4638,7 +4638,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
 
                 Just signatureNode ->
                     let
-                        commentsBetweenSignatureAndImplementationName : Array String
+                        commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
                             commentsInRange
                                 { start = signatureNode.range.end
@@ -4690,7 +4690,7 @@ declarationExpression syntaxComments syntaxExpressionDeclaration =
 
 
 expressionParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesized syntaxComments expressionNode =
@@ -4779,7 +4779,7 @@ expressionIsSpaceSeparated syntaxExpression =
 
 
 expressionParenthesizedIfSpaceSeparated :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparated syntaxComments expressionNode =
@@ -4793,7 +4793,7 @@ expressionParenthesizedIfSpaceSeparated syntaxComments expressionNode =
 {-| Print an [`GrenSyntax.Expression`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Expression)
 -}
 expressionNotParenthesized :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionNotParenthesized syntaxComments syntaxExpressionNode =
@@ -4864,7 +4864,7 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
 
         GrenSyntax.ExpressionParenthesized inParens ->
             let
-                commentsBeforeInParens : Array String
+                commentsBeforeInParens : List String
                 commentsBeforeInParens =
                     commentsInRange
                         { start = syntaxExpressionNode.range.start
@@ -4872,7 +4872,7 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
                         }
                         syntaxComments
 
-                commentsAfterInParens : Array String
+                commentsAfterInParens : List String
                 commentsAfterInParens =
                     commentsInRange
                         { start = inParens |> GrenSyntax.nodeRange |> .end
@@ -4950,7 +4950,7 @@ expressionNotParenthesized syntaxComments syntaxExpressionNode =
 
 
 printExpressionNegation :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 printExpressionNegation syntaxComments negated =
@@ -5018,12 +5018,12 @@ floatLiteral float =
 
 
 expressionCall :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , applied : GrenSyntax.Node GrenSyntax.Expression
         , argument0 : GrenSyntax.Node GrenSyntax.Expression
-        , argument1Up : Array (GrenSyntax.Node GrenSyntax.Expression)
+        , argument1Up : List (GrenSyntax.Node GrenSyntax.Expression)
         }
     -> Print
 expressionCall syntaxComments syntaxCall =
@@ -5033,7 +5033,7 @@ expressionCall syntaxComments syntaxCall =
             expressionParenthesizedIfSpaceSeparated syntaxComments
                 syntaxCall.applied
 
-        commentsBeforeArgument0 : Array String
+        commentsBeforeArgument0 : List String
         commentsBeforeArgument0 =
             commentsInRange
                 { start = syntaxCall.applied |> GrenSyntax.nodeRange |> .end
@@ -5053,10 +5053,10 @@ expressionCall syntaxComments syntaxCall =
             expressionParenthesizedIfSpaceSeparated syntaxComments
                 syntaxCall.argument0
 
-        argument1UpPrintsWithCommentsBeforeReverse : Array Print
+        argument1UpPrintsWithCommentsBeforeReverse : List Print
         argument1UpPrintsWithCommentsBeforeReverse =
             syntaxCall.argument1Up
-                |> Array.foldl
+                |> List.foldl
                     (\argument soFar ->
                         let
                             print : Print
@@ -5085,7 +5085,7 @@ expressionCall syntaxComments syntaxCall =
                                             (Print.spaceOrLinebreakIndented
                                                 (commentsBefore.lineSpread
                                                     |> Print.lineSpreadMergeWith
-                                                        (\{} -> print |> Print.lineSpread)
+                                                        (\() -> print |> Print.lineSpread)
                                                 )
                                             )
                                         |> Print.followedBy print
@@ -5107,7 +5107,7 @@ expressionCall syntaxComments syntaxCall =
             appliedPrint
                 |> Print.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         lineSpreadBetweenNodes
                             syntaxCall.applied
                             syntaxCall.argument0
@@ -5115,14 +5115,14 @@ expressionCall syntaxComments syntaxCall =
                 |> Print.lineSpreadMergeWithStrict
                     collapsibleCommentsBeforeArgument0.lineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} -> argument0Print |> Print.lineSpread)
+                    (\() -> argument0Print |> Print.lineSpread)
 
         argument1UpLineSpread : Print.LineSpread
         argument1UpLineSpread =
             lineSpreadInRange syntaxCall.fullRange
                 |> Print.lineSpreadMergeWithStrict argument0LineSpread
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         argument1UpPrintsWithCommentsBeforeReverse
                             |> Print.lineSpreadListMapAndCombine Print.lineSpread
                     )
@@ -5142,7 +5142,7 @@ expressionCall syntaxComments syntaxCall =
                                         (Print.spaceOrLinebreakIndented
                                             (collapsibleCommentsBeforeArgument0.lineSpread
                                                 |> Print.lineSpreadMergeWith
-                                                    (\{} -> argument0Print |> Print.lineSpread)
+                                                    (\() -> argument0Print |> Print.lineSpread)
                                             )
                                         )
                                     |> Print.followedBy argument0Print
@@ -5161,7 +5161,7 @@ expressionCall syntaxComments syntaxCall =
 
 
 expressionOperation :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , left : GrenSyntax.Node GrenSyntax.Expression
@@ -5174,7 +5174,7 @@ expressionOperation syntaxComments syntaxOperation =
         operationExpanded :
             { leftest : GrenSyntax.Node GrenSyntax.Expression
             , beforeRightestOperatorExpressionChain :
-                Array
+                List
                     { operator : String
                     , expression : GrenSyntax.Node GrenSyntax.Expression
                     }
@@ -5188,7 +5188,7 @@ expressionOperation syntaxComments syntaxOperation =
 
         beforeRightestPrintsAndComments :
             { reverse :
-                Array
+                List
                     { operator : String
                     , expression : GrenSyntax.Node GrenSyntax.Expression
                     , maybeCommentsBeforeExpression :
@@ -5198,7 +5198,7 @@ expressionOperation syntaxComments syntaxOperation =
             }
         beforeRightestPrintsAndComments =
             operationExpanded.beforeRightestOperatorExpressionChain
-                |> Array.foldl
+                |> List.foldl
                     (\operatorAndExpressionBeforeRightest soFar ->
                         let
                             expressionRange : GrenSyntax.Range
@@ -5206,7 +5206,7 @@ expressionOperation syntaxComments syntaxOperation =
                                 operatorAndExpressionBeforeRightest.expression
                                     |> GrenSyntax.nodeRange
 
-                            commentsBefore : Array String
+                            commentsBefore : List String
                             commentsBefore =
                                 commentsInRange
                                     { start = soFar.endLocation, end = expressionRange.start }
@@ -5232,7 +5232,7 @@ expressionOperation syntaxComments syntaxOperation =
                     , reverse = []
                     }
 
-        commentsBeforeRightestExpression : Array String
+        commentsBeforeRightestExpression : List String
         commentsBeforeRightestExpression =
             commentsInRange
                 { start = beforeRightestPrintsAndComments.endLocation
@@ -5256,7 +5256,7 @@ expressionOperation syntaxComments syntaxOperation =
         lineSpread =
             lineSpreadInRange syntaxOperation.fullRange
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         beforeRightestPrintsAndComments.reverse
                             |> Print.lineSpreadListMapAndCombine
                                 (\c ->
@@ -5270,7 +5270,7 @@ expressionOperation syntaxComments syntaxOperation =
         beforeRightestOperatorExpressionChainWithPreviousLineSpread :
             { previousLineSpread : Print.LineSpread
             , rightToLeft :
-                Array
+                List
                     { operator : String
                     , expression : GrenSyntax.Node GrenSyntax.Expression
                     , expressionPrint : Print
@@ -5280,7 +5280,7 @@ expressionOperation syntaxComments syntaxOperation =
             }
         beforeRightestOperatorExpressionChainWithPreviousLineSpread =
             beforeRightestPrintsAndComments.reverse
-                |> Array.foldr
+                |> List.foldr
                     (\operatorExpression soFar ->
                         let
                             expressionPrint : Print
@@ -5330,7 +5330,7 @@ expressionOperation syntaxComments syntaxOperation =
                                                         (Print.spaceOrLinebreakIndented
                                                             (commentsCollapsibleBeforeRightestExpression.lineSpread
                                                                 |> Print.lineSpreadMergeWith
-                                                                    (\{} -> expressionPrint |> Print.lineSpread)
+                                                                    (\() -> expressionPrint |> Print.lineSpread)
                                                             )
                                                         )
                                                     |> Print.followedBy expressionPrint
@@ -5360,7 +5360,7 @@ expressionOperation syntaxComments syntaxOperation =
                                                     (Print.spaceOrLinebreakIndented
                                                         (commentsCollapsibleBeforeRightestExpression.lineSpread
                                                             |> Print.lineSpreadMergeWith
-                                                                (\{} -> expressionPrint |> Print.lineSpread)
+                                                                (\() -> expressionPrint |> Print.lineSpread)
                                                         )
                                                     )
                                                 |> Print.followedBy expressionPrint
@@ -5371,7 +5371,7 @@ expressionOperation syntaxComments syntaxOperation =
     leftestPrint
         |> Print.followedBy
             (beforeRightestOperatorExpressionChainWithPreviousLineSpread.rightToLeft
-                |> Array.foldl
+                |> List.foldl
                     (\operatorExpression chainRightPrint ->
                         case operatorExpression.operator of
                             "<|" ->
@@ -5391,7 +5391,7 @@ expressionOperation syntaxComments syntaxOperation =
                                                                     (Print.spaceOrLinebreakIndented
                                                                         (commentsBeforeExpression.lineSpread
                                                                             |> Print.lineSpreadMergeWith
-                                                                                (\{} -> operatorExpression.expressionPrint |> Print.lineSpread)
+                                                                                (\() -> operatorExpression.expressionPrint |> Print.lineSpread)
                                                                         )
                                                                     )
                                                                 |> Print.followedBy operatorExpression.expressionPrint
@@ -5416,7 +5416,7 @@ expressionOperation syntaxComments syntaxOperation =
                                                                 (Print.spaceOrLinebreakIndented
                                                                     (commentsBeforeExpression.lineSpread
                                                                         |> Print.lineSpreadMergeWith
-                                                                            (\{} -> operatorExpression.expressionPrint |> Print.lineSpread)
+                                                                            (\() -> operatorExpression.expressionPrint |> Print.lineSpread)
                                                                     )
                                                                 )
                                                             |> Print.followedBy
@@ -5437,7 +5437,7 @@ expressionOperationExpand :
     ->
         { leftest : GrenSyntax.Node GrenSyntax.Expression
         , beforeRightestOperatorExpressionChain :
-            Array
+            List
                 { operator : String
                 , expression : GrenSyntax.Node GrenSyntax.Expression
                 }
@@ -5448,7 +5448,7 @@ expressionOperationExpand left operator right =
     let
         rightExpanded :
             { beforeRightestOperatorExpressionChain :
-                Array { operator : String, expression : GrenSyntax.Node GrenSyntax.Expression }
+                List { operator : String, expression : GrenSyntax.Node GrenSyntax.Expression }
             , rightestOperator : String
             , rightestExpression : GrenSyntax.Node GrenSyntax.Expression
             }
@@ -5459,7 +5459,7 @@ expressionOperationExpand left operator right =
                         rightOperationExpanded :
                             { leftest : GrenSyntax.Node GrenSyntax.Expression
                             , beforeRightestOperatorExpressionChain :
-                                Array
+                                List
                                     { operator : String
                                     , expression : GrenSyntax.Node GrenSyntax.Expression
                                     }
@@ -5491,7 +5491,7 @@ expressionOperationExpand left operator right =
                 leftOperationExpanded :
                     { leftest : GrenSyntax.Node GrenSyntax.Expression
                     , beforeRightestOperatorExpressionChain :
-                        Array
+                        List
                             { operator : String
                             , expression : GrenSyntax.Node GrenSyntax.Expression
                             }
@@ -5539,7 +5539,7 @@ expressionIsSpaceSeparatedExceptApplication expressionNode =
 
 
 expressionParenthesizedIfSpaceSeparatedExceptApplication :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparatedExceptApplication syntaxComments expressionNode =
@@ -5551,7 +5551,7 @@ expressionParenthesizedIfSpaceSeparatedExceptApplication syntaxComments expressi
 
 
 expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.Node GrenSyntax.Expression
     -> Print
 expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda syntaxComments expressionNode =
@@ -5571,9 +5571,9 @@ expressionParenthesizedIfSpaceSeparatedExceptApplicationAndLambda syntaxComments
 
 
 expressionList :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
-        { elements : Array (GrenSyntax.Node GrenSyntax.Expression)
+        { elements : List (GrenSyntax.Node GrenSyntax.Expression)
         , fullRange : GrenSyntax.Range
         }
     -> Print
@@ -5605,11 +5605,11 @@ expressionList syntaxComments syntaxList =
             let
                 elementPrintsWithCommentsBefore :
                     { endLocation : GrenSyntax.Location
-                    , reverse : Array Print
+                    , reverse : List Print
                     }
                 elementPrintsWithCommentsBefore =
                     (element0 :: element1Up)
-                        |> Array.foldl
+                        |> List.foldl
                             (\elementNode soFar ->
                                 let
                                     print : Print
@@ -5637,7 +5637,7 @@ expressionList syntaxComments syntaxList =
                                                     (Print.spaceOrLinebreakIndented
                                                         (commentsBefore.lineSpread
                                                             |> Print.lineSpreadMergeWith
-                                                                (\{} -> print |> Print.lineSpread)
+                                                                (\() -> print |> Print.lineSpread)
                                                         )
                                                     )
                                                 |> Print.followedBy print
@@ -5649,7 +5649,7 @@ expressionList syntaxComments syntaxList =
                             , reverse = []
                             }
 
-                commentsAfterElements : Array String
+                commentsAfterElements : List String
                 commentsAfterElements =
                     commentsInRange { start = elementPrintsWithCommentsBefore.endLocation, end = syntaxList.fullRange.end } syntaxComments
 
@@ -5657,12 +5657,12 @@ expressionList syntaxComments syntaxList =
                 lineSpread =
                     lineSpreadInRange syntaxList.fullRange
                         |> Print.lineSpreadMergeWith
-                            (\{} ->
+                            (\() ->
                                 elementPrintsWithCommentsBefore.reverse
                                     |> Print.lineSpreadListMapAndCombine Print.lineSpread
                             )
                         |> Print.lineSpreadMergeWith
-                            (\{} ->
+                            (\() ->
                                 case commentsAfterElements of
                                     [] ->
                                         Print.SingleLine
@@ -5698,12 +5698,12 @@ expressionList syntaxComments syntaxList =
 
 
 expressionRecordUpdate :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , record : GrenSyntax.Node GrenSyntax.Expression
         , fields :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.Expression
@@ -5715,11 +5715,11 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
     let
         fieldPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
-            , reverse : Array Print
+            , reverse : List Print
             }
         fieldPrintsWithCommentsBefore =
             syntaxRecordUpdate.fields
-                |> Array.foldl
+                |> List.foldl
                     (\fieldSyntaxNode soFar ->
                         let
                             valuePrint : Print
@@ -5761,7 +5761,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                     (lineSpreadBetweenRanges
                                                         fieldSyntaxNode.value.name.range
                                                         fieldSyntaxNode.value.value.range
-                                                        |> Print.lineSpreadMergeWith (\{} -> valuePrint |> Print.lineSpread)
+                                                        |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                     )
 
                                             comment0 :: comment1Up ->
@@ -5775,12 +5775,12 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                                         Print.spaceOrLinebreakIndented
                                                             (commentsBeforeValue.lineSpread
                                                                 |> Print.lineSpreadMergeWith
-                                                                    (\{} ->
+                                                                    (\() ->
                                                                         lineSpreadBetweenRanges
                                                                             fieldSyntaxNode.value.name.range
                                                                             fieldSyntaxNode.value.value.range
                                                                     )
-                                                                |> Print.lineSpreadMergeWith (\{} -> valuePrint |> Print.lineSpread)
+                                                                |> Print.lineSpreadMergeWith (\() -> valuePrint |> Print.lineSpread)
                                                             )
                                                 in
                                                 layout
@@ -5801,7 +5801,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                     , reverse = []
                     }
 
-        commentsAfterFields : Array String
+        commentsAfterFields : List String
         commentsAfterFields =
             commentsInRange
                 { start = fieldPrintsWithCommentsBefore.endLocation
@@ -5828,11 +5828,11 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
         lineSpread =
             lineSpreadInRange syntaxRecordUpdate.fullRange
                 |> Print.lineSpreadMergeWith
-                    (\{} -> maybeCommentsBeforeRecordVariable |> maybeLineSpread .lineSpread)
+                    (\() -> maybeCommentsBeforeRecordVariable |> maybeLineSpread .lineSpread)
                 |> Print.lineSpreadMergeWith
-                    (\{} -> recordPrint |> Print.lineSpread)
+                    (\() -> recordPrint |> Print.lineSpread)
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         case commentsAfterFields of
                             [] ->
                                 Print.SingleLine
@@ -5841,7 +5841,7 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
                                 Print.MultipleLines
                     )
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         fieldPrintsWithCommentsBefore.reverse
                             |> Print.lineSpreadListMapAndCombine Print.lineSpread
                     )
@@ -5894,10 +5894,10 @@ expressionRecordUpdate syntaxComments syntaxRecordUpdate =
 
 
 expressionLambda :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         GrenSyntax.Node
-            { parameters : Array (GrenSyntax.Node GrenSyntax.Pattern)
+            { parameters : List (GrenSyntax.Node GrenSyntax.Pattern)
             , result : GrenSyntax.Node GrenSyntax.Expression
             }
     -> Print
@@ -5905,11 +5905,11 @@ expressionLambda syntaxComments syntaxLambdaNode =
     let
         parameterPrintsWithCommentsBefore :
             { endLocation : GrenSyntax.Location
-            , reverse : Array Print
+            , reverse : List Print
             }
         parameterPrintsWithCommentsBefore =
             syntaxLambdaNode.value.parameters
-                |> Array.foldl
+                |> List.foldl
                     (\parameterPattern soFar ->
                         let
                             parameterRange : GrenSyntax.Range
@@ -5940,7 +5940,7 @@ expressionLambda syntaxComments syntaxLambdaNode =
                                             (Print.spaceOrLinebreakIndented
                                                 (commentsBefore.lineSpread
                                                     |> Print.lineSpreadMergeWith
-                                                        (\{} -> print |> Print.lineSpread)
+                                                        (\() -> print |> Print.lineSpread)
                                                 )
                                             )
                                         |> Print.followedBy print
@@ -5953,7 +5953,7 @@ expressionLambda syntaxComments syntaxLambdaNode =
                     , endLocation = syntaxLambdaNode.range.start
                     }
 
-        commentsBeforeResult : Array String
+        commentsBeforeResult : List String
         commentsBeforeResult =
             commentsInRange
                 { start = parameterPrintsWithCommentsBefore.endLocation
@@ -5990,11 +5990,11 @@ expressionLambda syntaxComments syntaxLambdaNode =
                                 Print.spaceOrLinebreakIndented
                                     (parametersLineSpread
                                         |> Print.lineSpreadMergeWith
-                                            (\{} ->
+                                            (\() ->
                                                 lineSpreadInRange syntaxLambdaNode.range
                                             )
                                         |> Print.lineSpreadMergeWith
-                                            (\{} -> resultPrint |> Print.lineSpread)
+                                            (\() -> resultPrint |> Print.lineSpread)
                                     )
 
                             comment0 :: comment1Up ->
@@ -6010,7 +6010,7 @@ expressionLambda syntaxComments syntaxLambdaNode =
 
 
 expressionIfThenElse :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , condition : GrenSyntax.Node GrenSyntax.Expression
@@ -6022,7 +6022,7 @@ expressionIfThenElse :
 expressionIfThenElse syntaxComments syntaxIfThenElse =
     -- IGNORE TCO
     let
-        commentsBeforeCondition : Array String
+        commentsBeforeCondition : List String
         commentsBeforeCondition =
             commentsInRange
                 { start = syntaxIfThenElse.fullRange.start
@@ -6030,7 +6030,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
                 }
                 syntaxComments
 
-        commentsBeforeOnTrue : Array String
+        commentsBeforeOnTrue : List String
         commentsBeforeOnTrue =
             commentsInRange
                 { start = syntaxIfThenElse.condition |> GrenSyntax.nodeRange |> .end
@@ -6042,7 +6042,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         onFalseNotParenthesized =
             syntaxIfThenElse.onFalse |> expressionToNotParenthesized
 
-        commentsBeforeOnFalseNotParenthesizedInParens : Array String
+        commentsBeforeOnFalseNotParenthesizedInParens : List String
         commentsBeforeOnFalseNotParenthesizedInParens =
             commentsInRange
                 { start = syntaxIfThenElse.onFalse |> GrenSyntax.nodeRange |> .start
@@ -6050,7 +6050,7 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
                 }
                 syntaxComments
 
-        commentsBeforeOnFalse : Array String
+        commentsBeforeOnFalse : List String
         commentsBeforeOnFalse =
             commentsInRange
                 { start = syntaxIfThenElse.onTrue |> GrenSyntax.nodeRange |> .end
@@ -6066,9 +6066,9 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
         conditionLineSpread =
             syntaxIfThenElse.conditionLineSpreadMinimum
                 |> Print.lineSpreadMergeWith
-                    (\{} -> Print.lineSpread conditionPrint)
+                    (\() -> Print.lineSpread conditionPrint)
                 |> Print.lineSpreadMergeWith
-                    (\{} ->
+                    (\() ->
                         case commentsBeforeCondition of
                             _ :: _ ->
                                 Print.MultipleLines
@@ -6173,12 +6173,12 @@ expressionIfThenElse syntaxComments syntaxIfThenElse =
 
 
 expressionCaseOf :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , expression : GrenSyntax.Node GrenSyntax.Expression
         , cases :
-            Array
+            List
                 { pattern : GrenSyntax.Node GrenSyntax.Pattern
                 , result : GrenSyntax.Node GrenSyntax.Expression
                 }
@@ -6186,7 +6186,7 @@ expressionCaseOf :
     -> Print
 expressionCaseOf syntaxComments syntaxCaseOf =
     let
-        commentsBeforeCasedExpression : Array String
+        commentsBeforeCasedExpression : List String
         commentsBeforeCasedExpression =
             commentsInRange
                 { start = syntaxCaseOf.fullRange.start
@@ -6232,10 +6232,10 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                 (Print.linebreakIndented
                     |> Print.followedBy
                         (syntaxCaseOf.cases
-                            |> Array.foldl
+                            |> List.foldl
                                 (\syntaxCase soFar ->
                                     let
-                                        commentsBeforeCasePattern : Array String
+                                        commentsBeforeCasePattern : List String
                                         commentsBeforeCasePattern =
                                             commentsInRange
                                                 { start = soFar.endLocation
@@ -6274,23 +6274,23 @@ expressionCaseOf syntaxComments syntaxCaseOf =
 
 
 expressionLetIn :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { fullRange : GrenSyntax.Range
         , letDeclaration0 : GrenSyntax.Node GrenSyntax.LetDeclaration
-        , letDeclaration1Up : Array (GrenSyntax.Node GrenSyntax.LetDeclaration)
+        , letDeclaration1Up : List (GrenSyntax.Node GrenSyntax.LetDeclaration)
         , result : GrenSyntax.Node GrenSyntax.Expression
         }
     -> Print
 expressionLetIn syntaxComments syntaxLetIn =
     let
-        letDeclarationPrints : { endLocation : GrenSyntax.Location, reverse : Array Print }
+        letDeclarationPrints : { endLocation : GrenSyntax.Location, reverse : List Print }
         letDeclarationPrints =
             (syntaxLetIn.letDeclaration0 :: syntaxLetIn.letDeclaration1Up)
-                |> Array.foldl
+                |> List.foldl
                     (\letDeclarationNode soFar ->
                         let
-                            commentsBefore : Array String
+                            commentsBefore : List String
                             commentsBefore =
                                 commentsInRange
                                     { start = soFar.endLocation
@@ -6323,7 +6323,7 @@ expressionLetIn syntaxComments syntaxLetIn =
                     , reverse = []
                     }
 
-        commentsBeforeResult : Array String
+        commentsBeforeResult : List String
         commentsBeforeResult =
             commentsInRange
                 { start = letDeclarationPrints.endLocation
@@ -6363,7 +6363,7 @@ expressionLetIn syntaxComments syntaxLetIn =
 
 
 expressionLetDeclaration :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     -> GrenSyntax.LetDeclaration
     -> Print
 expressionLetDeclaration syntaxComments letDeclaration =
@@ -6381,7 +6381,7 @@ expressionLetDeclaration syntaxComments letDeclaration =
 
                 Just signatureNode ->
                     let
-                        commentsBetweenSignatureAndImplementationName : Array String
+                        commentsBetweenSignatureAndImplementationName : List String
                         commentsBetweenSignatureAndImplementationName =
                             commentsInRange
                                 { start = signatureNode.range.end
@@ -6408,7 +6408,7 @@ expressionLetDeclaration syntaxComments letDeclaration =
 
         GrenSyntax.LetDestructuring destructuring ->
             let
-                commentsBeforeDestructuredExpression : Array String
+                commentsBeforeDestructuredExpression : List String
                 commentsBeforeDestructuredExpression =
                     commentsInRange
                         { start = destructuring.pattern |> GrenSyntax.nodeRange |> .end
@@ -6462,7 +6462,7 @@ expressionToNotParenthesized syntaxExpressionNode =
 {-| Print a single [`GrenSyntax.Case`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Expression#Case)
 -}
 case_ :
-    Array (GrenSyntax.Node String)
+    List (GrenSyntax.Node String)
     ->
         { pattern : GrenSyntax.Node GrenSyntax.Pattern
         , result : GrenSyntax.Node GrenSyntax.Expression
@@ -6474,7 +6474,7 @@ case_ syntaxComments syntaxCase =
         patternPrint =
             patternNotParenthesized syntaxComments syntaxCase.pattern
 
-        commentsBeforeExpression : Array String
+        commentsBeforeExpression : List String
         commentsBeforeExpression =
             commentsInRange
                 { start = syntaxCase.pattern |> GrenSyntax.nodeRange |> .end

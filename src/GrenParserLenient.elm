@@ -191,7 +191,7 @@ module_ =
                 moduleHeaderBasedOnExistingPorts existingModuleHeaderInfo =
                     if
                         declarationsResult.syntax
-                            |> Array.any
+                            |> List.any
                                 (\declarationAndLateImports ->
                                     declarationAndLateImports.declaration
                                         |> GrenSyntax.nodeValue
@@ -219,8 +219,8 @@ module_ =
                         )
             , imports =
                 (declarationsResult.syntax
-                    |> Array.concatMap .lateImports
-                    |> Array.map
+                    |> List.concatMap .lateImports
+                    |> List.map
                         (\lateImport ->
                             { range = { start = importStartLocation, end = importStartLocation }, value = lateImport.value }
                         )
@@ -228,7 +228,7 @@ module_ =
                     ++ importsResult.syntax
             , declarations =
                 declarationsResult.syntax
-                    |> Array.map .declaration
+                    |> List.map .declaration
             , comments =
                 moduleHeaderResult.comments
                     |> ropePrependTo moduleComments
@@ -417,7 +417,7 @@ expose =
 infixExpose : Parser (WithComments (GrenSyntax.Node GrenSyntax.TopLevelExpose))
 infixExpose =
     ParserFast.map2WithRange
-        (\range infixName {} ->
+        (\range infixName () ->
             { comments = ropeEmpty
             , syntax = { range = range, value = GrenSyntax.InfixExpose infixName }
             }
@@ -454,7 +454,7 @@ infixExpose =
                 )
             )
         )
-        (ParserFast.symbol ")" {})
+        (ParserFast.symbol ")" ())
 
 
 typeExpose : Parser (WithComments (GrenSyntax.Node GrenSyntax.TopLevelExpose))
@@ -534,7 +534,7 @@ whereBlock =
         (ParserFast.map4
             (\commentsBeforeHead head commentsAfterHead tail ->
                 let
-                    pairs : Array ( String, GrenSyntax.Node String )
+                    pairs : List ( String, GrenSyntax.Node String )
                     pairs =
                         head.syntax :: tail.syntax
                 in
@@ -595,7 +595,7 @@ whereBlock =
         |> ParserFast.followedBySymbol "}"
 
 
-listFirstWhere : (a -> Bool) -> Array a -> Maybe a
+listFirstWhere : (a -> Bool) -> List a -> Maybe a
 listFirstWhere predicate list =
     case list of
         [] ->
@@ -852,7 +852,7 @@ importFollowedByWhitespaceAndComments =
 {-| [`Parser`](#Parser) for a list of [`GrenSyntax.Declaration`](https://gren-lang.org/packages/stil4m/gren-syntax/latest/Gren-Syntax-Declaration#Declaration)s
 and comments in between
 -}
-declarations : Parser { comments : Comments, syntax : Array (GrenSyntax.Node GrenSyntax.Declaration) }
+declarations : Parser { comments : Comments, syntax : List (GrenSyntax.Node GrenSyntax.Declaration) }
 declarations =
     manyWithComments
         (topIndentedFollowedBy
@@ -975,7 +975,7 @@ declarationWithDocumentation =
                                 , generics = typeDeclarationAfterDocumentation.parameters
                                 , constructors =
                                     typeDeclarationAfterDocumentation.headVariant
-                                        :: Array.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
+                                        :: List.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
                                 }
                         }
                     }
@@ -1053,19 +1053,19 @@ type DeclarationAfterDocumentation
                 { typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
                 , implementationName : GrenSyntax.Node String
                 }
-        , arguments : Array (GrenSyntax.Node GrenSyntax.Pattern)
+        , arguments : List (GrenSyntax.Node GrenSyntax.Pattern)
         , expression : GrenSyntax.Node GrenSyntax.Expression
         }
     | TypeDeclarationAfterDocumentation
         { name : GrenSyntax.Node String
-        , parameters : Array (GrenSyntax.Node String)
+        , parameters : List (GrenSyntax.Node String)
         , headVariant :
             GrenSyntax.Node
                 { name : GrenSyntax.Node String
                 , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
                 }
         , tailVariantsReverse :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
@@ -1074,7 +1074,7 @@ type DeclarationAfterDocumentation
         }
     | TypeAliasDeclarationAfterDocumentation
         { name : GrenSyntax.Node String
-        , parameters : Array (GrenSyntax.Node String)
+        , parameters : List (GrenSyntax.Node String)
         , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
     | PortDeclarationAfterDocumentation
@@ -1087,14 +1087,14 @@ type DeclarationAfterDocumentation
 type TypeOrTypeAliasDeclarationWithoutDocumentation
     = TypeDeclarationWithoutDocumentation
         { name : GrenSyntax.Node String
-        , parameters : Array (GrenSyntax.Node String)
+        , parameters : List (GrenSyntax.Node String)
         , headVariant :
             GrenSyntax.Node
                 { name : GrenSyntax.Node String
                 , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
                 }
         , tailVariantsReverse :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : Maybe (GrenSyntax.Node GrenSyntax.TypeAnnotation)
@@ -1103,7 +1103,7 @@ type TypeOrTypeAliasDeclarationWithoutDocumentation
         }
     | TypeAliasDeclarationWithoutDocumentation
         { name : GrenSyntax.Node String
-        , parameters : Array (GrenSyntax.Node String)
+        , parameters : List (GrenSyntax.Node String)
         , typeAnnotation : GrenSyntax.Node GrenSyntax.TypeAnnotation
         }
 
@@ -1343,12 +1343,12 @@ functionDeclarationWithoutDocumentation =
         )
 
 
-parameterPatternsEquals : Parser (WithComments (Array (GrenSyntax.Node GrenSyntax.Pattern)))
+parameterPatternsEquals : Parser (WithComments (List (GrenSyntax.Node GrenSyntax.Pattern)))
 parameterPatternsEquals =
     untilWithComments
         (ParserFast.oneOf2
-            (ParserFast.symbol "=" {})
-            (ParserFast.symbol "->" {})
+            (ParserFast.symbol "=" ())
+            (ParserFast.symbol "->" ())
         )
         (ParserFast.map2
             (\patternResult commentsAfterPattern ->
@@ -1585,7 +1585,7 @@ typeOrTypeAliasDefinitionWithoutDocumentation =
                                 , generics = typeDeclarationAfterDocumentation.parameters
                                 , constructors =
                                     typeDeclarationAfterDocumentation.headVariant
-                                        :: Array.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
+                                        :: List.reverse typeDeclarationAfterDocumentation.tailVariantsReverse
                                 }
                         }
                     }
@@ -1735,9 +1735,9 @@ variantDeclarationFollowedByWhitespaceAndComments =
         )
 
 
-typeGenericListEquals : Parser (WithComments (Array (GrenSyntax.Node String)))
+typeGenericListEquals : Parser (WithComments (List (GrenSyntax.Node String)))
 typeGenericListEquals =
-    untilWithComments (ParserFast.symbol "=" {})
+    untilWithComments (ParserFast.symbol "=" ())
         (ParserFast.map2
             (\name commentsAfterName ->
                 { comments = commentsAfterName
@@ -1762,7 +1762,7 @@ type_ =
                 , syntax = startType.syntax
                 }
             )
-            (ParserFast.lazy (\{} -> typeNotFunction))
+            (ParserFast.lazy (\() -> typeNotFunction))
             whitespaceAndComments
         )
         (ParserFast.symbolFollowedBy "->"
@@ -1781,7 +1781,7 @@ type_ =
                     (ParserFast.symbolFollowedBy "->" whitespaceAndComments)
                     ropeEmpty
                 )
-                (ParserFast.lazy (\{} -> typeNotFunction))
+                (ParserFast.lazy (\() -> typeNotFunction))
                 whitespaceAndComments
             )
         )
@@ -2003,7 +2003,7 @@ typeRecordEmpty =
 type RecordFieldsOrExtensionAfterName
     = RecordExtensionExpressionAfterName
         (GrenSyntax.Node
-            (Array
+            (List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -2014,7 +2014,7 @@ type RecordFieldsOrExtensionAfterName
     | FieldsAfterName
         { firstFieldValue : GrenSyntax.Node GrenSyntax.TypeAnnotation
         , tailFields :
-            Array
+            List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -2026,7 +2026,7 @@ type RecordFieldsOrExtensionAfterName
 recordFieldsTypeAnnotation :
     Parser
         (WithComments
-            (Array
+            (List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.TypeAnnotation
@@ -2137,7 +2137,7 @@ typeConstructWithoutArguments =
         maybeDotNamesUppercaseTuple
 
 
-maybeDotNamesUppercaseTuple : Parser (Maybe ( Array String, String ))
+maybeDotNamesUppercaseTuple : Parser (Maybe ( List String, String ))
 maybeDotNamesUppercaseTuple =
     ParserFast.map2OrSucceed
         (\firstName afterFirstName ->
@@ -2149,7 +2149,7 @@ maybeDotNamesUppercaseTuple =
                     Just ( firstName :: qualificationAfter, unqualified )
         )
         (ParserFast.symbolFollowedBy "." nameUppercase)
-        (ParserFast.lazy (\{} -> maybeDotNamesUppercaseTuple))
+        (ParserFast.lazy (\() -> maybeDotNamesUppercaseTuple))
         Nothing
 
 
@@ -2175,7 +2175,7 @@ typeConstructWithArgumentsFollowedByWhitespaceAndComments =
                 , value =
                     GrenSyntax.TypeAnnotationConstruct
                         { reference = nameNode
-                        , arguments = Array.reverse argsReverse.syntax
+                        , arguments = List.reverse argsReverse.syntax
                         }
                 }
             }
@@ -2450,12 +2450,12 @@ expressionFollowedByWhitespaceAndComments =
 
                                     [] ->
                                         firstCase.result |> GrenSyntax.nodeRange |> .end
-                            , cases = firstCase :: Array.reverse lastToSecondCase
+                            , cases = firstCase :: List.reverse lastToSecondCase
                             }
                     )
                     whitespaceAndComments
                     (ParserFast.withIndentSetToColumn
-                        (ParserFast.lazy (\{} -> casesFollowedByWhitespaceAndComments))
+                        (ParserFast.lazy (\() -> casesFollowedByWhitespaceAndComments))
                     )
                 )
             )
@@ -2598,7 +2598,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                                     :: tailFields.syntax
                                                 )
 
-                                        FieldsFirstValuePunned {} ->
+                                        FieldsFirstValuePunned () ->
                                             GrenSyntax.ExpressionRecord
                                                 ({ range = firstFieldNameOrExpressionRange
                                                  , value =
@@ -2632,7 +2632,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                                 FieldsFirstValue _ ->
                                     Nothing
 
-                                FieldsFirstValuePunned {} ->
+                                FieldsFirstValuePunned () ->
                                     case firstFieldNameOrExpression.syntax.value of
                                         GrenSyntax.ExpressionCall (potentialFirstFieldNameNode :: argument0 :: argument1Up) ->
                                             case potentialFirstFieldNameNode.value of
@@ -2697,7 +2697,7 @@ recordOrRecordUpdateContentsFollowedByCurlyEnd =
                             case maybeValueResult of
                                 Nothing ->
                                     { comments = commentsBefore
-                                    , syntax = FieldsFirstValuePunned {}
+                                    , syntax = FieldsFirstValuePunned ()
                                     }
 
                                 Just expressionResult ->
@@ -2746,13 +2746,13 @@ type RecordFieldsOrUpdateAfterName
             }
         )
     | FieldsFirstValue (GrenSyntax.Node GrenSyntax.Expression)
-    | FieldsFirstValuePunned {}
+    | FieldsFirstValuePunned ()
 
 
 recordFields :
     Parser
         (WithComments
-            (Array
+            (List
                 (GrenSyntax.Node
                     { name : GrenSyntax.Node String
                     , value : GrenSyntax.Node GrenSyntax.Expression
@@ -2888,9 +2888,9 @@ expressionLambdaFollowedByWhitespaceAndComments =
         whitespaceAndComments
         (untilWithComments
             (ParserFast.oneOf3
-                (ParserFast.symbol "->" {})
-                (ParserFast.symbol "=>" {})
-                (ParserFast.symbol "." {})
+                (ParserFast.symbol "->" ())
+                (ParserFast.symbol "=>" ())
+                (ParserFast.symbol "." ())
             )
             (ParserFast.map2
                 (\patternResult commentsAfter ->
@@ -2935,7 +2935,7 @@ expressionWhenIsFollowedByOptimisticLayout =
                 , value =
                     GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
-                        , cases = firstCase :: Array.reverse lastToSecondCase
+                        , cases = firstCase :: List.reverse lastToSecondCase
                         }
                 }
             }
@@ -2975,7 +2975,7 @@ expressionOldCaseOfFollowedByOptimisticLayout =
                 , value =
                     GrenSyntax.ExpressionCaseOf
                         { expression = casedExpressionResult.syntax
-                        , cases = firstCase :: Array.reverse lastToSecondCase
+                        , cases = firstCase :: List.reverse lastToSecondCase
                         }
                 }
             }
@@ -2994,7 +2994,7 @@ casesFollowedByWhitespaceAndComments :
             ( { pattern : GrenSyntax.Node GrenSyntax.Pattern
               , result : GrenSyntax.Node GrenSyntax.Expression
               }
-            , Array
+            , List
                 { pattern : GrenSyntax.Node GrenSyntax.Pattern
                 , result : GrenSyntax.Node GrenSyntax.Expression
                 }
@@ -3092,7 +3092,7 @@ letExpressionFollowedByOptimisticLayout =
         expressionFollowedByWhitespaceAndComments
 
 
-letDeclarationsIn : Parser (WithComments (Array (GrenSyntax.Node GrenSyntax.LetDeclaration)))
+letDeclarationsIn : Parser (WithComments (List (GrenSyntax.Node GrenSyntax.LetDeclaration)))
 letDeclarationsIn =
     topIndentedFollowedBy
         (ParserFast.map3
@@ -3110,7 +3110,7 @@ letDeclarationsIn =
             )
             whitespaceAndComments
             (untilWithComments
-                (ParserFast.keyword "in" {})
+                (ParserFast.keyword "in" ())
                 letBlockElementFollowedByOptimisticLayout
             )
         )
@@ -3448,7 +3448,7 @@ expressionQualifiedOrVariantOrRecordConstructorReferenceFollowedByRecordAccess =
         |> followedByMultiRecordAccess
 
 
-maybeDotReferenceExpressionTuple : Parser (Maybe ( Array String, String ))
+maybeDotReferenceExpressionTuple : Parser (Maybe ( List String, String ))
 maybeDotReferenceExpressionTuple =
     ParserFast.orSucceed
         (ParserFast.symbolFollowedBy "."
@@ -3464,7 +3464,7 @@ maybeDotReferenceExpressionTuple =
                                 ( firstName :: qualificationAfter, unqualified )
                     )
                     nameUppercase
-                    (ParserFast.lazy (\{} -> maybeDotReferenceExpressionTuple))
+                    (ParserFast.lazy (\() -> maybeDotReferenceExpressionTuple))
                 )
                 (\name -> Just ( [], name ))
                 nameLowercaseUnderscoreSuffixingKeywords
@@ -3621,7 +3621,7 @@ extensionRightParser extensionRightInfo =
         )
         whitespaceAndComments
         (ParserFast.lazy
-            (\{} ->
+            (\() ->
                 extendedSubExpressionFollowedByWhitespaceAndComments
                     { afterCommitting = extensionRightInfo.afterCommitting
                     , validateRightPrecedence = extensionRightInfo.validateRightPrecedence
@@ -3995,7 +3995,7 @@ followedByMultiArgumentApplication appliedExpressionParser =
                     lastArgumentNode :: _ ->
                         { range = { start = leftExpressionResult.syntax.range.start, end = lastArgumentNode.range.end }
                         , value =
-                            GrenSyntax.ExpressionCall (leftExpressionResult.syntax :: Array.reverse maybeArgsReverse.syntax)
+                            GrenSyntax.ExpressionCall (leftExpressionResult.syntax :: List.reverse maybeArgsReverse.syntax)
                         }
             }
         )
@@ -4139,7 +4139,7 @@ pattern =
                     , syntax = startPatternResult.syntax
                     }
                 )
-                (ParserFast.lazy (\{} -> composablePattern))
+                (ParserFast.lazy (\() -> composablePattern))
                 whitespaceAndComments
             )
             (ParserFast.symbolFollowedBy "::"
@@ -4153,7 +4153,7 @@ pattern =
                         }
                     )
                     whitespaceAndComments
-                    (ParserFast.lazy (\{} -> composablePattern))
+                    (ParserFast.lazy (\() -> composablePattern))
                     whitespaceAndComments
                 )
             )
@@ -4833,7 +4833,7 @@ singleOrTripleQuotedStringLiteralMapWithRange rangeAndStringToRes =
 
 singleQuotedStringLiteralAfterDoubleQuote : Parser String
 singleQuotedStringLiteralAfterDoubleQuote =
-    ParserFast.loopUntil (ParserFast.symbol "\"" {})
+    ParserFast.loopUntil (ParserFast.symbol "\"" ())
         (ParserFast.oneOf2
             (ParserFast.whileAtLeast1WithoutLinebreak
                 (\c ->
@@ -4859,7 +4859,7 @@ singleQuotedStringLiteralAfterDoubleQuote =
 
 tripleQuotedStringLiteralOfterTripleDoubleQuote : Parser String
 tripleQuotedStringLiteralOfterTripleDoubleQuote =
-    ParserFast.loopUntil (ParserFast.symbol "\"\"\"" {})
+    ParserFast.loopUntil (ParserFast.symbol "\"\"\"" ())
         (ParserFast.oneOf3
             (ParserFast.symbol "\"" "\"")
             (ParserFast.symbolFollowedBy "\\" (escapedCharValueMap String.fromChar))
@@ -5221,7 +5221,7 @@ positivelyIndentedFollowedBy nextParser =
         (\column indent ->
             if
                 (column > 1)
-                    && (indent |> Array.all (\nestedIndent -> column /= nestedIndent))
+                    && (indent |> List.all (\nestedIndent -> column /= nestedIndent))
             then
                 nextParser
 
@@ -5318,12 +5318,12 @@ type alias Comments =
 
 {-| Extract a list of comment nodes from parse result [`Comments`](#Comments)
 -}
-commentsToList : Comments -> Array (GrenSyntax.Node String)
+commentsToList : Comments -> List (GrenSyntax.Node String)
 commentsToList comments =
     ropeToList comments
 
 
-untilWithComments : ParserFast.Parser {} -> ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (Array a))
+untilWithComments : ParserFast.Parser () -> ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (List a))
 untilWithComments end element =
     ParserFast.loopUntil
         end
@@ -5336,12 +5336,12 @@ untilWithComments end element =
         )
         (\( commentsSoFar, itemsSoFar ) ->
             { comments = commentsSoFar
-            , syntax = Array.reverse itemsSoFar
+            , syntax = List.reverse itemsSoFar
             }
         )
 
 
-manyWithComments : ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (Array a))
+manyWithComments : ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (List a))
 manyWithComments p =
     ParserFast.loopWhileSucceeds p
         ( ropeEmpty, [] )
@@ -5352,7 +5352,7 @@ manyWithComments p =
         )
         (\( commentsSoFar, itemsSoFar ) ->
             { comments = commentsSoFar
-            , syntax = Array.reverse itemsSoFar
+            , syntax = List.reverse itemsSoFar
             }
         )
 
@@ -5363,7 +5363,7 @@ This can be useful if you need to access the range of the last item.
 Mind you the comments will be reversed either way
 
 -}
-manyWithCommentsReverse : ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (Array a))
+manyWithCommentsReverse : ParserFast.Parser (WithComments a) -> ParserFast.Parser (WithComments (List a))
 manyWithCommentsReverse p =
     ParserFast.loopWhileSucceeds p
         { comments = ropeEmpty, syntax = [] }
@@ -5387,7 +5387,7 @@ Inspired by [miniBill/gren-rope](https://gren-lang.org/packages/miniBill/gren-ro
 
 -}
 type RopeFilled a
-    = RopeLeaf a {}
+    = RopeLeaf a ()
     | RopeBranch2 (RopeFilled a) (RopeFilled a)
 
 
@@ -5398,7 +5398,7 @@ ropeEmpty =
 
 ropeOne : a -> RopeFilled a
 ropeOne onlyElement =
-    RopeLeaf onlyElement {}
+    RopeLeaf onlyElement ()
 
 
 ropeFilledPrependTo : Rope a -> RopeFilled a -> Rope a
@@ -5440,7 +5440,7 @@ ropePrependTo right left =
                     Just (RopeBranch2 leftLikelyFilled rightLikelyFilled)
 
 
-ropeToList : Rope a -> Array a
+ropeToList : Rope a -> List a
 ropeToList rope =
     case rope of
         Nothing ->
@@ -5450,11 +5450,11 @@ ropeToList rope =
             ropeLikelyFilledToListInto [] ropeLikelyFilled
 
 
-ropeLikelyFilledToListInto : Array a -> RopeFilled a -> Array a
+ropeLikelyFilledToListInto : List a -> RopeFilled a -> List a
 ropeLikelyFilledToListInto initialAcc ropeLikelyFilled =
     -- IGNORE TCO
     case ropeLikelyFilled of
-        RopeLeaf onlyElement {} ->
+        RopeLeaf onlyElement () ->
             onlyElement :: initialAcc
 
         RopeBranch2 left right ->

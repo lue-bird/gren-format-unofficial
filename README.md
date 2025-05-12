@@ -25,8 +25,7 @@ plus2 (n)= {- this adds 2-} n
                 |> GrenPrint.toString
         )
 -->
-Just """
-module Sample exposing (..)
+Just """module Sample exposing (..)
 
 
 plus2 n =

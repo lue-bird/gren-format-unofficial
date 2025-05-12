@@ -166,7 +166,7 @@ lineSpread print =
             lineSpread innerPrint
 
 
-lineSpreadWithRemaining : Print -> Array Print -> LineSpread
+lineSpreadWithRemaining : Print -> List Print -> LineSpread
 lineSpreadWithRemaining print remainingPrints =
     case print of
         Exact _ ->
@@ -268,10 +268,10 @@ one after the other after mapping each element
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listMapAndFlatten : (a -> Print) -> Array a -> Print
+listMapAndFlatten : (a -> Print) -> List a -> Print
 listMapAndFlatten elementToPrint elements =
     elements
-        |> Array.foldl
+        |> List.foldl
             (\next soFar -> soFar |> followedBy (next |> elementToPrint))
             empty
 
@@ -287,10 +287,10 @@ one after the other after mapping each element
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listReverseAndMapAndFlatten : (a -> Print) -> Array a -> Print
+listReverseAndMapAndFlatten : (a -> Print) -> List a -> Print
 listReverseAndMapAndFlatten elementToPrint elements =
     elements
-        |> Array.foldr
+        |> List.foldr
             (\next soFar -> soFar |> followedBy (elementToPrint next))
             empty
 
@@ -299,7 +299,7 @@ listReverseAndMapAndFlatten elementToPrint elements =
 one after the other
 
     [ "a", "b" ]
-        |> Array.map Print.exactly
+        |> List.map Print.exactly
         |> Print.listIntersperseAndFlatten (Print.exactly ",")
         |> Print.toString
     --> "a,b"
@@ -307,7 +307,7 @@ one after the other
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listIntersperseAndFlatten : Print -> Array Print -> Print
+listIntersperseAndFlatten : Print -> List Print -> Print
 listIntersperseAndFlatten inBetweenPrint elements =
     case elements of
         [] ->
@@ -315,7 +315,7 @@ listIntersperseAndFlatten inBetweenPrint elements =
 
         head :: tail ->
             tail
-                |> Array.foldl
+                |> List.foldl
                     (\next soFar ->
                         soFar
                             |> followedBy inBetweenPrint
@@ -337,7 +337,7 @@ one after the other
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listMapAndIntersperseAndFlatten : (a -> Print) -> Print -> Array a -> Print
+listMapAndIntersperseAndFlatten : (a -> Print) -> Print -> List a -> Print
 listMapAndIntersperseAndFlatten elementToPrint inBetweenPrint prints =
     case prints of
         [] ->
@@ -345,7 +345,7 @@ listMapAndIntersperseAndFlatten elementToPrint inBetweenPrint prints =
 
         head :: tail ->
             tail
-                |> Array.foldl
+                |> List.foldl
                     (\next soFar ->
                         soFar
                             |> followedBy inBetweenPrint
@@ -358,7 +358,7 @@ listMapAndIntersperseAndFlatten elementToPrint inBetweenPrint prints =
 one after the other
 
     [ "a", "b" ]
-        |> Array.map Print.exactly
+        |> List.map Print.exactly
         |> Print.listReverseAndIntersperseAndFlatten
             (Print.exactly ",")
         |> Print.toString
@@ -367,7 +367,7 @@ one after the other
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listReverseAndIntersperseAndFlatten : Print -> Array Print -> Print
+listReverseAndIntersperseAndFlatten : Print -> List Print -> Print
 listReverseAndIntersperseAndFlatten inBetweenPrint prints =
     case prints of
         [] ->
@@ -375,7 +375,7 @@ listReverseAndIntersperseAndFlatten inBetweenPrint prints =
 
         head :: tail ->
             tail
-                |> Array.foldl
+                |> List.foldl
                     (\next soFar ->
                         next
                             |> followedBy inBetweenPrint
@@ -388,7 +388,7 @@ listReverseAndIntersperseAndFlatten inBetweenPrint prints =
 one after the other
 
     [ "a", "b" ]
-        |> Array.map Print.exactly
+        |> List.map Print.exactly
         |> Print.listReverseAndIntersperseAndFlatten (Print.exactly ",")
         |> Print.toString
     --> "b,a"
@@ -396,7 +396,7 @@ one after the other
 To only concatenate 2, use [`Print.followedBy`](#followedBy)
 
 -}
-listReverseAndMapAndIntersperseAndFlatten : (a -> Print) -> Print -> Array a -> Print
+listReverseAndMapAndIntersperseAndFlatten : (a -> Print) -> Print -> List a -> Print
 listReverseAndMapAndIntersperseAndFlatten elementToPrint inBetweenPrint elements =
     case elements of
         [] ->
@@ -404,7 +404,7 @@ listReverseAndMapAndIntersperseAndFlatten elementToPrint inBetweenPrint elements
 
         head :: tail ->
             tail
-                |> Array.foldl
+                |> List.foldl
                     (\next soFar ->
                         elementToPrint next
                             |> followedBy inBetweenPrint
@@ -448,14 +448,14 @@ To merge 2 already known [`LineSpread`](#LineSpread)s, use [`Print.lineSpreadMer
 To merge a list, use [`Print.lineSpreadListMapAndCombine`](#lineSpreadListMapAndCombine)
 
 -}
-lineSpreadMergeWith : ({} -> LineSpread) -> LineSpread -> LineSpread
+lineSpreadMergeWith : (() -> LineSpread) -> LineSpread -> LineSpread
 lineSpreadMergeWith bLineSpreadLazy aLineSpread =
     case aLineSpread of
         MultipleLines ->
             MultipleLines
 
         SingleLine ->
-            bLineSpreadLazy {}
+            bLineSpreadLazy ()
 
 
 {-| If either spans [`MultipleLines`](#LineSpread), gives [`MultipleLines`](#LineSpread).
@@ -480,7 +480,7 @@ If all are [`SingleLine`](#LineSpread), gives [`SingleLine`](#LineSpread).
 To only combine 2, use [`Print.lineSpreadMergeWith`](#lineSpreadMergeWith)
 
 -}
-lineSpreadListMapAndCombine : (a -> LineSpread) -> Array a -> LineSpread
+lineSpreadListMapAndCombine : (a -> LineSpread) -> List a -> LineSpread
 lineSpreadListMapAndCombine elementLineSpread lineSpreads =
     case lineSpreads of
         [] ->

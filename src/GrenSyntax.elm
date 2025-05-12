@@ -45,7 +45,7 @@ For example:
 
 -}
 type alias ModuleName =
-    Array String
+    List String
 
 
 {-| Data for a default default
@@ -70,9 +70,9 @@ type alias EffectModuleData =
 -}
 type alias File =
     { moduleDefinition : Node Module
-    , imports : Array (Node Import)
-    , declarations : Array (Node Declaration)
-    , comments : Array (Node String)
+    , imports : List (Node Import)
+    , declarations : List (Node Declaration)
+    , comments : List (Node String)
     }
 
 
@@ -85,7 +85,7 @@ For example:
 -}
 type Exposing
     = All Range
-    | Explicit (Array (Node TopLevelExpose))
+    | Explicit (List (Node TopLevelExpose))
 
 
 {-| An exposed entity
@@ -149,9 +149,9 @@ type Declaration
 type alias ChoiceTypeDeclarationInfo =
     { documentation : Maybe (Node String)
     , name : Node String
-    , generics : Array (Node String)
+    , generics : List (Node String)
     , constructors :
-        Array
+        List
             (Node
                 { name : Node String
                 , value : Maybe (Node TypeAnnotation)
@@ -173,7 +173,7 @@ type alias ChoiceTypeDeclarationInfo =
 type alias TypeAliasDeclarationInfo =
     { documentation : Maybe (Node String)
     , name : Node String
-    , generics : Array (Node String)
+    , generics : List (Node String)
     , typeAnnotation : Node TypeAnnotation
     }
 
@@ -210,7 +210,7 @@ type alias ValueOrFunctionDeclarationInfo =
     , declaration :
         Node
             { name : Node String
-            , parameters : Array (Node Pattern)
+            , parameters : List (Node Pattern)
             , expression : Node Expression
             }
     }
@@ -218,7 +218,7 @@ type alias ValueOrFunctionDeclarationInfo =
 
 {-| A value or function:
 
-  - `ExpressionUnit`: `{}`
+  - `ExpressionUnit`: `()`
   - `ExpressionInteger`: `-42`
   - `ExpressionHex`: `0x1F`
   - `ExpressionFloat`: `42.0`
@@ -251,7 +251,7 @@ type Expression
     | ExpressionOperatorFunction String
     | ExpressionNegation (Node Expression)
     | ExpressionParenthesized (Node Expression)
-    | ExpressionCall (Array (Node Expression))
+    | ExpressionCall (List (Node Expression))
     | ExpressionInfixOperation
         { operator : String
         , left : Node Expression
@@ -264,30 +264,30 @@ type Expression
         , onFalse : Node Expression
         }
     | ExpressionLetIn
-        { declarations : Array (Node LetDeclaration)
+        { declarations : List (Node LetDeclaration)
         , result : Node Expression
         }
     | ExpressionCaseOf
         { expression : Node Expression
         , cases :
-            Array
+            List
                 { pattern : Node Pattern
                 , result : Node Expression
                 }
         }
     | ExpressionLambda
-        { parameters : Array (Node Pattern)
+        { parameters : List (Node Pattern)
         , result : Node Expression
         }
     | ExpressionRecord
-        (Array
+        (List
             (Node
                 { name : Node String
                 , value : Node Expression
                 }
             )
         )
-    | ExpressionArray (Array (Node Expression))
+    | ExpressionArray (List (Node Expression))
     | ExpressionRecordAccess
         { record : Node Expression
         , field : Node String
@@ -296,7 +296,7 @@ type Expression
     | ExpressionRecordUpdate
         { record : Node Expression
         , fields :
-            Array
+            List
                 (Node
                     { name : Node String
                     , value : Node Expression
@@ -327,7 +327,7 @@ type LetDeclaration
 
   - `TypeAnnotationVariable`: `a`
   - `TypeAnnotationConstruct`: `Maybe (Int -> String)`
-  - `TypeAnnotationUnit`: `{}`
+  - `TypeAnnotationUnit`: `()`
   - `TypeAnnotationParenthesized`: `(a -> b)`
   - `TypeAnnotationRecord`: `{ name : String}`
   - `TypeAnnotationRecordExtension`: `{ a | name : String}`
@@ -338,12 +338,12 @@ type TypeAnnotation
     = TypeAnnotationVariable String
     | TypeAnnotationConstruct
         { reference : Node { qualification : ModuleName, name : String }
-        , arguments : Array (Node TypeAnnotation)
+        , arguments : List (Node TypeAnnotation)
         }
     | TypeAnnotationUnit
     | TypeAnnotationParenthesized (Node TypeAnnotation)
     | TypeAnnotationRecord
-        (Array
+        (List
             (Node
                 { name : Node String
                 , value : Node TypeAnnotation
@@ -354,7 +354,7 @@ type TypeAnnotation
         { recordVariable : Node String
         , fields :
             Node
-                (Array
+                (List
                     (Node
                         { name : Node String
                         , value : Node TypeAnnotation
@@ -371,7 +371,7 @@ type TypeAnnotation
 {-| Custom type for all patterns such as:
 
   - `PatternIgnored`: `_` or `_name`
-  - `PatternUnit`: `{}`
+  - `PatternUnit`: `()`
   - `PatternChar`: `'c'`
   - `PatternString`: `"hello"`
   - `PatternInt`: `42`
@@ -393,12 +393,12 @@ type Pattern
     | PatternString { content : String, quotingStyle : StringQuotingStyle }
     | PatternInt Int
     | PatternHex Int
-    | PatternRecord (Array { name : Node String, value : Maybe (Node Pattern) })
+    | PatternRecord (List { name : Node String, value : Maybe (Node Pattern) })
     | PatternListCons { head : Node Pattern, tail : Node Pattern }
-    | PatternListExact (Array (Node Pattern))
+    | PatternListExact (List (Node Pattern))
     | PatternVariable String
     | PatternVariant
-        { qualification : Array String
+        { qualification : List String
         , name : String
         , value : Maybe (Node Pattern)
         }

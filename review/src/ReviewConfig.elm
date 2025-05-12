@@ -65,7 +65,7 @@ import UseCamelCase
 import VariablesBetweenCaseOf.AccessInCases
 
 
-config : Array Review.Rule.Rule
+config : List Review.Rule.Rule
 config =
     [ -- ## documentation
       -- enable on a per-project basis
@@ -125,7 +125,7 @@ config =
             |> ReviewPipelineStyles.andReportCustomError
                 ">> pipeline"
                 [ "Avoid `g >> f` for easier to understand, more consistent code:"
-                , [ "Establish a subject: `Array.map (\\user -> user |> User.badgeAdd ... |> User.levelIncrease)`"
+                , [ "Establish a subject: `List.map (\\user -> user |> User.badgeAdd ... |> User.levelIncrease)`"
                   , " for easier readability and scalability (maybe even creating a separate function)"
                   , " when chaining multiple operations"
                   ]
@@ -137,7 +137,7 @@ config =
                 "<< pipeline"
                 [ "Avoid `g << f` for easier to understand, more consistent code:"
                 , "  - Keep the order data comes from before and gets piped through functions after: `... |> opF |> opG`"
-                , [ "Establish a subject: `Array.map (\\user -> user |> User.badgeAdd ... |> User.levelIncrease)`"
+                , [ "Establish a subject: `List.map (\\user -> user |> User.badgeAdd ... |> User.levelIncrease)`"
                   , " for easier readability and scalability (maybe even creating a separate function)"
                   , " when chaining multiple operations"
                   ]
@@ -180,7 +180,7 @@ config =
     , Review.OpaqueType.forbid
     , NoCatchAllForSpecificRemainingPatterns.rule
     ]
-        |> Array.map (Review.Rule.ignoreErrorsForDirectories [ "VerifyExamples/" ])
+        |> List.map (Review.Rule.ignoreErrorsForDirectories [ "VerifyExamples/" ])
 
 
 toCamelCase : String -> String
