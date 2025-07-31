@@ -4966,20 +4966,19 @@ printExpressionNegation syntaxComments negated =
             negatedNotParenthesized =
                 negated |> expressionToNotParenthesized
         in
-        case negatedNotParenthesized.value of
-            GrenSyntax.ExpressionNegation doublyNegated ->
-                printExactlyMinus
-                    |> Print.followedBy
-                        (expressionParenthesized syntaxComments
-                            { range = negatedNotParenthesized.range, value = GrenSyntax.ExpressionNegation doublyNegated }
-                        )
+        printExactlyMinus
+            |> Print.followedBy
+                (Print.withIndentIncreasedBy 1
+                    (case negatedNotParenthesized.value of
+                        GrenSyntax.ExpressionNegation doublyNegated ->
+                            expressionParenthesized syntaxComments
+                                { range = negatedNotParenthesized.range, value = GrenSyntax.ExpressionNegation doublyNegated }
 
-            _ ->
-                printExactlyMinus
-                    |> Print.followedBy
-                        (expressionParenthesizedIfSpaceSeparated syntaxComments
-                            negatedNotParenthesized
-                        )
+                        _ ->
+                            expressionParenthesizedIfSpaceSeparated syntaxComments
+                                negatedNotParenthesized
+                    )
+                )
 
 
 expressionIsBase10Zero : GrenSyntax.Node GrenSyntax.Expression -> Bool
