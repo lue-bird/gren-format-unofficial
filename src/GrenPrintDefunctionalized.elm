@@ -1054,37 +1054,134 @@ importsCombine syntaxImports =
         [] ->
             []
 
-        [ onlyImport ] ->
-            [ onlyImport |> GrenSyntax.nodeMap importToNormal ]
+        import0Node :: import1Up ->
+            importsCombineWithEarlierConfiguration
+                (import0Node |> grenSyntaxImportNodeToConfigurationForSingleModule)
+                import1Up
 
-        import0Node :: import1Node :: import2Up ->
+
+grenImportConfigurationForSingleModuleToSeparateImports :
+    GrenSyntax.Node GrenImportConfigurationForSingleModule
+    -> List (GrenSyntax.Node GrenSyntax.Import)
+grenImportConfigurationForSingleModuleToSeparateImports grenImportConfigurationForSingleModule =
+    let
+        moduleAliases : List (GrenSyntax.Node GrenSyntax.ModuleName)
+        moduleAliases =
+            grenImportConfigurationForSingleModule.value.moduleAliases
+                |> List.sortBy .value
+    in
+    if grenImportConfigurationForSingleModule.value.moduleAliasRequired then
+        case moduleAliases of
+            moduleAlias0 :: moduleAlias1Up ->
+                { range = grenImportConfigurationForSingleModule.range
+                , value =
+                    { moduleName = grenImportConfigurationForSingleModule.value.moduleName
+                    , moduleAlias = Just moduleAlias0
+                    , exposingList = grenImportConfigurationForSingleModule.value.exposingList
+                    }
+                }
+                    :: (moduleAlias1Up
+                            |> List.map
+                                (\alternativeModuleAlias ->
+                                    { range = grenImportConfigurationForSingleModule.range
+                                    , value =
+                                        { moduleName = grenImportConfigurationForSingleModule.value.moduleName
+                                        , moduleAlias = Just alternativeModuleAlias
+                                        , exposingList = Nothing
+                                        }
+                                    }
+                                )
+                       )
+
+            [] ->
+                []
+
+    else
+        { range = grenImportConfigurationForSingleModule.range
+        , value =
+            { moduleName = grenImportConfigurationForSingleModule.value.moduleName
+            , moduleAlias = Nothing
+            , exposingList = grenImportConfigurationForSingleModule.value.exposingList
+            }
+        }
+            :: (moduleAliases
+                    |> List.map
+                        (\alternativeModuleAlias ->
+                            { range = grenImportConfigurationForSingleModule.range
+                            , value =
+                                { moduleName = grenImportConfigurationForSingleModule.value.moduleName
+                                , moduleAlias = Just alternativeModuleAlias
+                                , exposingList = Nothing
+                                }
+                            }
+                        )
+               )
+
+
+grenSyntaxImportNodeToConfigurationForSingleModule :
+    GrenSyntax.Node GrenSyntax.Import
+    -> GrenSyntax.Node GrenImportConfigurationForSingleModule
+grenSyntaxImportNodeToConfigurationForSingleModule syntaxImportNode =
+    { range = syntaxImportNode.range
+    , value =
+        { moduleName = syntaxImportNode.value.moduleName
+        , moduleAliasRequired =
+            case syntaxImportNode.value.moduleAlias of
+                Nothing ->
+                    False
+
+                Just _ ->
+                    True
+        , moduleAliases =
+            case syntaxImportNode.value.moduleAlias of
+                Nothing ->
+                    []
+
+                Just moduleAlias ->
+                    [ moduleAlias ]
+        , exposingList =
+            case syntaxImportNode.value.exposingList of
+                Nothing ->
+                    Nothing
+
+                Just syntaxExposingNode ->
+                    Just
+                        { range = syntaxExposingNode.range
+                        , value = syntaxExposingNode.value |> exposingToNormal
+                        }
+        }
+    }
+
+
+importsCombineWithEarlierConfiguration :
+    GrenSyntax.Node GrenImportConfigurationForSingleModule
+    -> List (GrenSyntax.Node GrenSyntax.Import)
+    -> List (GrenSyntax.Node GrenSyntax.Import)
+importsCombineWithEarlierConfiguration earlierConfiguration syntaxImports =
+    -- IGNORE TCO
+    case syntaxImports of
+        [] ->
+            earlierConfiguration
+                |> grenImportConfigurationForSingleModuleToSeparateImports
+
+        import0Node :: import1Up ->
             if
-                (import0Node.value.moduleName |> GrenSyntax.nodeValue)
-                    == (import1Node.value.moduleName |> GrenSyntax.nodeValue)
+                earlierConfiguration.value.moduleName.value
+                    == import0Node.value.moduleName.value
             then
-                importsCombine
-                    ({ range = import1Node.range, value = importsMerge import0Node.value import1Node.value }
-                        :: import2Up
-                    )
+                importsCombineWithEarlierConfiguration
+                    { range = import0Node.range
+                    , value = importsMerge earlierConfiguration.value import0Node.value
+                    }
+                    import1Up
 
             else
-                { range = import0Node.range, value = import0Node.value |> importToNormal }
-                    :: importsCombine (import1Node :: import2Up)
-
-
-importToNormal : GrenSyntax.Import -> GrenSyntax.Import
-importToNormal syntaxImport =
-    { moduleName = syntaxImport.moduleName
-    , moduleAlias = syntaxImport.moduleAlias
-    , exposingList =
-        case syntaxImport.exposingList of
-            Nothing ->
-                Nothing
-
-            Just syntaxExposingNode ->
-                Just
-                    { range = syntaxExposingNode.range, value = syntaxExposingNode.value |> exposingToNormal }
-    }
+                (earlierConfiguration
+                    |> grenImportConfigurationForSingleModuleToSeparateImports
+                )
+                    ++ importsCombineWithEarlierConfiguration
+                        (import0Node |> grenSyntaxImportNodeToConfigurationForSingleModule)
+                        import1Up
 
 
 exposingToNormal : GrenSyntax.Exposing -> GrenSyntax.Exposing
@@ -1097,16 +1194,34 @@ exposingToNormal syntaxExposing =
             GrenSyntax.Explicit (exposeSet |> exposeListToNormal)
 
 
-importsMerge : GrenSyntax.Import -> GrenSyntax.Import -> GrenSyntax.Import
+type alias GrenImportConfigurationForSingleModule =
+    { moduleName : GrenSyntax.Node GrenSyntax.ModuleName
+    , moduleAliasRequired : Bool
+    , moduleAliases : List (GrenSyntax.Node GrenSyntax.ModuleName)
+    , exposingList : Maybe (GrenSyntax.Node GrenSyntax.Exposing)
+    }
+
+
+importsMerge :
+    GrenImportConfigurationForSingleModule
+    -> GrenSyntax.Import
+    -> GrenImportConfigurationForSingleModule
 importsMerge earlier later =
     { moduleName = later.moduleName
-    , moduleAlias =
-        case earlier.moduleAlias of
+    , moduleAliasRequired =
+        case later.moduleAlias of
+            Nothing ->
+                False
+
+            Just _ ->
+                earlier.moduleAliasRequired
+    , moduleAliases =
+        case later.moduleAlias of
             Just alias ->
-                alias |> Just
+                alias :: earlier.moduleAliases
 
             Nothing ->
-                later.moduleAlias
+                earlier.moduleAliases
     , exposingList =
         exposingCombine earlier.exposingList later.exposingList
     }

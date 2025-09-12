@@ -228,15 +228,51 @@ import Maybe
 
 """
                 )
-            , Test.test "import aliases get deduplicated across imports"
+            -- for the following few tests, see
+            -- https://github.com/avh4/elm-format/issues/379
+            -- https://github.com/avh4/elm-format/issues/758 
+            , Test.test "import alias + no import alias DOES NOT get deduplicated across imports"
                 (\() ->
                     """module A exposing (..)
-import List exposing (map)
-import List as CoreList"""
+import List
+import List as CoreList exposing (map)"""
                         |> expectPrintedAs
                             """module A exposing (..)
 
+import List exposing (map)
+import List as CoreList
+
+
+
+"""
+                )
+            , Test.test "import aliases + no import alias DOES NOT get deduplicated across imports, sorted by aliases"
+                (\() ->
+                    """module A exposing (..)
+import List
 import List as CoreList exposing (map)
+import List as A exposing (..)"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+import List exposing (..)
+import List as A
+import List as CoreList
+
+
+
+"""
+                )
+            , Test.test "import aliases DO NOT get deduplicated across imports, sorted by aliases"
+                (\() ->
+                    """module A exposing (..)
+import List as CoreList exposing (map)
+import List as A"""
+                        |> expectPrintedAs
+                            """module A exposing (..)
+
+import List as A exposing (map)
+import List as CoreList
 
 
 
