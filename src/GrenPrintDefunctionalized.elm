@@ -6308,19 +6308,24 @@ expressionCaseOf syntaxComments syntaxCaseOf =
                 }
                 syntaxComments
 
-        casedExpressionLineSpread : Print.LineSpread
-        casedExpressionLineSpread =
-            case commentsBeforeCasedExpression of
-                _ :: _ ->
-                    Print.MultipleLines
-
-                [] ->
-                    lineSpreadInNode syntaxCaseOf.expression
-
         casedExpressionPrint : Print
         casedExpressionPrint =
             expressionNotParenthesized syntaxComments
                 syntaxCaseOf.expression
+
+        casedExpressionLineSpread : Print.LineSpread
+        casedExpressionLineSpread =
+            lineSpreadInNode syntaxCaseOf.expression
+                |> Print.lineSpreadMergeWith
+                    (\() ->
+                        case commentsBeforeCasedExpression of
+                            _ :: _ ->
+                                Print.MultipleLines
+
+                            [] ->
+                                Print.SingleLine
+                    )
+                |> Print.lineSpreadMergeWith (\() -> casedExpressionPrint |> Print.lineSpread)
     in
     printExactlyWhen
         |> Print.followedBy
