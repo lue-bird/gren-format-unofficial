@@ -228,9 +228,10 @@ import Maybe
 
 """
                 )
+
             -- for the following few tests, see
             -- https://github.com/avh4/elm-format/issues/379
-            -- https://github.com/avh4/elm-format/issues/758 
+            -- https://github.com/avh4/elm-format/issues/758
             , Test.test "import alias + no import alias DOES NOT get deduplicated across imports"
                 (\() ->
                     """module A exposing (..)
@@ -1121,7 +1122,7 @@ infix left  0 (|>) = apR
 infix right 2 (||) = or
 infix right 3 (&&) = and
 infix non   4 (==) = eq
-infix non   4 (!=) = neq
+infix non   4 (/=) = neq
 infix non   4 (<)  = lt
 infix non   4 (>)  = gt
 infix non   4 (<=) = le
@@ -1144,7 +1145,7 @@ infix left  0 (|>) = apR
 infix right 2 (||) = or
 infix right 3 (&&) = and
 infix non   4 (==) = eq
-infix non   4 (!=) = neq
+infix non   4 (/=) = neq
 infix non   4 (<) = lt
 infix non   4 (>) = gt
 infix non   4 (<=) = le
@@ -5122,7 +5123,7 @@ type alias Date =
 
 parseDate : String -> Maybe Date
 parseDate dateString =
-    if String.count dateString != 10 then
+    if String.count dateString /= 10 then
         Nothing
 
     else

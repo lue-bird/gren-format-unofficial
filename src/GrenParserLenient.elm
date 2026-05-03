@@ -2308,7 +2308,7 @@ precedence4Eq =
 
 precedence4Neq : InfixOperatorInfo
 precedence4Neq =
-    infixNonAssociative 4 "!="
+    infixNonAssociative 4 "/="
 
 
 precedence4Le : InfixOperatorInfo
@@ -4973,6 +4973,9 @@ isAllowedOperatorToken : String -> Bool
 isAllowedOperatorToken operatorCandidateToValidate =
     case operatorCandidateToValidate of
         "==" ->
+            True
+
+        "/=" ->
             True
 
         "!=" ->

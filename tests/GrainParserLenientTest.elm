@@ -5265,7 +5265,7 @@ Nothing"""
                             { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 15 } }
                             , value =
                                 GrenSyntax.ExpressionInfixOperation
-                                    { operator = "!="
+                                    { operator = "/="
                                     , left =
                                         { range = { start = { row = 1, column = 1 }, end = { row = 1, column = 10 } }
                                         , value =
@@ -10300,7 +10300,7 @@ pipeline1 = 1 != 2
                                                             { range = { end = { column = 19, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    { operator = "!="
+                                                                    { operator = "/="
                                                                     , left =
                                                                         { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
                                                                         , value = GrenSyntax.ExpressionInteger 1
@@ -10330,7 +10330,7 @@ pipeline1 = 1 != 2
                                                             { range = { end = { column = 19, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    { operator = "!="
+                                                                    { operator = "/="
                                                                     , left =
                                                                         { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
                                                                         , value = GrenSyntax.ExpressionInteger 1
@@ -10366,7 +10366,7 @@ pipeline1 = 1 != 2
                                 }
                             )
                 )
-            , Test.test "!== is equivalent to !="
+            , Test.test "!== is equivalent to != (both are /=)"
                 (\() ->
                     """
 module A exposing (..)
@@ -10392,7 +10392,7 @@ pipeline1 = 1 != 2
                                                             { range = { end = { column = 20, row = 3 }, start = { column = 13, row = 3 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    { operator = "!="
+                                                                    { operator = "/="
                                                                     , left =
                                                                         { range = { end = { column = 14, row = 3 }, start = { column = 13, row = 3 } }
                                                                         , value = GrenSyntax.ExpressionInteger 1
@@ -10422,7 +10422,7 @@ pipeline1 = 1 != 2
                                                             { range = { end = { column = 19, row = 5 }, start = { column = 13, row = 5 } }
                                                             , value =
                                                                 GrenSyntax.ExpressionInfixOperation
-                                                                    { operator = "!="
+                                                                    { operator = "/="
                                                                     , left =
                                                                         { range = { end = { column = 14, row = 5 }, start = { column = 13, row = 5 } }
                                                                         , value = GrenSyntax.ExpressionInteger 1
