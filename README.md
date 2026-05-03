@@ -3,8 +3,10 @@ in the style of [`elm-format`](https://github.com/avh4/gren-format).
 
 gren had a formatter in 0.4, but it stripped a few comments and wasn’t in active development, so it was removed in 0.5.
 
-The core team intends to re-implement formatting not before december 2025
+An official formatter re-implementation is in the works
 so here's a way to keep your code tidy in the meantime.
+Note that if you use [gren-language-server-unofficial](https://github.com/lue-bird/gren-language-server-unofficial),
+you can also use its built-in rust gren formatter.
 
 
 ```gren
